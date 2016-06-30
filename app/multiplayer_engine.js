@@ -166,7 +166,7 @@ export default {
 	  this.pc.createAnswer(
 	    this.gotLocalDescription,
 	    function(error) { console.log(error) }, 
-	    { 'mandatory': { 'offerToReceiveAudio': true, 'offerToReceiveVideo': true } }
+	    { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } }
 	  );
 	},
 	gotIceCandidate(event)
