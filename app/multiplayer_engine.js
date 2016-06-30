@@ -14,7 +14,7 @@ export default {
 	bindMultiplayer()
 	{
 		var self 	= this
-		this.socket = io(window.location.origin.replace(':1337', '')+':3000')
+		this.socket = io('http://37.139.19.230:3000')
 		this.candidatesQueue = []
 		var processQueue = function()
 		{
