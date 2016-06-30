@@ -1,8 +1,12 @@
 var socket 	= require('socket.io');
-var http = require('http');
-var pem = require('pem');
+var https   = require('https');
+var pem     = require('pem');
 var uuid  	= require('uuid');
-var app = http.createServer(function(req, res) 
+let options = {
+  key: fs.readFileSync(__dirname+'key.pem'),
+  cert: fs.readFileSync(__dirname+'cert.pem')
+};
+var app = https.createServer(options, function(req, res) 
 {
     res.writeHead(200, 
     {
@@ -12,9 +16,10 @@ var app = http.createServer(function(req, res)
         'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
         "Access-Control-Allow-Headers": "Content-Type"
     });
+
     res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
-}).listen(3523)
-    
+
+}).listen(443)
 
 var io = require('socket.io').listen(app);
 
