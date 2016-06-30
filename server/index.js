@@ -1,12 +1,15 @@
 var socket 	= require('socket.io');
-var http   	= require('http');
+var https = require('https');
+var pem = require('pem');
 var uuid  	= require('uuid');
-
-var app = http.createServer(function(req, res) 
-{
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
-});
+var app;
+    pem.createCertificate({days:10, selfSigned:true}, function(err, keys){
+        app = https.createServer({key: keys.serviceKey, cert: keys.certificate}, function(req, res) 
+        {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
+        });
+    });
 
 var io = require('socket.io').listen(app);
 
