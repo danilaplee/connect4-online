@@ -9,11 +9,11 @@ var app;
         {
             res.writeHead(200, 
             {
-                'Content-Type': 'text/html',
+                'Content-Type': 'text/html'
                 'Access-Control-Allow-Credentials': 'false',
                 "Access-Control-Allow-Origin": "*",
                 'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
-                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, Accept, apiKey, Authorization"
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, Accept"
             });
             res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
         }).listen(3000)
