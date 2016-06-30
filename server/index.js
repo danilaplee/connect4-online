@@ -18,10 +18,6 @@ var app;
             res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
         }).listen(3000)
         
-        app.all('*', function(req, res, next)
-        {
-            next();
-        });
     });
 
 var io = require('socket.io').listen(app);
