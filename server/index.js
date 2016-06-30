@@ -16,7 +16,7 @@ var app = http.createServer(function(req, res)
 }).listen(3523)
     
 
-var io = require('socket.io').listen(app, {path:'/'});
+var io = require('socket.io').listen(app);
 
 var game_sessions = {}
 var getOtherPlayer = function(session, socket)
