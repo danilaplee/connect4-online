@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Connect 4 Online</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/paper/bootstrap.min.css" rel="stylesheet">
+  <style type="text/css">
+  	#gametable
+  	{
+  		margin: auto;
+	    margin-top: 10%;
+	    background: #fff;
+	    height: 600px;
+	    display: block;
+	    width: 800px;
+	    position: relative;
+  	}
+  	#gametoolbar
+  	{
+  		position:fixed;
+  		top:10px;
+  		left:10px;
+  		height: 150px;
+  		width:200px;
+  	}
+  	#gamemodal
+  	{
+  		position: fixed;
+  		display: none;
+	    width: 100%;
+	    height: 100%;
+	    top: 0;
+	    color: rgba(0,0,0, 0.5);
+	    left: 0;
+  	}
+  	#gamemodal > .modal
+  	{
+  		display: block;
+  	}
+  	.btn
+  	{
+  		text-align:left;
+  	}
+  	#active_user_token
+  	{
+  		position: fixed;
+  		top:10px;
+  		right:10px;
+  		border-radius:50%;
+  		background:transparent;
+  		content:"";
+  		font-size:20px;
+  		padding: 40px;
+  	}
+  	#remoteVideo, #remoteAudio
+  	{
+  		position: fixed;
+  		background: transparent;
+  		bottom:0;
+  		right:0;
+  		width: 320px;
+  		height:240px;
+  		z-index: 2;
+      display: none;
+  	}
+  </style>
+</head>
+<body>
+	<div id="gametable"></div>
+	<div id="gametoolbar"></div>
+	<div id="gamemodal"></div>
+	<div id="active_user_token"></div>
+	<video id="remoteVideo" autoplay></video>
+	<script type="text/javascript">
+	  	var game;
+  		var appendFile = function(file, callback)
+  		{
+  		    var external        = document.createElement(file.tag);
+  		    var keys            = Object.keys(file)
+  		    for (var i = keys.length - 1; i >= 0; i--) 
+  		    {
+  		        if(keys[i] == 'tag') continue;
+  		        external[keys[i]] = file[keys[i]];
+  		    };
+  		    if(callback) external.onload = callback
+  		    document.body.appendChild(external);
+  		};
+	    appendFile(
+	    {
+	        tag:'script',
+	        type:'text/javascript',
+	        src:'bundle.js?'+new Date().getTime()/1000
+
+	    }, function()
+	    {
+			game = new Connect4();
+			console.log('====================== GAME IS RUNNING ======================')
+			console.log('============ you can play from the js console too ===========')
+			console.log('==================== by being objective =====================')
+			console.log('============== SEE INSIDE game.help FOR MORE ==============')
+
+	    })
+	</script>
+</body>
+</html>
