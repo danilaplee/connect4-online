@@ -3,11 +3,11 @@ var https   = require('https');
 var pem     = require('pem');
 var uuid  	= require('uuid');
 var fs      = require('fs')
-let options = {
+var server_options = {
   key: fs.readFileSync(__dirname+'/istom.key'),
   cert: fs.readFileSync(__dirname+'/istom.crt')
 }
-var app = https.createServer(options, function(req, res) 
+var app = https.createServer(server_options, function(req, res) 
 {
     res.writeHead(200, 
     {
