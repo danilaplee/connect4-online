@@ -10,7 +10,7 @@ var app;
             res.writeHead(200, 
             {
                 'Content-Type': 'text/html',
-                'Access-Control-Allow-Credentials': 'false',
+                'Access-Control-Allow-Credentials': 'true',
                 "Access-Control-Allow-Origin": "https://danilaplee.github.io",
                 'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
                 "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, Accept"
