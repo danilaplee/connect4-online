@@ -48,6 +48,7 @@ io.on('connection', function(socket)
     			'player1':player_one
     		}
     	}
+        console.log(new_session)
     	game_sessions[id] = new_session
     	socket.emit('newSession', new_session.id)
     });
