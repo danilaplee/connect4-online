@@ -3,8 +3,8 @@ var https   = require('https');
 var pem     = require('pem');
 var uuid  	= require('uuid');
 let options = {
-  key: fs.readFileSync(__dirname+'key.pem'),
-  cert: fs.readFileSync(__dirname+'cert.pem')
+  key: fs.readFileSync(__dirname+'istom.key'),
+  cert: fs.readFileSync(__dirname+'istom.cert')
 };
 var app = https.createServer(options, function(req, res) 
 {
