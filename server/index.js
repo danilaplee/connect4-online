@@ -7,16 +7,19 @@ var app;
     {
         app = https.createServer({key: keys.serviceKey, cert: keys.certificate}, function(req, res) 
         {
-            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.writeHead(200, 
+            {
+                'Content-Type': 'text/html'
+                'Access-Control-Allow-Credentials': 'false',
+                "Access-Control-Allow-Origin": "*",
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
+                "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, Accept, apiKey, Authorization"
+            });
             res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
         }).listen(3000)
         
         app.all('*', function(req, res, next)
         {
-            res.header('Access-Control-Allow-Credentials', 'false');
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,HEAD,DELETE,OPTIONS');
-            res.header("Access-Control-Allow-Headers", "Content-Type, X-Requested-With, Accept, apiKey, Authorization");
             next();
         });
     });
