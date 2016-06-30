@@ -9,7 +9,7 @@ var app;
         {
             res.writeHead(200, 
             {
-                'Content-Type': 'text/html'
+                'Content-Type': 'text/html',
                 'Access-Control-Allow-Credentials': 'false',
                 "Access-Control-Allow-Origin": "*",
                 'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
