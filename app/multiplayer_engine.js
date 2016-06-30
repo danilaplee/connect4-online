@@ -14,7 +14,7 @@ export default {
 	bindMultiplayer()
 	{
 		var self 	= this
-		this.socket = io('https://cloud.i-stom.ru/connect4')
+		this.socket = io('https://cloud.i-stom.ru/', {path:'/connect4/socket.io'})
 		this.candidatesQueue = []
 		var processQueue = function()
 		{
