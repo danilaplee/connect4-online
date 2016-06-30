@@ -10,7 +10,7 @@ var app = http.createServer(function(req, res)
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials":false,
         'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
-        "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, Accept"
+        "Access-Control-Allow-Headers": "Content-Type"
     });
     res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
 }).listen(3523)
