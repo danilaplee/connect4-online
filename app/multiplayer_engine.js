@@ -126,7 +126,7 @@ export default {
 	 this.pc.createOffer(
 	    this.gotLocalDescription, 
 	    function(error) { console.log(error) }, 
-	    { 'mandatory': { 'offerToReceiveAudio': true, 'offerToReceiveVideo': true } }
+	    { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } }
 	  );
 	},
 	gotLocalDescription(event)
