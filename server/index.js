@@ -8,6 +8,7 @@ var app = http.createServer(function(req, res)
     {
         'Content-Type': 'text/html',
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials":false,
         'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
         "Access-Control-Allow-Headers": "Content-Type, X-Requested-With, Accept"
     });
