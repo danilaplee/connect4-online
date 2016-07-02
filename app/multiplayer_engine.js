@@ -160,8 +160,10 @@ export default {
 	gotRemoteStream(evt)
 	{
 		var self = this
+		console.log(evt.stream)
 		self.multiplayer_session_active = true;
 		self.remoteVideo.style.display = 'block';
+		self.remoteVideoDisclaimer.style.display = 'block';
 		if(self.remoteVideo) self.remoteVideo.src = URL.createObjectURL(evt.stream)
 		if(self.multiplayer_promise) 
 		{
