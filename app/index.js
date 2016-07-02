@@ -14,8 +14,8 @@ var instance =
 {
 	init() 
 	{
-		this.width 					= 800;
-		this.height 				= 600;
+		this.width 					= 600;
+		this.height 				= 400;
 		this.tile_size 				= 100;
 		this.engine 				= game.name
 		this.game_count 			= 0;
