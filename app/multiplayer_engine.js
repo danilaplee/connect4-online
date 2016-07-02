@@ -184,6 +184,7 @@ export default {
 			self.mode = "multi";
 			self.startGame();
 		}
+		self.remoteVideoDisclaimer.innerHTML = 'YOUR FRIEND HAS NOT ENABLED CAMERA'
 	},
 	createAnswer() 
 	{
