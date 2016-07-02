@@ -52,10 +52,10 @@
   		font-size:20px;
   		padding: 40px;
   	}
-  	#remoteVideo, #remoteAudio
+  	#remoteVideo
   	{
   		position: fixed;
-  		background: transparent;
+  		background: rgba(0,0,0,0.7);
   		bottom:0;
   		right:0;
   		width: 320px;
@@ -63,6 +63,14 @@
   		z-index: 2;
       display: none;
   	}
+    #remoteVideo:before
+    {
+      content:'YOUR FRIEND HAS NOT ENABLED CAMERA & AUDIO';
+      position: absolute;
+      top:100px;
+      height:200px;
+      color:#fff;
+    }
   </style>
 </head>
 <body>

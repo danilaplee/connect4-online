@@ -108,10 +108,8 @@ export default {
 	getLocalStream(callback) 
 	{
 		var self = this
-		navigator.getUserMedia(
-		{ audio: true, video: true }, 
-		function(stream)
-		{ 
+		var addLocalStream = function(stream)
+		{
 			var pc = new PeerConnection(
 			{'iceServers': 
 			[
@@ -129,13 +127,21 @@ export default {
 			      'username': '28224511:1379330808'
 			    }
 			]});
-			pc.addStream(stream);
+			if(stream) pc.addStream(stream);
 			pc.onicecandidate 	= self.gotIceCandidate;
 			pc.onaddstream 		= self.gotRemoteStream;
 			self.pc 			= pc;
 			if(callback) callback()
-
-		}, function(error) { console.log(error) });
+		}
+		navigator.getUserMedia(
+		{ audio: true, video: true }, 
+		addLocalStream, 
+		function(error) 
+		{ 
+			console.log(error) 
+			self.noVideo = true;
+			addLocalStream()
+		});
 	},
 	createOffer() 
 	{
