@@ -14,7 +14,7 @@ export default {
 	bindMultiplayer()
 	{
 		var self 	= this
-		this.socket = io('https://localhost')
+		this.socket = io('http://localhost:2529')
 		this.candidatesQueue = []
 		var processQueue = function()
 		{
