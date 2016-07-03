@@ -55,7 +55,7 @@ var instance =
 									+ '4) to edit your player info edit game.player_one \n'
 									+ 'the icon will update on turn change ;) '
 
-		ReactDOM.render(React.createElement(Nav, {game:this}), this.navbar);
+		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);
 
 		this.player_one = this.initUser();
 		this.bindMultiplayer()
