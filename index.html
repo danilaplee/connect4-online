@@ -2,16 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Connect 4 Online</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/paper/bootstrap.min.css" rel="stylesheet">
   <style type="text/css">
+    .gametable-container
+    {
+      display: table;
+      position: static;
+      margin:auto;
+      width:600px;
+      height:600px;
+    }
   	#gametable
   	{
-  		margin: auto;
-	    margin-top: 4%;
 	    background: #fff;
 	    height: 400px;
-	    display: block;
+      vertical-align: middle;
+	    display: table-cell;
 	    width: 600px;
 	    position: relative;
   	}
@@ -23,6 +31,7 @@
   		height: 150px;
   		width:200px;
   	}
+
   	#gamemodal
   	{
   		position: fixed;
@@ -76,7 +85,9 @@
   </style>
 </head>
 <body>
-	<div id="gametable"></div>
+  <div class="gametable-container">
+  	<div id="gametable"></div>
+  </div>
 	<div id="gametoolbar"></div>
 	<div id="gamemodal"></div>
 	<div id="active_user_token"></div>

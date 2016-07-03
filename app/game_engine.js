@@ -239,20 +239,22 @@ export default {
 	},
 	makeAiTurn()
 	{
-		// console.log('===== making ai move =====')
+		console.log('===== making ai move =====')
 		var self = this
 		var cols = self.columns
-		var random = getRandomInt(0, cols-1)
-		if(this.column_counter[random] && this.column_counter[random].positions.length === this.rows) random = getRandomInt(0, cols-1) 
+		var getRandomColumn = function()
+		{
+			var col = getRandomInt(0, cols-1)
+			if(self.column_counter[col] && self.column_counter[col].positions.length === self.rows) return getRandomColumn();
+			return col;
+		}
+		var random = getRandomColumn()
+		console.log('===== random is '+random+' =====')
 		var makeDefensiveMove = function(move)
 		{
-			if(move.column)
+			if(move.column && self.column_counter[move.column] && self.column_counter[move.column].positions.length < self.rows)
 			{
-				if(self.column_counter[move.column] && self.column_counter[move.column].height === 1) 
-				{
-					random = getRandomInt(0, cols-1)
-					return self.updateColumn(random)
-				}
+				console.log('==== making defensive move =====')
 				if(move.type == 'vertical') 	return self.updateColumn(move.column);
 				if(move.type == 'horizontal') 	return self.updateColumn(move.column);
 				if(move.type == 'cross') 		return self.updateColumn(move.column);
@@ -261,28 +263,23 @@ export default {
 		}
 
 		var perfect_move = this.findWinner(null, 3)
+		var good_move 	 = this.findWinner(null, 2)
 		if(perfect_move)
 		{
+			console.log('==== perfect move ====')
+			console.log(perfect_move)
+
 			if(perfect_move.id === 1) return makeDefensiveMove(perfect_move)
 			else 
 			{
-				if(perfect_move.column) self.updateColumn(perfect_move.column)
+				if(perfect_move.column) return self.updateColumn(perfect_move.column)
 			}
-			// console.log('==== perfect move ====')
-			// console.log(perfect_move)
 		}
-		var good_move = this.findWinner(null, 2)
-		if(good_move)
-		{
-			// console.log('==== good move ====')
-			// console.log(good_move)
-		}
-		var basic_move = this.findWinner(null, 1)
-		if(basic_move)
-		{
-			// console.log('==== basic move ====')
-			// console.log(basic_move)
-		}
+		// if(good_move)
+		// {
+		// 	console.log('==== good move ====')
+		// 	console.log(good_move)
+		// }
 		self.updateColumn(random)
 
 	},
