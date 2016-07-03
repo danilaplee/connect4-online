@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Connect 4 Online</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/paper/bootstrap.min.css" rel="stylesheet">
+  <link href="bootstrap.min.css" rel="stylesheet">
   <style type="text/css">
     body
     {
@@ -21,7 +21,7 @@
     {
       .gametable-container
       {
-        height: 400px;
+        height: 540px;
       }
     }
   	#gametable
@@ -51,6 +51,7 @@
 	    top: 0;
 	    color: rgba(0,0,0, 0.5);
 	    left: 0;
+      z-index: 5;
   	}
   	#gamemodal > .modal
   	{
@@ -95,11 +96,20 @@
     #winner_text
     {
       position: absolute;
-      right: 100px;
       text-align: center;
+      display: block;
       z-index: 4;
-      display: table-cell;
-      width: 550px;
+      width: 600px;
+      height: 200px;
+      left: 0;
+      right: 0;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .winner_title
+    {
+      text-transform: uppercase;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -107,9 +117,10 @@
   <div class="gametable-container">
   	<div id="gametable"></div>
     <div id="winner_text">
-      <h5 style="text-transform:uppercase;margin-top:100px;">Welcome to Connect4 Online, </h5>
-      <h5 style="text-transform:uppercase">to win you have to connect 4 balls</h5>
-      <h5 style="text-transform:uppercase">vertically, horizontally or diagonally</h5>
+      <h5 class="winner_title" style="margin-top:100px;">Welcome to Connect4 Online, </h5>
+      <h5 class="winner_title">to win you have to connect 4 balls</h5>
+      <h5 class="winner_title">vertically, horizontally</h5>
+      <h5 class="winner_title"> or diagonally</h5>
     </div>
   </div>
 	<div id="gametoolbar"></div>

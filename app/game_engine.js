@@ -122,8 +122,9 @@ export default {
 		}
 		this.animate()
 		this.in_progress = false;
-		self.winner_text.innerHTML  = '<h4>PLAYER #'+winner.id+' HAS WON!</h4>'
-								 	+ '<h4 style="cursor:pointer;color:saddlebrown" onclick="game.startGame()">PLAY AGAIN</h4>';
+		self.winner_text.innerHTML  = '<h5 class="winner_title">PLAYER #'+winner.id+' HAS WON!</h4>'
+								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" onclick="game.startGame()">PLAY AGAIN</h4>';
+		self.winner_text.style.display = 'block';
 	},
 	updateColumn(column, position) 
 	{
@@ -198,6 +199,7 @@ export default {
 		if(!this.restarting_multiplayer) this.active_user = this.player_one
 		var self  		= this
 		self.winner_text.innerHTML = '';
+		self.winner_text.style.display = 'none';
 		var runGame 		= function()
 		{
 			// console.log('===== running game #'+self.game_count+' starting player #'+self.active_user.id+' =======')
