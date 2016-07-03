@@ -5,6 +5,10 @@
   <title>Connect 4 Online</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/paper/bootstrap.min.css" rel="stylesheet">
   <style type="text/css">
+    body
+    {
+      min-width: 750px;
+    }
     .gametable-container
     {
       display: table;
@@ -90,25 +94,26 @@
     }
     #winner_text
     {
-      position: fixed;
-      width: 100%;
-      top:0;
-      right:0;
-      text-align:center;
+      position: absolute;
+      right: 100px;
+      text-align: center;
+      z-index: 4;
+      display: table-cell;
+      width: 550px;
     }
   </style>
 </head>
 <body>
   <div class="gametable-container">
   	<div id="gametable"></div>
+    <div id="winner_text">
+      <h5 style="text-transform:uppercase;margin-top:100px;">Welcome to Connect4 Online, </h5>
+      <h5 style="text-transform:uppercase">to win you have to connect 4 balls</h5>
+      <h5 style="text-transform:uppercase">vertically, horizontally or diagonally</h5>
+    </div>
   </div>
 	<div id="gametoolbar"></div>
 	<div id="gamemodal"></div>
-  <div id="winner_text">
-    <p>Welcome to Connect4 Online, </p>
-    <p>to win you have to connect 4 balls</p>
-    <p>vertically, horizontally or diagonally</p>
-  </div>
 	<div id="active_user_token"></div>
 	<video id="remoteVideo" autoplay></video>
   <div id="remoteVideoDisclaimer">

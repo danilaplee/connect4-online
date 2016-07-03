@@ -122,8 +122,8 @@ export default {
 		}
 		this.animate()
 		this.in_progress = false;
-		self.winner_text.innerHTML  = '<p>Player'+winner.id+' has won!</p>'
-								 	+ '<p onclick="game.startGame()">Play again</p>';
+		self.winner_text.innerHTML  = '<h4>PLAYER #'+winner.id+' HAS WON!</h4>'
+								 	+ '<h4 style="cursor:pointer;color:saddlebrown" onclick="game.startGame()">PLAY AGAIN</h4>';
 	},
 	updateColumn(column, position) 
 	{
