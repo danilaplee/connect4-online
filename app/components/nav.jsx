@@ -1,6 +1,9 @@
 import React from 'react';
 
 export default React.createClass({
+	single_restart:null,
+	multi_restart:null,
+	hot_restart:null,
 	startGame(mode)
 	{
 		var self = this
