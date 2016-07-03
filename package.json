@@ -1,6 +1,6 @@
 {
   "name": "connect4",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "description": "a multiplayer connect4 game",
   "main": "index.js",
   "scripts": {
