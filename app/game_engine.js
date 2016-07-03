@@ -122,7 +122,8 @@ export default {
 		}
 		this.animate()
 		this.in_progress = false;
-		console.log('========= PLAYER #'+winner.id+' HAS WON! =========')
+		self.winner_text.innerHTML  = '<p>Player'+winner.id+' has won!</p>'
+								 	+ '<p onclick="game.startGame()">Play again</p>';
 	},
 	updateColumn(column, position) 
 	{
@@ -196,6 +197,7 @@ export default {
 	{
 		if(!this.restarting_multiplayer) this.active_user = this.player_one
 		var self  		= this
+		self.winner_text.innerHTML = '';
 		var runGame 		= function()
 		{
 			// console.log('===== running game #'+self.game_count+' starting player #'+self.active_user.id+' =======')
@@ -239,7 +241,7 @@ export default {
 	},
 	makeAiTurn()
 	{
-		console.log('===== making ai move =====')
+		// console.log('===== making ai move =====')
 		var self = this
 		var cols = self.columns
 		var getRandomColumn = function()
@@ -249,7 +251,7 @@ export default {
 			return col;
 		}
 		var random = getRandomColumn()
-		console.log('===== random is '+random+' =====')
+		// console.log('===== random is '+random+' =====')
 		var makeDefensiveMove = function(move)
 		{
 			if(move.column && self.column_counter[move.column] && self.column_counter[move.column].positions.length < self.rows)

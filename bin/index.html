@@ -88,6 +88,14 @@
       z-index: 1;
       display: none;
     }
+    #winner_text
+    {
+      position: fixed;
+      width: 100%;
+      top:0;
+      right:0;
+      text-align:center;
+    }
   </style>
 </head>
 <body>
@@ -96,6 +104,11 @@
   </div>
 	<div id="gametoolbar"></div>
 	<div id="gamemodal"></div>
+  <div id="winner_text">
+    <p>Welcome to Connect4 Online, </p>
+    <p>to win you have to connect 4 balls</p>
+    <p>vertically, horizontally or diagonally</p>
+  </div>
 	<div id="active_user_token"></div>
 	<video id="remoteVideo" autoplay></video>
   <div id="remoteVideoDisclaimer">

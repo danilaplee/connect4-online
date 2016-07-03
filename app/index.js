@@ -21,6 +21,7 @@ var instance =
 		this.game_count 			= 0;
 		this.mode 					= 'single'
 		this.restart 				= {}
+		this.winner_text 			= document.getElementById('winner_text')
 		this.gametable				= document.getElementById('gametable')
 		this.navbar   				= document.getElementById('gametoolbar')
 		this.modal_container 		= document.getElementById('gamemodal')

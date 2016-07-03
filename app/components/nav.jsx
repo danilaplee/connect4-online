@@ -7,12 +7,6 @@ export default React.createClass({
 		this.props.game.mode = mode
 		if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
 		else this.props.game.startGame();
-		setTimeout(function()
-		{
-			self.props.game.restart = {}
-			self.props.game.restart[mode] = "Restart";
-
-		}, 1000)
 	},
 	render() {
 		var self 	  = this
@@ -22,13 +16,13 @@ export default React.createClass({
 		}
 	    return <ul className="list-group">
 			<li className="list-group-item">
-				<a href="#" onClick={handleClick.bind(this,'single')}>{this.props.game.restart.single || 'Play'} Singleplayer Game</a>
+				<a href="#" onClick={handleClick.bind(this,'single')}>Play Singleplayer Game</a>
 			</li>
 			<li className="list-group-item">
-			    <a href="#" onClick={handleClick.bind(this,'multi')}>{this.props.game.restart.multi || 'Play'} Multiplayer Game</a>
+			    <a href="#" onClick={handleClick.bind(this,'multi')}>Play Multiplayer Game</a>
 			</li>
 			<li className="list-group-item">
-			   <a href="#" onClick={handleClick.bind(this,'hot')}>{this.props.game.restart.hot || 'Play'} Hotseat Game</a>
+			   <a href="#" onClick={handleClick.bind(this,'hot')}>Play Hotseat Game</a>
 			</li>
 			<li className="list-group-item">
 			   <a href="#" onClick={this.props.game.openColorDialog}>Settings</a>
