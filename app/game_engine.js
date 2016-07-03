@@ -243,47 +243,43 @@ export default {
 	},
 	makeAiTurn()
 	{
-		// console.log('===== making ai move =====')
 		var self = this
 		var cols = self.columns
+		var counter = self.column_counter
 		var getRandomColumn = function()
 		{
 			var col = getRandomInt(0, cols-1)
-			if(self.column_counter[col] && self.column_counter[col].positions.length === self.rows) return getRandomColumn();
+			if(counter[col] && counter[col].positions.length === self.rows) 
+			{
+				var keys = Object.keys(self.column_counter)
+				for (var i = keys.length - 1; i >= 0; i--) if(counter[keys[i]].positions.length < self.rows) return keys[i];
+			}
 			return col;
 		}
 		var random = getRandomColumn()
-		// console.log('===== random is '+random+' =====')
-		var makeDefensiveMove = function(move)
+
+		// console.log('===== making ai move random is '+random+' =====')
+
+		var tryTargetedMove = function(move)
 		{
-			if(move.column && self.column_counter[move.column] && self.column_counter[move.column].positions.length < self.rows)
+			if(move.column && counter[move.column] && counter[move.column].positions.length < self.rows)
 			{
-				// console.log('==== making defensive move =====')
+				// console.log('==== making targeted move '+move.type+' '+move.column+' =====')
 				if(move.type == 'vertical') 	return self.updateColumn(move.column);
 				if(move.type == 'horizontal') 	return self.updateColumn(move.column);
 				if(move.type == 'cross') 		return self.updateColumn(move.column);
 			}
 			self.updateColumn(random)
 		}
-
 		var perfect_move = this.findWinner(null, 3)
-		var good_move 	 = this.findWinner(null, 2)
 		if(perfect_move)
 		{
-			// console.log('==== perfect move ====')
-			// console.log(perfect_move)
-
-			if(perfect_move.id === 1) return makeDefensiveMove(perfect_move)
+			if(perfect_move.id === 1) return tryTargetedMove(perfect_move)
 			else 
 			{
-				if(perfect_move.column) return self.updateColumn(perfect_move.column)
+				if(perfect_move.column) return tryTargetedMove(perfect_move)
 			}
 		}
-		// if(good_move)
-		// {
-		// 	console.log('==== good move ====')
-		// 	console.log(good_move)
-		// }
 		self.updateColumn(random)
 
 	},
