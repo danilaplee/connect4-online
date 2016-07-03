@@ -2,12 +2,8 @@ var socket 	= require('socket.io');
 var http    = require('http');
 var uuid  	= require('uuid');
 var fs      = require('fs')
-var server_options = 
-{
-  key: fs.readFileSync(__dirname+'/.key'),
-  cert: fs.readFileSync(__dirname+'/.crt')
-}
-var app = http.createServer(server_options, function(req, res) 
+
+var app = http.createServer(function(req, res) 
 {
     res.writeHead(200, 
     {
