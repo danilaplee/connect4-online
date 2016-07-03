@@ -256,7 +256,7 @@ export default {
 		{
 			if(move.column && self.column_counter[move.column] && self.column_counter[move.column].positions.length < self.rows)
 			{
-				console.log('==== making defensive move =====')
+				// console.log('==== making defensive move =====')
 				if(move.type == 'vertical') 	return self.updateColumn(move.column);
 				if(move.type == 'horizontal') 	return self.updateColumn(move.column);
 				if(move.type == 'cross') 		return self.updateColumn(move.column);
@@ -268,8 +268,8 @@ export default {
 		var good_move 	 = this.findWinner(null, 2)
 		if(perfect_move)
 		{
-			console.log('==== perfect move ====')
-			console.log(perfect_move)
+			// console.log('==== perfect move ====')
+			// console.log(perfect_move)
 
 			if(perfect_move.id === 1) return makeDefensiveMove(perfect_move)
 			else 
