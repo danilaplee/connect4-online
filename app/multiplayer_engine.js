@@ -14,7 +14,7 @@ export default {
 	bindMultiplayer()
 	{
 		var self 	= this
-		this.socket = io('https://starpy.me/c4')
+		this.socket = io('https://starpy.me/c4/')
 		this.candidatesQueue = []
 		var processQueue = function()
 		{
