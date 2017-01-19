@@ -20,9 +20,9 @@ var app = https.createServer(server_options, function(req, res)
 
     res.end('<h1 style="font-family:Helvetica, Open-sans, Arial">THIS IS A CONNECT 4 SIGNALLING SERVER</h1>')
 
-}).listen(443)
+}).listen(2529)
 
-var io = require('socket.io').listen(app, {path:"/c4/"});
+var io = require('socket.io').listen(app, {path:"/c4/socket.io"});
 
 var game_sessions = {}
 var getOtherPlayer = function(session, socket)
