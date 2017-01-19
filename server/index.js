@@ -22,7 +22,7 @@ var app = https.createServer(server_options, function(req, res)
 
 }).listen(2529)
 
-var io = require('socket.io').listen(app, {path:"/c4/socket.io"});
+var io = require('socket.io').listen(app);
 
 var game_sessions = {}
 var getOtherPlayer = function(session, socket)
