@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack -d --watch",
-    "build": "NODE_ENV=production webpack -p"
+    "build": "NODE_ENV=production webpack -p",
+    "start-native": "node node_modules/react-native/local-cli/cli.js start"
   },
   "author": "",
   "license": "ISC",
@@ -17,16 +18,17 @@
     "babel-preset-stage-1": "^6.5.0",
     "css-loader": "^0.23.1",
     "style-loader": "^0.13.1",
-    "webpack": "^1.13.1"
+    "webpack": "^1.15.0"
   },
   "dependencies": {
     "fs": "0.0.2",
     "pixi.js": "^3.0.11",
-    "react": "^15.1.0",
+    "react": "^15.5.4",
     "react-color": "^2.2.0",
     "react-dom": "^15.1.0",
     "react-emoji": "^0.4.4",
     "react-emoji-picker": "^1.0.12",
+    "react-native": "^0.43.4",
     "socket.io": "^1.4.8",
     "socket.io-client": "^1.4.8"
   }

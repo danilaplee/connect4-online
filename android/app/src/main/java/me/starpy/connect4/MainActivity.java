@@ -13,6 +13,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
+import com.facebook.react.LifecycleState;
+import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactRootView;
+import com.facebook.react.shell.MainReactPackage;
+
 /**
  * Created by danilapuzikov on 29/04/2017.
  */
@@ -23,6 +28,8 @@ public class MainActivity extends Activity {
     public WebView webView;
     public LinearLayout mainView;
     private int hasLoadedWebview = 0;
+    private ReactRootView mReactRootView;
+    private ReactInstanceManager mReactInstanceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +62,6 @@ public class MainActivity extends Activity {
 
         });
         webView.setWebChromeClient(new WebChromeClient(){
-
-            public MediaPlayer mp;
-            private Context context = null; // Add this line
-
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 MainActivity.this.runOnUiThread(new Runnable() {
@@ -70,7 +73,20 @@ public class MainActivity extends Activity {
             }
         });
         webView.loadUrl(url);
-//        webView
+    }
+
+    private void loadReactApp()
+    {
+        mReactRootView = new ReactRootView(this);
+        mReactInstanceManager = ReactInstanceManager.builder()
+                .setApplication(getApplication())
+                .setBundleAssetName("index.android.bundle")
+                .setJSMainModuleName("index.android")
+                .addPackage(new MainReactPackage())
+                .setUseDeveloperSupport(BuildConfig.DEBUG)
+                .setInitialLifecycleState(LifecycleState.RESUMED)
+                .build();
+        mReactRootView.startReactApplication(mReactInstanceManager, "HelloWorld", null);
     }
 
 }
