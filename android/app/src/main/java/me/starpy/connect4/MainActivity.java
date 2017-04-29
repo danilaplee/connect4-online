@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
         loadChromeApp(appUrl);
     }
 
+    private void addJavascriptInterfaces() {
+
+    }
+
     private void loadChromeApp(String url){
         webView = new WebView(mContext);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -58,6 +62,7 @@ public class MainActivity extends Activity {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 hasLoadedWebview = 1;
                 mainView.addView(webView);
+                addJavascriptInterfaces();
             }
 
         });
@@ -75,7 +80,7 @@ public class MainActivity extends Activity {
         webView.loadUrl(url);
     }
 
-    private void loadReactApp()
+    private void startReactNativeApp(String appName)
     {
         mReactRootView = new ReactRootView(this);
         mReactInstanceManager = ReactInstanceManager.builder()
@@ -86,7 +91,7 @@ public class MainActivity extends Activity {
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
-        mReactRootView.startReactApplication(mReactInstanceManager, "HelloWorld", null);
+        mReactRootView.startReactApplication(mReactInstanceManager, appName, null);
     }
 
 }

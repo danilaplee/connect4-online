@@ -1,10 +1,13 @@
 import React 			from 'react';
 
-export default React.createClass({
+export default class extends React.Component {
+	constructor(props) {
+		super(props);
+	}
 	closeModal()
 	{
 		this.props.modal_container.style.display = 'none';
-	},
+	}
 	render() {
 		var self = this
 		
@@ -24,4 +27,4 @@ export default React.createClass({
 		  </div>
 		</div>;
 	}
-});
+}

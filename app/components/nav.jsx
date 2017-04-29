@@ -1,13 +1,16 @@
-import React from 'react';
+import React 			from 'react';
 
-export default React.createClass({
+export default class extends React.Component {
+	constructor(props) {
+		super(props);
+	}
 	startGame(mode)
 	{
 		var self = this
 		this.props.game.mode = mode
 		if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
 		else this.props.game.startGame();
-	},
+	}
 	render() {
 		var self 	  = this
 		var handleClick = function(mode)
@@ -32,4 +35,4 @@ export default React.createClass({
 			</li>
 		</ul>;
 	}
-});
+}
