@@ -1,12 +1,11 @@
-import React 			from 'react';
+import React from 'react';
+import helpers from './helpers'
 
-export default class extends React.Component {
-	constructor(props) {
-		super(props);
-	}
-	closeModal()
-	{
-		this.props.modal_container.style.display = 'none';
+export default class BasicModal extends React.Component {
+	constructor(prop) {
+		super(prop);
+		this.props = prop
+		this.closeModal = helpers.closeModal.bind(this)
 	}
 	render() {
 		var self = this

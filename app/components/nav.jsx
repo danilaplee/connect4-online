@@ -1,15 +1,18 @@
-import React 			from 'react';
+import React from 'react';
+import helpers 			from './helpers'
+var startGame = function(mode)
+{
+	var self = this
+	this.props.game.mode = mode
+	if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
+	else this.props.game.startGame();
+}
 
-export default class extends React.Component {
-	constructor(props) {
-		super(props);
-	}
-	startGame(mode)
-	{
-		var self = this
-		this.props.game.mode = mode
-		if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
-		else this.props.game.startGame();
+export default class NavComponent extends React.Component {
+	constructor(prop) {
+		super(prop);
+		this.props = prop
+		this.startGame = startGame.bind(this)
 	}
 	render() {
 		var self 	  = this
