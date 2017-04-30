@@ -2,12 +2,16 @@ package me.starpy.connect4;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -23,7 +27,7 @@ import com.facebook.react.shell.MainReactPackage;
  */
 public class MainActivity extends Activity {
     public Context mContext = this;
-    public String  appUrl   = "https://danilaplee.github.io/connect4-online";
+    public String  appUrl   = "https://danilaplee.github.io/connect4-online/bin";
     public int mainLayout;
     public WebView webView;
     public LinearLayout mainView;
@@ -51,8 +55,21 @@ public class MainActivity extends Activity {
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.getSettings().setSupportMultipleWindows(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
         webView.setInitialScale(185);
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        request.grant(request.getResources());
+                    }
+                });
+            }
+        });
         webView.setWebViewClient(new WebViewClient()
         {
 
@@ -63,18 +80,31 @@ public class MainActivity extends Activity {
                 hasLoadedWebview = 1;
                 mainView.addView(webView);
                 addJavascriptInterfaces();
-            }
 
-        });
-        webView.setWebChromeClient(new WebChromeClient(){
+            }
+            @SuppressWarnings("deprecation")
             @Override
-            public void onPermissionRequest(final PermissionRequest request) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        request.grant(request.getResources());
-                    }
-                });
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.startsWith("mailto:")) {
+                    //Handle mail Urls
+                    startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
+                    return true;
+                }
+                view.loadUrl(url);
+                return true;
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                final Uri uri = request.getUrl();
+                Log.e("overriding load", uri.toString());
+                if (uri.toString().startsWith("mailto:")) {
+                    //Handle mail Urls
+                    startActivity(new Intent(Intent.ACTION_SENDTO, uri));
+                    return true;
+                }
+                //Handle Web Urls
+                view.loadUrl(uri.toString());
+                return true;
             }
         });
         webView.loadUrl(url);
