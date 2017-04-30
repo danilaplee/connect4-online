@@ -1,10 +1,12 @@
-import React 			from 'react';
+import React from 'react';
+import helpers from './helpers'
 
-export default React.createClass({
-	closeModal()
-	{
-		this.props.modal_container.style.display = 'none';
-	},
+export default class BasicModal extends React.Component {
+	constructor(prop) {
+		super(prop);
+		this.props = prop
+		this.closeModal = helpers.closeModal.bind(this)
+	}
 	render() {
 		var self = this
 		
@@ -16,7 +18,14 @@ export default React.createClass({
 		        <h4 className="modal-title">{this.props.title}</h4>
 		      </div>
 		      <div className="modal-body">
-		      	{this.props.text}
+			        { 
+			        	this.props.text.indexOf('</') !== -1
+			            ? (
+			                <div dangerouslySetInnerHTML={{__html: this.props.text.replace(/(<? *script)/gi, 'illegalscript')}} >
+			                </div>
+			              )
+			            : this.props.text
+			        }
 		      </div>
 		      <div className="modal-footer">
 		      </div>
@@ -24,4 +33,4 @@ export default React.createClass({
 		  </div>
 		</div>;
 	}
-});
+}

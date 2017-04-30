@@ -3,26 +3,31 @@ import { SliderPicker } from 'react-color';
 import ReactEmoji 		from 'react-emoji';
 import EmojiPicker 		from 'react-emoji-picker';
 import emojiMap 		from '../../node_modules/react-emoji-picker/lib/emojiMap';
-
-export default React.createClass({
+import helpers 			from './helpers'
+const handleColorPick = function(color) {
+	this.props.player.color 					= color.hex.replace('#', '0x')
+	this.props.game.user_token.style.background = color.hex
+	this.props.player.color_obj 				= color;
+}
+const setEmoji = function(emoji)
+{
+	this.props.player.emoji = emoji;
+	this.props.player.emoji_img = this.emojify(emoji)[0].props.src
+	this.props.game.user_token.innerHTML = '<img src="'+this.props.player.emoji_img+'" style="width:80px">';
+}
+export default class Customizer extends React.Component {
+	props:{}
+	constructor(prop) {
+		super(prop);
+		this.props = prop
+		this.emojify = ReactEmoji.emojify.bind(this)
+		this.closeModal = helpers.closeModal.bind(this)
+		this.setEmoji = setEmoji.bind(this)
+		this.handleColorPick = handleColorPick.bind(this)
+	}
 	mixins: [
 	    ReactEmoji
-	],
-	handleColorPick(color) {
-		this.props.player.color 					= color.hex.replace('#', '0x')
-		this.props.game.user_token.style.background = color.hex
-		this.props.player.color_obj 				= color;
-	},
-	closeModal()
-	{
-		this.props.game.modal_container.style.display = 'none';
-	},
-	setEmoji(emoji)
-	{
-		this.props.player.emoji = emoji;
-		this.props.player.emoji_img = this.emojify(emoji)[0].props.src
-		this.props.game.user_token.innerHTML = '<img src="'+this.props.player.emoji_img+'" style="width:80px">';
-	},
+	]
 	render() {
 		var self = this
 		var saveCustomizing = function()
@@ -84,11 +89,11 @@ export default React.createClass({
 		        type="button" 
 		        style={{margin:"10px 0"}} 
 		        className="btn btn-primary">
-		        Save changes
+		        	Save changes
 		        </button>
 		      </div>
 		    </div>
 		  </div>
 		</div>;
 	}
-});
+}

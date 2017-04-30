@@ -10,7 +10,10 @@ export default {
 		var self 	= this
 		var player 	= self.player_one;
 		var myNode 	= self.modal_container;
-		while (myNode.firstChild) myNode.removeChild(myNode.firstChild);
+		// window.b_chilren = [myNode]
+		while (myNode.firstChild) {
+			ReactDOM.unmountComponentAtNode(myNode)
+		};
 		return new Promise(function(resolve, reject)
 		{
 			ReactDOM.render(React.createElement(customizer, {game:self, player:player, promise:resolve}), myNode);
@@ -21,7 +24,9 @@ export default {
 	{
 		var self = this
 		var myNode = this.modal_container;
-		while (myNode.firstChild) myNode.removeChild(myNode.firstChild);
+		while (myNode.firstChild) {
+			ReactDOM.unmountComponentAtNode(myNode)
+		};
 		return new Promise(function(resolve, reject)
 		{
 			var hot_seat = {

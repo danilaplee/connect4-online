@@ -204,7 +204,9 @@ export default {
 	{
 		var self 	= this
 		var myNode 	= self.modal_container;
-		while (myNode.firstChild) myNode.removeChild(myNode.firstChild);
+		while (myNode.firstChild) {
+			ReactDOM.unmountComponentAtNode(myNode)
+		};
 		if(navigator.vendor != 'Google Inc.') 
 		{
 			ReactDOM.render(React.createElement(basic_modal, 
@@ -227,9 +229,14 @@ export default {
 				}
 				session.link = window.location.origin+window.location.pathname+'#multiplayer_session_'+session_id
 				self.multiplayer_session = session_id
+				var subject = "Your are invited you to play Connect4 Online!"
+				var body 	= 'Your Friend has Invited you to Play Connect4 Online with Him!'
+					body	+= '\n Press here to start! ->'
+					body 	+= '\n'+session.link
+				var mailto  = "<a href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email this link to someone!</a>"
 				ReactDOM.render(React.createElement(basic_modal, {
 					title:"Share this link to play a multiplayer game!",
-					text:session.link,
+					text:mailto,
 					modal_container:self.modal_container
 				}), self.modal_container);
 
