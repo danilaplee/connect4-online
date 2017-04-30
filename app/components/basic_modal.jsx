@@ -18,7 +18,14 @@ export default class BasicModal extends React.Component {
 		        <h4 className="modal-title">{this.props.title}</h4>
 		      </div>
 		      <div className="modal-body">
-		      	{this.props.text}
+			        { 
+			        	this.props.text.indexOf('</') !== -1
+			            ? (
+			                <div dangerouslySetInnerHTML={{__html: this.props.text.replace(/(<? *script)/gi, 'illegalscript')}} >
+			                </div>
+			              )
+			            : this.props.text
+			        }
 		      </div>
 		      <div className="modal-footer">
 		      </div>

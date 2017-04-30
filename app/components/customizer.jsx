@@ -4,12 +4,12 @@ import ReactEmoji 		from 'react-emoji';
 import EmojiPicker 		from 'react-emoji-picker';
 import emojiMap 		from '../../node_modules/react-emoji-picker/lib/emojiMap';
 import helpers 			from './helpers'
-var handleColorPick = function(color) {
+const handleColorPick = function(color) {
 	this.props.player.color 					= color.hex.replace('#', '0x')
 	this.props.game.user_token.style.background = color.hex
 	this.props.player.color_obj 				= color;
 }
-var setEmoji = function(emoji)
+const setEmoji = function(emoji)
 {
 	this.props.player.emoji = emoji;
 	this.props.player.emoji_img = this.emojify(emoji)[0].props.src
@@ -19,7 +19,6 @@ export default class Customizer extends React.Component {
 	props:{}
 	constructor(prop) {
 		super(prop);
-		console.log(ReactEmoji)
 		this.props = prop
 		this.emojify = ReactEmoji.emojify.bind(this)
 		this.closeModal = helpers.closeModal.bind(this)
@@ -63,7 +62,6 @@ export default class Customizer extends React.Component {
 		  padding: '.3em .6em',
 		  zIndex: '2'
 		};
-		console.log(this.props)
 	    return <div className="modal">
 		  <div className="modal-dialog">
 		    <div className="modal-content">
