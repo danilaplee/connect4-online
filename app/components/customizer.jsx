@@ -19,7 +19,9 @@ export default class Customizer extends React.Component {
 	props:{}
 	constructor(prop) {
 		super(prop);
+		console.log(ReactEmoji)
 		this.props = prop
+		this.emojify = ReactEmoji.emojify.bind(this)
 		this.closeModal = helpers.closeModal.bind(this)
 		this.setEmoji = setEmoji.bind(this)
 		this.handleColorPick = handleColorPick.bind(this)

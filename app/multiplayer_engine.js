@@ -204,7 +204,9 @@ export default {
 	{
 		var self 	= this
 		var myNode 	= self.modal_container;
-		while (myNode.firstChild) myNode.removeChild(myNode.firstChild);
+		while (myNode.firstChild) {
+			ReactDOM.unmountComponentAtNode(myNode)
+		};
 		if(navigator.vendor != 'Google Inc.') 
 		{
 			ReactDOM.render(React.createElement(basic_modal, 
