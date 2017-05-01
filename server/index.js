@@ -1,13 +1,9 @@
 var socket 	= require('socket.io');
-var https   = require('https');
-var pem     = require('pem');
+var http    = require('http');
 var uuid  	= require('uuid');
 var fs      = require('fs')
-var server_options = {
-  key: fs.readFileSync(__dirname+'/istom.key'),
-  cert: fs.readFileSync(__dirname+'/istom.crt')
-}
-var app = https.createServer(server_options, function(req, res) 
+
+var app = http.createServer(function(req, res) 
 {
     res.writeHead(200, 
     {
@@ -25,6 +21,7 @@ var app = https.createServer(server_options, function(req, res)
 var io = require('socket.io').listen(app, {resource:"/c4/socket.io/"});
 
 var game_sessions = {}
+
 var getOtherPlayer = function(session, socket)
 {
 	var other_player = null;
@@ -54,7 +51,6 @@ io.on('connection', function(socket)
     			'player1':player_one
     		}
     	}
-        console.log(new_session)
     	game_sessions[id] = new_session
     	socket.emit('newSession', new_session.id)
     });
@@ -114,7 +110,6 @@ io.on('connection', function(socket)
                 other_player = session.player1
                 starting_player = 1;
             }
-            console.log('===== starting_player #'+starting_player+' =======')
             other_player.socket.emit('restartGame', starting_player)
             socket.emit('restartGame', starting_player)
         }

@@ -74,7 +74,7 @@ export default {
 				ReactDOM.render(React.createElement(basic_modal, 
 				{
 					title:'Multiplayer issue',
-					text:'Looks like you are using an unsupported browser :( \n please user Chrome or Opera for Multiplayer. \n Thank you.',
+					text:'Looks like you are using an unsupported browser :( <br> please user Chrome or Opera for Multiplayer. <br> Thank you.',
 					modal_container:self.modal_container
 				}), self.modal_container);
 				return self.modal_container.style.display = "block";
