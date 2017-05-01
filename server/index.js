@@ -58,8 +58,8 @@ io.on('connection', function(socket)
     socket.on('replaceGameSocket', function(player, id)
     {
         var game = game_sessions[id]
-        if(JSON.stringify(game.player1.profile) == JSON.stringify(player)) game.player1.socket = socket;
-        if(JSON.stringify(game.player2.profile) == JSON.stringify(player)) game.player2.socket = socket;
+        if(game.player1 != null && JSON.stringify(game.player1.profile) == JSON.stringify(player)) game.player1.socket = socket;
+        if(game.player2 != null JSON.stringify(game.player2.profile) == JSON.stringify(player)) game.player2.socket = socket;
     })
 
     socket.on('openSession', function(session_id, player_two)
