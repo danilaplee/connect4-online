@@ -44,12 +44,12 @@ export default {
 			};
 		})
 
-		this.socket.on('ballDropped', function(column)
+		if(!this.is_second_window) this.socket.on('ballDropped', function(column)
 		{
 			self.updateColumn(column)
 		})
-
-		this.socket.on('restartGame', function(starting_player)
+		
+		if(!this.is_second_window) this.socket.on('restartGame', function(starting_player)
 		{
 			self.restarting_multiplayer = true;
 			if(starting_player === 1) 
@@ -65,10 +65,10 @@ export default {
 			self.startGame();
 		})
 
-		if(window.location.hash.search('#multiplayer_session_') > -1)
+		if(window.location.hash.search('#multiplayer_session_') > -1 && !this.multiplayer_session_active)
 		{
 			this.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
-
+			console.log("starting session id "+this.multiplayer_session)
 			if(navigator.vendor != 'Google Inc.') 
 			{
 				ReactDOM.render(React.createElement(basic_modal, 
@@ -104,6 +104,7 @@ export default {
 				hasBegunGame = true;
 				self.mode = "multi";
 				self.multiplayer_session_active = true;
+				self.socket.emit("replaceGameSocket", self.player_one, this.multiplayer_session)
 				self.startGame();
 				self.modal_container.style.display = 'none';
 			}
@@ -113,6 +114,7 @@ export default {
 	{
 		console.log("connection estabilished")
 		console.log("running game")
+		this.socket.disconnect();
 		localStorage.setItem("connection_status", "online")
 	},
 	openSession()
@@ -205,7 +207,6 @@ export default {
 	gotRemoteStream(evt)
 	{
 		var self = this
-		console.log(evt.stream)
 		self.multiplayer_session_active = true;
 		self.remoteVideo.style.display = 'block';
 		self.remoteVideoDisclaimer.style.display = 'block';
