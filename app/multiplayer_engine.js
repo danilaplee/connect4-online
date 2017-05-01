@@ -104,7 +104,7 @@ export default {
 				hasBegunGame = true;
 				self.mode = "multi";
 				self.multiplayer_session_active = true;
-				self.socket.emit("replaceGameSocket", self.player_one, this.multiplayer_session)
+				self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
 				self.startGame();
 				self.modal_container.style.display = 'none';
 			}
