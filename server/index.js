@@ -18,7 +18,7 @@ var app = http.createServer(function(req, res)
 
 }).listen(2529)
 
-var io = require('socket.io').listen(app);
+var io = require('socket.io').listen(app, {resource:"/c4/socket.io/"});
 
 var game_sessions = {}
 
@@ -54,6 +54,16 @@ io.on('connection', function(socket)
     	game_sessions[id] = new_session
     	socket.emit('newSession', new_session.id)
     });
+
+    socket.on('replaceGameSocket', function(player, id)
+    {
+        var game = game_sessions[id]
+        console.log("======= replacing socket for game #"+id+" =======")
+        console.log(game)
+        console.log(player)
+        if(game.player1 != null && JSON.stringify(game.player1.profile) == JSON.stringify(player)) game.player1.socket = socket;
+        if(game.player2 != null && JSON.stringify(game.player2.profile) == JSON.stringify(player)) game.player2.socket = socket;
+    })
 
     socket.on('openSession', function(session_id, player_two)
     {

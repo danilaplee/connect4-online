@@ -13,8 +13,9 @@ navigator.getUserMedia 	= navigator.getUserMedia || navigator.mozGetUserMedia ||
 export default {
 	bindMultiplayer()
 	{
+		localStorage.setItem("connection_status", "offline")
 		var self 	= this
-		this.socket = io('http://localhost:2529')
+		this.socket = io('https://starpy.me/',{path:"/c4/socket.io"})
 		this.candidatesQueue = []
 		var processQueue = function()
 		{
@@ -43,12 +44,12 @@ export default {
 			};
 		})
 
-		this.socket.on('ballDropped', function(column)
+		if(!this.is_second_window) this.socket.on('ballDropped', function(column)
 		{
 			self.updateColumn(column)
 		})
-
-		this.socket.on('restartGame', function(starting_player)
+		
+		if(!this.is_second_window) this.socket.on('restartGame', function(starting_player)
 		{
 			self.restarting_multiplayer = true;
 			if(starting_player === 1) 
@@ -64,9 +65,10 @@ export default {
 			self.startGame();
 		})
 
-		if(window.location.hash.search('#multiplayer_session_') > -1)
+		if(window.location.hash.search('#multiplayer_session_') > -1 && !this.multiplayer_session_active)
 		{
-			this.multiplayer_session = window.location.hash.replace('#multiplayer_session_', '')
+			this.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
+			console.log("starting session id "+this.multiplayer_session)
 			if(navigator.vendor != 'Google Inc.') 
 			{
 				ReactDOM.render(React.createElement(basic_modal, 
@@ -77,22 +79,68 @@ export default {
 				}), self.modal_container);
 				return self.modal_container.style.display = "block";
 			};
-			if(this.player_one.is_new) return this.openColorDialog().then(this.openSession);
+			if(this.player_one.is_new && !this.is_second_window) return this.openColorDialog().then(this.openSession);
 			return this.openSession()
 		}
+	},
+	openSecondWindow()
+	{
+		console.log("opening new window")
+		var link = window.location.origin + window.location.pathname + "#call" + window.location.hash
+		console.log(link)
+		console.log("===================")
+		var ops = "width=512,height=384,resizable=yes,scrollbars=no,status=no,location=no,toolbar=no,menubar=no"
+		var w = window.open(link, "multiplayer_session", ops)
+			w.focus()
+		var self = this
+		self.second_window = w;
+		var hasBegunGame = false;
+		window.addEventListener("storage", function(evt){
+			console.log("===== got a new message =====")
+			console.log(evt)
+			if(evt.newValue == "online"){
+				console.log("communication estabilished")
+				window.removeEventListener("storage", null);
+				hasBegunGame = true;
+				self.mode = "multi";
+				self.multiplayer_session_active = true;
+				self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
+				self.startGame();
+				self.modal_container.style.display = 'none';
+			}
+		})
+	},
+	enableMainWindow()
+	{
+		console.log("connection estabilished")
+		console.log("running game")
+		this.socket.disconnect();
+		localStorage.setItem("connection_status", "online")
 	},
 	openSession()
 	{
 		var self = this
-		self.guest = true;
-		self.modal_container.style.display = "block";
-		ReactDOM.render(React.createElement(basic_modal, 
-		{
-			title:"Connecting to multiplayer session",
-			text:'Please allow access to your microphone and camera to talk to the other player.',
-			modal_container:self.modal_container
-		}), self.modal_container);
 
+		if(!this.is_second_window){
+
+			self.guest = true;
+			self.modal_container.style.display = "block";
+			ReactDOM.render(React.createElement(basic_modal, 
+			{
+				title:"Connecting to multiplayer session",
+				text:'Please allow access to your microphone and camera to talk to the other player.',
+				modal_container:self.modal_container
+			}), self.modal_container);
+			self.openSecondWindow();
+			self.socket.emit('openSession', this.multiplayer_session, this.player_one)
+			self.socket.on('yourSession', function(session)
+			{
+				self.player_two = session.player1
+				self.player_two.id = 2;
+				self.socket.removeListener('yourSession')
+			})
+			return 
+		}
 		self.socket.emit('openSession', this.multiplayer_session, this.player_one)
 		self.socket.on('yourSession', function(session)
 		{
@@ -155,12 +203,10 @@ export default {
 	{
 		this.pc.setLocalDescription(new SessionDescription(event))
 		this.socket.emit('transferCallData', this.multiplayer_session, event);
-
 	},
 	gotRemoteStream(evt)
 	{
 		var self = this
-		console.log(evt.stream)
 		self.multiplayer_session_active = true;
 		self.remoteVideo.style.display = 'block';
 		self.remoteVideoDisclaimer.style.display = 'block';
@@ -170,16 +216,18 @@ export default {
 			self.socket.emit('openSession', this.multiplayer_session)
 			self.socket.on('yourSession', function(info)
 			{
+				self.socket.removeListener('yourSession')
 				self.player_two 	= info.player2
 				self.player_two.id 	= 2;
 				self.active_user 	= self.player_two
 				self.modal_container.style.display = 'none';
 				self.multiplayer_promise()
-				self.socket.removeListener('yourSession')
 			})
 		}
 		else 
 		{
+			console.log("==== running hide modal container =====")
+			if(self.is_second_window) return self.enableMainWindow();
 			self.modal_container.style.display = 'none';
 			self.mode = "multi";
 			self.startGame();
@@ -204,7 +252,9 @@ export default {
 	{
 		var self 	= this
 		var myNode 	= self.modal_container;
-		while (myNode.firstChild) myNode.removeChild(myNode.firstChild);
+		while (myNode.firstChild) {
+			ReactDOM.unmountComponentAtNode(myNode)
+		};
 		if(navigator.vendor != 'Google Inc.') 
 		{
 			ReactDOM.render(React.createElement(basic_modal, 
@@ -227,9 +277,14 @@ export default {
 				}
 				session.link = window.location.origin+window.location.pathname+'#multiplayer_session_'+session_id
 				self.multiplayer_session = session_id
+				var subject = "Your are invited you to play Connect4 Online!"
+				var body 	= 'Your Friend has Invited you to Play Connect4 Online with Him!'
+					body	+= '\n Press here to start! ->'
+					body 	+= '\n'+session.link
+				var mailto  = "<a href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email this link to someone!</a>"
 				ReactDOM.render(React.createElement(basic_modal, {
 					title:"Share this link to play a multiplayer game!",
-					text:session.link,
+					text:mailto,
 					modal_container:self.modal_container
 				}), self.modal_container);
 
