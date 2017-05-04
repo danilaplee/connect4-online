@@ -79,6 +79,7 @@ var instance =
 			this.bindMultiplayer()
 			return
 		}
+		localStorage.removeItem("connection_offer")
 		createMainDom()
 		this.width 					= 600;
 		this.height 				= 400;

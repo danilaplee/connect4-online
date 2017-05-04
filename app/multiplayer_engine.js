@@ -19,17 +19,35 @@ export default {
 		this.candidatesQueue = []
 		var processQueue = function()
 		{
-			if(self.candidatesQueue.length) while(self.candidatesQueue.length) self.pc.addIceCandidate(self.candidatesQueue.pop())
+			var candidates = self.candidatesQueue
+			try {
+				var c = JSON.parse(localStorage.getItem("connection_candidates"))
+				for (var i = c.length - 1; i >= 0; i--) candidates.push(c[i])
+			}
+			catch(err) {
+				console.error("storage queue err")
+			}
+			console.log("total queue")
+			console.log(candidates)
+			if(candidates.length) while(candidates.length) self.pc.addIceCandidate(candidates.pop())
 		}
 		this.socket.on('callData', function(data)
 		{
-			if(data.type == 'offer') self.getLocalStream(function()
-		  	{
-		  		self.pc.setRemoteDescription(new SessionDescription(data))
-		  		self.description_set = true;
-		  		self.createAnswer();
-				processQueue();
-		  	});
+			if(data.type == 'offer') {
+				localStorage.setItem("connection_offer", JSON.stringify(data))
+				if(self.is_second_window) { 
+					self.getLocalStream(function()
+				  	{
+				  		self.pc.setRemoteDescription(new SessionDescription(data))
+				  		self.description_set = true;
+				  		self.createAnswer();
+						processQueue();
+				  	})
+				} 
+				else {
+					self.openSecondWindow()
+				}
+			}
 			if(data.type == 'answer') 
 			{
 				self.pc.setRemoteDescription(new SessionDescription(data))
@@ -41,6 +59,7 @@ export default {
 				var candidate = new IceCandidate({sdpMLineIndex: data.candidate.sdpMLineIndex, candidate: data.candidate.candidate});
 			    if(self.description_set) self.pc.addIceCandidate(candidate);
 			    else self.candidatesQueue.push(candidate)
+			    localStorage.setItem("connection_candidates", JSON.stringify(self.candidatesQueue))
 			};
 		})
 
@@ -64,10 +83,35 @@ export default {
 			}
 			self.startGame();
 		})
-
+		try {
+			var offer = JSON.parse(localStorage.getItem("connection_offer"))
+			if(offer != null)
+			{
+			  	self.offer = offer
+				self.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
+				self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
+				console.log("===== connecting master player =====")
+				console.log("starting session id "+this.multiplayer_session)
+				console.log(self.player_one)
+				self.getLocalStream(function()
+			  	{
+			  		self.pc.setRemoteDescription(new SessionDescription(offer))
+			  		self.description_set = true;
+			  		self.createAnswer();
+					processQueue();
+			  	})
+			  	return
+			}
+		}
+		catch(err){
+			self.offer = null
+			console.error("==== offer parse error =====")
+			console.error(err)
+		}
 		if(window.location.hash.search('#multiplayer_session_') > -1 && !this.multiplayer_session_active)
 		{
 			this.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
+			console.log("===== connecting guest player =====")
 			console.log("starting session id "+this.multiplayer_session)
 			if(navigator.vendor != 'Google Inc.') 
 			{
@@ -86,7 +130,9 @@ export default {
 	openSecondWindow()
 	{
 		console.log("opening new window")
-		var link = window.location.origin + window.location.pathname + "#call" + window.location.hash
+		var hsh = window.location.hash
+		if(hsh == "" || hsh == null) { hsh = "#multiplayer_session_"+this.multiplayer_session}
+		var link = window.location.origin + window.location.pathname + "#call" + hsh
 		console.log(link)
 		console.log("===================")
 		var ops = "width=512,height=384,resizable=yes,scrollbars=no,status=no,location=no,toolbar=no,menubar=no"
@@ -105,8 +151,9 @@ export default {
 				self.mode = "multi";
 				self.multiplayer_session_active = true;
 				self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
-				self.startGame();
 				self.modal_container.style.display = 'none';
+				if(!self.multiplayer_promise) self.startGame();
+				else self.multiplayer_promise();
 			}
 		})
 	},
@@ -114,7 +161,6 @@ export default {
 	{
 		console.log("connection estabilished")
 		console.log("running game")
-		this.socket.disconnect();
 		localStorage.setItem("connection_status", "online")
 	},
 	openSession()
@@ -201,6 +247,7 @@ export default {
 	},
 	gotLocalDescription(event)
 	{
+		console.log("sending local description")
 		this.pc.setLocalDescription(new SessionDescription(event))
 		this.socket.emit('transferCallData', this.multiplayer_session, event);
 	},
