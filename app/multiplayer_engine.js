@@ -22,7 +22,9 @@ export default {
 			var candidates = self.candidatesQueue
 			try {
 				var c = JSON.parse(localStorage.getItem("connection_candidates"))
-				for (var i = c.length - 1; i >= 0; i--) candidates.push(c[i])
+				console.log("======== total candidates in localStorage ==========")
+				console.log(c)
+				if(c != null) for (var i = c.length - 1; i >= 0; i--) candidates.push(c[i])
 			}
 			catch(err) {
 				console.error("========================")
@@ -59,9 +61,14 @@ export default {
 			};
 			if(data.type == 'candidate')
 			{
+				console.log("====================== received candidate ============================")
+				console.log(data)
 				var candidate = new IceCandidate({sdpMLineIndex: data.candidate.sdpMLineIndex, candidate: data.candidate.candidate});
+			    console.log(candidate)
+			    console.log("============== is description set = "+self.description_set+" =========")
 			    if(self.description_set) self.pc.addIceCandidate(candidate);
 			    else self.candidatesQueue.push(candidate)
+			    console.log("======== total candidates queue = "+self.candidatesQueue.length+" =========")
 			    localStorage.setItem("connection_candidates", JSON.stringify(self.candidatesQueue))
 			};
 		})
@@ -151,7 +158,9 @@ export default {
 	{
 		console.log("connection estabilished")
 		console.log("running game")
-		localStorage.setItem("connection_status", "online")
+		setTimeout(function(){
+			localStorage.setItem("connection_status", "online")
+		}, 1000)
 	},
 	beginGame()
 	{
@@ -331,6 +340,9 @@ export default {
 	},
 	gotIceCandidate(event)
 	{
+		console.log('======== created ice candidate ========')
+		console.log(event)
+		console.log("=======================================")
 		if(event.candidate) this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 

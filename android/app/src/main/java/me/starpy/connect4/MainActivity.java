@@ -101,10 +101,17 @@ public class MainActivity extends Activity {
         callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        callView.getSettings().setDatabaseEnabled(true);
         if (Build.VERSION.SDK_INT >= 11){
             callView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
+        }
+        else {
+            callView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
+
         }
         callView.setWebContentsDebuggingEnabled(true);
+
         callView.setInitialScale(100);
         callView.setWebChromeClient(new WebChromeClient(){
             @Override
@@ -140,8 +147,12 @@ public class MainActivity extends Activity {
         webView.getSettings().setSupportMultipleWindows(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         webView.setWebContentsDebuggingEnabled(true);
+        webView.getSettings().setDatabaseEnabled(true);
         if (Build.VERSION.SDK_INT >= 11){
             webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
+        else {
+            webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
         }
         webView.setInitialScale(185);
         webView.setWebChromeClient(new WebChromeClient(){
