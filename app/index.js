@@ -129,3 +129,4 @@ var instance =
 }
 
 window.Connect4 = new instance.init()
+window.game = Connect4
