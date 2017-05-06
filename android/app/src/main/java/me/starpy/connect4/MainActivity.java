@@ -196,7 +196,7 @@ public class MainActivity extends Activity {
                     return true;
                 }
                 if (url.contains("#call")) {
-                    createCallWindow(url);
+                    createCallWindow(url.toString().replace("app://", ""));
                     return true;
                 }
                 view.loadUrl(url);
@@ -211,7 +211,7 @@ public class MainActivity extends Activity {
                     return true;
                 }
                 if (uri.toString().contains("#call")) {
-                    createCallWindow(uri.toString());
+                    createCallWindow(uri.toString().replace("app://", ""));
                     return true;
                 }
                 view.loadUrl(uri.toString());
