@@ -110,16 +110,23 @@ export default {
 	{
 		console.log("opening new window")
 		var hsh = window.location.hash
-		if(hsh == "" || hsh == null) { hsh = "#multiplayer_session_"+this.multiplayer_session}
-		var link = window.location.origin + window.location.pathname + "#call" + hsh
-		console.log(link)
-		console.log("===================")
-		var ops = "width=512,height=384,resizable=yes,scrollbars=no,status=no,location=no,toolbar=no,menubar=no"
-		var w = window.open(link, "multiplayer_session", ops)
-			w.focus()
 		var hasBegunGame = false;
 		var self = this
-		self.second_window = w;
+
+		if(hsh == "" || hsh == null) { hsh = "#multiplayer_session_"+this.multiplayer_session}
+		var link = window.location.origin + window.location.pathname + "#call" + hsh
+
+		console.log(link)
+		console.log("===================")
+
+		if(navigator.userAgent.search("Android") == -1)
+		{
+			console.log("==== browser opening new window =====")
+			var win_ops = "width=512,height=384,resizable=yes,scrollbars=no,status=no,location=no,toolbar=no,menubar=no"
+			self.second_window = window.open(link, "multiplayer_session", win_ops)
+			self.second_window.focus()
+		}
+		else window.location = link
 		self.socket.disconnect()
 		self.socket = null;
 		window.addEventListener("storage", function(evt){

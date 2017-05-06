@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -39,10 +40,15 @@ public class MainActivity extends Activity {
     public String  appUrl   = "https://danilaplee.github.io/connect4-online/bin";
     public int mainLayout;
     public WebView webView;
+    public WebView callView;
     public LinearLayout mainView;
     private int hasLoadedWebview = 0;
     private ReactRootView mReactRootView;
     private ReactInstanceManager mReactInstanceManager;
+
+    public void print(String string) {
+        Log.e("me.starpy.connect4", string);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,23 +80,69 @@ public class MainActivity extends Activity {
             if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) mContext,
                     permission)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
             } else {
-
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions((Activity) mContext,
                         new String[]{permission},
                         key);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         }
+    }
+
+    private void createCallWindow(String url) {
+        callView = new WebView(mContext);
+        callView.getSettings().setJavaScriptEnabled(true);
+        callView.getSettings().setDomStorageEnabled(true);
+        callView.getSettings().setPluginState(WebSettings.PluginState.ON);
+        callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        callView.getSettings().setSupportMultipleWindows(true);
+        callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        callView.setWebContentsDebuggingEnabled(true);
+        callView.setInitialScale(185);
+        callView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        request.grant(request.getResources());
+                    }
+                });
+            }
+        });
+        callView.setWebViewClient(new WebViewClient()
+        {
+            @Override
+            public void onPageFinished(final WebView view, String url) {
+                if(hasLoadedWebview == 1) return;
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                hasLoadedWebview = 1;
+                mainView.addView(callView);
+                addJavascriptInterfaces();
+                requestPermissions();
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.contains("#call")) {
+                    view.loadUrl(url);
+                    return true;
+                }
+                return true;
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                final Uri uri = request.getUrl();
+                if (uri.toString().contains("#call")) {
+                    view.loadUrl(uri.toString());
+                    return true;
+                }
+                return true;
+            }
+        });
+        webView.loadUrl(url);
+
     }
 
     private void loadChromeApp(String url){
@@ -101,8 +153,8 @@ public class MainActivity extends Activity {
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.getSettings().setSupportMultipleWindows(true);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        webView.setWebContentsDebuggingEnabled(true);
         webView.setInitialScale(185);
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
@@ -114,10 +166,16 @@ public class MainActivity extends Activity {
                     }
                 });
             }
+            @Override
+            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, Message resultMsg)
+            {
+                print("overriding window create");
+                print(resultMsg.toString());
+                return false;
+            }
         });
         webView.setWebViewClient(new WebViewClient()
         {
-
             @Override
             public void onPageFinished(final WebView view, String url) {
                 if(hasLoadedWebview == 1) return;
@@ -128,11 +186,17 @@ public class MainActivity extends Activity {
                 requestPermissions();
 
             }
+
             @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.e("connect4","overriding load: "+url);
                 if (url.startsWith("mailto:")) {
                     startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
+                    return true;
+                }
+                if (url.contains("#call")) {
+                    createCallWindow(url);
                     return true;
                 }
                 view.loadUrl(url);
@@ -141,13 +205,15 @@ public class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 final Uri uri = request.getUrl();
-                Log.e("overriding load", uri.toString());
+                Log.e("connect4","overriding load: "+uri.toString());
                 if (uri.toString().startsWith("mailto:")) {
-                    //Handle mail Urls
                     startActivity(new Intent(Intent.ACTION_SENDTO, uri));
                     return true;
                 }
-                //Handle Web Urls
+                if (uri.toString().contains("#call")) {
+                    createCallWindow(uri.toString());
+                    return true;
+                }
                 view.loadUrl(uri.toString());
                 return true;
             }
