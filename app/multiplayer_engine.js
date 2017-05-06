@@ -62,27 +62,6 @@ export default {
 			    localStorage.setItem("connection_candidates", JSON.stringify(self.candidatesQueue))
 			};
 		})
-
-		if(!this.is_second_window) this.socket.on('ballDropped', function(column)
-		{
-			self.updateColumn(column)
-		})
-		
-		if(!this.is_second_window) this.socket.on('restartGame', function(starting_player)
-		{
-			self.restarting_multiplayer = true;
-			if(starting_player === 1) 
-			{
-				if(self.guest) self.active_user = self.player_two;
-				else self.active_user = self.player_one
-			}
-			if(starting_player === 2) 
-			{
-				if(self.guest) self.active_user = self.player_one;
-				else self.active_user = self.player_two
-			}
-			self.startGame();
-		})
 		try {
 			var offer = JSON.parse(localStorage.getItem("connection_offer"))
 			if(offer != null)
@@ -138,22 +117,19 @@ export default {
 		var ops = "width=512,height=384,resizable=yes,scrollbars=no,status=no,location=no,toolbar=no,menubar=no"
 		var w = window.open(link, "multiplayer_session", ops)
 			w.focus()
+		var hasBegunGame = false;
 		var self = this
 		self.second_window = w;
-		var hasBegunGame = false;
+		self.socket.disconnect()
+		self.socket = null;
 		window.addEventListener("storage", function(evt){
 			console.log("===== got a new message =====")
 			console.log(evt)
-			if(evt.newValue == "online"){
+			if(evt.newValue == "online" && hasBegunGame == false){
 				console.log("communication estabilished")
 				window.removeEventListener("storage", null);
 				hasBegunGame = true;
-				self.mode = "multi";
-				self.multiplayer_session_active = true;
-				self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
-				self.modal_container.style.display = 'none';
-				if(!self.multiplayer_promise) self.startGame();
-				else self.multiplayer_promise();
+				self.beginGame();
 			}
 		})
 	},
@@ -162,6 +138,59 @@ export default {
 		console.log("connection estabilished")
 		console.log("running game")
 		localStorage.setItem("connection_status", "online")
+	},
+	beginGame()
+	{
+		var self = this
+		self.socket = io('https://starpy.me/',{path:"/c4/socket.io"})
+		self.modal_container.style.display = 'none';
+		
+		self.socket.emit('openSession', self.multiplayer_session)
+		var dataReceived = false;
+		self.socket.on('yourSession', function(info)
+		{
+			if(dataReceived == true) return;
+			console.log("==== game pre start session info ====")
+			console.log(info)
+			dataReceived = true;
+			self.socket.removeListener('yourSession')
+			self.mode = "multi";
+			self.multiplayer_session_active = true;
+			self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
+
+			self.socket.on('ballDropped', function(column)
+			{
+				self.updateColumn(column)
+			})
+
+			self.socket.on('restartGame', function(starting_player)
+			{
+				self.restarting_multiplayer = true;
+				if(starting_player === 1) 
+				{
+					if(self.guest) self.active_user = self.player_two;
+					else self.active_user = self.player_one
+				}
+				if(starting_player === 2) 
+				{
+					if(self.guest) self.active_user = self.player_one;
+					else self.active_user = self.player_two
+				}
+				self.startGame();
+			})
+			if(!self.multiplayer_promise) {
+				self.player_two 	= info.player1
+				self.player_two.id 	= 2;
+				self.active_user = self.player_two;
+				self.modal_container.style.display = 'none';
+				self.startGame();
+				return;
+			}
+			self.player_two 	= info.player2
+			self.player_two.id 	= 2;
+			self.modal_container.style.display = 'none';
+			self.multiplayer_promise()
+		})
 	},
 	openSession()
 	{
@@ -177,16 +206,11 @@ export default {
 				text:'Please allow access to your microphone and camera to talk to the other player.',
 				modal_container:self.modal_container
 			}), self.modal_container);
+
 			self.openSecondWindow();
-			self.socket.emit('openSession', this.multiplayer_session, this.player_one)
-			self.socket.on('yourSession', function(session)
-			{
-				self.player_two = session.player1
-				self.player_two.id = 2;
-				self.socket.removeListener('yourSession')
-			})
 			return 
 		}
+		console.log("====== opening session ====")
 		self.socket.emit('openSession', this.multiplayer_session, this.player_one)
 		self.socket.on('yourSession', function(session)
 		{
