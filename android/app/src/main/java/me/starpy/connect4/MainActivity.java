@@ -16,12 +16,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.facebook.react.LifecycleState;
@@ -43,6 +45,7 @@ public class MainActivity extends Activity {
     public int mainLayout;
     public WebView webView;
     public WebView callView;
+    public FrameLayout webFrame;
     public LinearLayout mainView;
     private int hasLoadedWebview = 0;
     private ReactRootView mReactRootView;
@@ -55,11 +58,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         requestPermissionScheme(Manifest.permission.INTERNET, MY_PERMISSIONS_REQUEST_INTERNET);
         requestPermissionScheme(Manifest.permission.WAKE_LOCK, MY_PERMISSIONS_REQUEST_WAKE);
         mainLayout = R.layout.activity_main;
         setContentView(mainLayout);
         mainView = (LinearLayout) findViewById(R.id.mainView);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        webFrame = new FrameLayout(mContext);
+        webFrame.setLayoutParams(params);
+        mainView.addView(webFrame);
         loadChromeApp(appUrl);
     }
 
@@ -69,7 +77,6 @@ public class MainActivity extends Activity {
 
     private void requestPermissions(){
         requestPermissionScheme(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA);
-//        requestPermissionScheme(Manifest.permission.CAPTURE_VIDEO_OUTPUT, MY_PERMISSIONS_REQUEST_VIDEO);
         requestPermissionScheme(Manifest.permission.RECORD_AUDIO, MY_PERMISSIONS_REQUEST_AUDIO);
     }
 
@@ -98,17 +105,16 @@ public class MainActivity extends Activity {
         callView.getSettings().setDomStorageEnabled(true);
         callView.getSettings().setPluginState(WebSettings.PluginState.ON);
         callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        callView.getSettings().setRenderPriority(WebSettings.RenderPriority.LOW);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         callView.getSettings().setDatabaseEnabled(true);
         if (Build.VERSION.SDK_INT >= 11){
             callView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-
         }
         else {
             callView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
-
         }
         callView.setWebContentsDebuggingEnabled(true);
 
@@ -129,10 +135,13 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(final WebView view, String url) {
                 print("call_view_finished_loading");
-                mainView.addView(callView);
-                mainView.bringChildToFront(callView);
+                webFrame.addView(callView);
+                webFrame.bringChildToFront(callView);
             }
         });
+        callView.setLayoutParams(new FrameLayout.LayoutParams(512, 384));
+        callView.setY(mainView.getHeight()-384);
+        callView.setX(mainView.getWidth()-512);
         callView.loadUrl(url);
 
     }
@@ -141,6 +150,7 @@ public class MainActivity extends Activity {
         webView = new WebView(mContext);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
@@ -178,12 +188,12 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(final WebView view, String url) {
                 if(hasLoadedWebview == 1) return;
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 hasLoadedWebview = 1;
-                mainView.addView(webView);
+                webFrame.addView(webView);
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                webView.setLayoutParams(params);
                 addJavascriptInterfaces();
                 requestPermissions();
-
             }
 
             @SuppressWarnings("deprecation")
