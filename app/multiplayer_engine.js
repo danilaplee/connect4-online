@@ -286,11 +286,17 @@ export default {
 	},
 	createOffer() 
 	{
-	 this.pc.createOffer(
-	    this.gotLocalDescription, 
-	    function(error) { console.log(error) }, 
-	    { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } }
-	  );
+		var params 				=  { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }
+		if(navigator.userAgent.search("Android") == -1)
+		{
+			params.maxWidth 	= 320
+	       	params.maxHeight 	= 240
+	    }
+	 	this.pc.createOffer(
+	    	this.gotLocalDescription, 
+	    	function(error) { console.log(error) }, 
+	    	{ 'mandatory':params }
+	  	);
 	},
 	gotLocalDescription(event)
 	{
