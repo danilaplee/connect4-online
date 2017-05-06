@@ -126,7 +126,7 @@ export default {
 			self.second_window = window.open(link, "multiplayer_session", win_ops)
 			self.second_window.focus()
 		}
-		else window.location = link
+		else window.location = link.replace("#call", "/#call")
 		self.socket.disconnect()
 		self.socket = null;
 		window.addEventListener("storage", function(evt){
