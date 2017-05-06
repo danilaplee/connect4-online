@@ -10,10 +10,71 @@ import multiplayer 	from './multiplayer_engine';
 //COMPONENTS
 import Nav from './components/nav.jsx';
 
+//CSS
+
+require("./style.css")
+
+var appendHtml = function(el, str) {
+  var div = document.createElement('div');
+  div.innerHTML = str;
+  while (div.children.length > 0) el.append(div.children[0])
+  div = null
+}
+
+var createMainDom = function() {
+
+	var html  = '<div class="gametable-container">'
+	  	html += 	'<div id="gametable"></div>'
+	    html += 	'<div id="winner_text">'
+	    html +=  		'<h5 class="winner_title" style="margin-top:100px;">Welcome to Connect4 Online, </h5>'
+	    html +=  		'<h5 class="winner_title">to win you have to connect 4 balls</h5>'
+	    html +=  		'<h5 class="winner_title">vertically, horizontally</h5>'
+	    html +=  		'<h5 class="winner_title"> or diagonally</h5>'
+	    html +=		'</div>'
+	  	html +=	'</div>'
+		html +=	'<div id="gametoolbar"></div>'
+		html += '<div id="gamemodal"></div>'
+		html +=	'<div id="active_user_token"></div>'
+		html +=	'<video id="remoteVideo" autoplay controls></video>'
+	  	html += '<div id="remoteVideoDisclaimer">WAITING FOR CAMERA</div>'
+	  	appendHtml(document.body, html);
+}
+
+var createMinimalDom = function() {
+	var html  = '<video id="mainVideo" autoplay></video>'
+		html += '<div id="closeIcon"></div>'
+	  	html += '<div id="remoteVideoDisclaimer">WAITING FOR CAMERA</div>'
+	  	appendHtml(document.body, html);
+}
+
 var instance = 
 {
 	init() 
 	{
+		if(window.location.hash.search('#call') > -1)
+		{
+			createMinimalDom();
+			this.mode 					= 'multi'
+			this.is_second_window 		= true;
+			this.initUser				= user.initUser.bind(this);
+			this.player_one 			= this.initUser();
+			this.remoteVideo 			= document.getElementById('mainVideo')
+			this.remoteVideoDisclaimer 	= document.getElementById('remoteVideoDisclaimer')
+			this.enableMainWindow 		= multiplayer.enableMainWindow.bind(this)
+			this.createSession 			= multiplayer.createSession.bind(this)
+			this.bindMultiplayer 		= multiplayer.bindMultiplayer.bind(this)
+			this.openSession 			= multiplayer.openSession.bind(this)
+			this.getLocalStream 		= multiplayer.getLocalStream.bind(this)
+			this.createOffer 			= multiplayer.createOffer.bind(this)
+			this.gotLocalDescription	= multiplayer.gotLocalDescription.bind(this)
+			this.gotRemoteStream 		= multiplayer.gotRemoteStream.bind(this)
+			this.gotIceCandidate 		= multiplayer.gotIceCandidate.bind(this)
+			this.createAnswer 			= multiplayer.createAnswer.bind(this)
+			this.bindMultiplayer()
+			return this;
+		}
+		localStorage.removeItem("connection_offer")
+		createMainDom()
 		this.width 					= 600;
 		this.height 				= 400;
 		this.tile_size 				= 100;
@@ -41,6 +102,8 @@ var instance =
 		this.openColorDialog		= user.openColorDialog.bind(this);
 		this.initUser				= user.initUser.bind(this);
 		this.addHotSeat		 		= user.addHotSeat.bind(this)
+		this.openSecondWindow 		= multiplayer.openSecondWindow.bind(this)
+		this.beginGame 				= multiplayer.beginGame.bind(this)
 		this.createSession 			= multiplayer.createSession.bind(this)
 		this.bindMultiplayer 		= multiplayer.bindMultiplayer.bind(this)
 		this.openSession 			= multiplayer.openSession.bind(this)
@@ -65,4 +128,4 @@ var instance =
 	}
 }
 
-window.Connect4 = instance.init
+window.Connect4 = new instance.init()

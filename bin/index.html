@@ -4,134 +4,9 @@
   <meta charset="UTF-8">
   <title>Connect 4 Online</title>
   <link href="bootstrap.min.css" rel="stylesheet">
-  <style type="text/css">
-    body
-    {
-      min-width: 750px;
-    }
-    .gametable-container
-    {
-      display: table;
-      position: static;
-      margin:auto;
-      width:600px;
-      height:600px;
-    }
-    @media screen and (max-height: 600px)
-    {
-      .gametable-container
-      {
-        height: 540px;
-      }
-    }
-  	#gametable
-  	{
-	    background: #fff;
-	    height: 400px;
-      vertical-align: middle;
-	    display: table-cell;
-	    width: 600px;
-	    position: relative;
-  	}
-  	#gametoolbar
-  	{
-  		position:fixed;
-  		top:10px;
-  		left:10px;
-  		height: 150px;
-  		width:200px;
-  	}
-
-  	#gamemodal
-  	{
-  		position: fixed;
-  		display: none;
-	    width: 100%;
-	    height: 100%;
-	    top: 0;
-	    color: rgba(0,0,0, 0.5);
-	    left: 0;
-      z-index: 5;
-  	}
-  	#gamemodal > .modal
-  	{
-  		display: block;
-  	}
-  	.btn
-  	{
-  		text-align:left;
-  	}
-  	#active_user_token
-  	{
-  		position: fixed;
-  		top:10px;
-  		right:10px;
-  		border-radius:50%;
-  		background:transparent;
-  		content:"";
-  		font-size:20px;
-  		padding: 40px;
-  	}
-  	#remoteVideo
-  	{
-  		position: fixed;
-  		background: rgba(0,0,0,0.5);
-  		bottom:0;
-  		right:0;
-  		width: 320px;
-  		height:240px;
-  		z-index: 2;
-      display: none;
-  	}
-    #remoteVideoDisclaimer
-    {
-      position: fixed;
-      bottom:10px;
-      right: 10px;
-      height:50px;
-      color:#444;
-      z-index: 1;
-      display: none;
-    }
-    #winner_text
-    {
-      position: absolute;
-      text-align: center;
-      display: block;
-      z-index: 4;
-      width: 600px;
-      height: 200px;
-      left: 0;
-      right: 0;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .winner_title
-    {
-      text-transform: uppercase;
-      font-size: 14px;
-    }
-  </style>
 </head>
 <body>
-  <div class="gametable-container">
-  	<div id="gametable"></div>
-    <div id="winner_text">
-      <h5 class="winner_title" style="margin-top:100px;">Welcome to Connect4 Online, </h5>
-      <h5 class="winner_title">to win you have to connect 4 balls</h5>
-      <h5 class="winner_title">vertically, horizontally</h5>
-      <h5 class="winner_title"> or diagonally</h5>
-    </div>
-  </div>
-	<div id="gametoolbar"></div>
-	<div id="gamemodal"></div>
-	<div id="active_user_token"></div>
-	<video id="remoteVideo" autoplay></video>
-  <div id="remoteVideoDisclaimer">
-    WAITING FOR CAMERA
-  </div>
 	<script type="text/javascript">
-	  	var game;
   		var appendFile = function(file, callback)
   		{
   		    var external        = document.createElement(file.tag);
@@ -152,12 +27,10 @@
 
 	    }, function()
 	    {
-			game = new Connect4();
-			console.log('====================== GAME IS RUNNING ======================')
-			console.log('============ you can play from the js console too ===========')
-			console.log('==================== by being objective =====================')
-			console.log('============== SEE INSIDE game.help FOR MORE ==============')
-
+  			console.log('====================== GAME IS RUNNING ======================')
+  			console.log('============ you can play from the js console too ===========')
+  			console.log('==================== by being objective =====================')
+  			console.log('============== SEE INSIDE game.help FOR MORE ==============')
 	    })
 	</script>
 </body>

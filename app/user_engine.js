@@ -49,8 +49,8 @@ export default {
 			var user_data = JSON.parse(localStorage.getItem('connect4'));
 			if(user_data.profile.emoji_img && user_data.profile.color_obj.hex)
 			{
-				this.user_token.innerHTML = '<img src="'+user_data.profile.emoji_img+'" style="width:80px">';
-				this.user_token.style.background = user_data.profile.color_obj.hex
+				if(!this.is_second_window) this.user_token.innerHTML = '<img src="'+user_data.profile.emoji_img+'" style="width:80px">';
+				if(!this.is_second_window) this.user_token.style.background = user_data.profile.color_obj.hex
 				return user_data.profile;
 			}
 			throw new Error('invalid profile')
