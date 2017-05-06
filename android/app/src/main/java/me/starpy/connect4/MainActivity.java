@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
 
     private void requestPermissions(){
         requestPermissionScheme(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA);
-        requestPermissionScheme(Manifest.permission.CAPTURE_VIDEO_OUTPUT, MY_PERMISSIONS_REQUEST_VIDEO);
+//        requestPermissionScheme(Manifest.permission.CAPTURE_VIDEO_OUTPUT, MY_PERMISSIONS_REQUEST_VIDEO);
         requestPermissionScheme(Manifest.permission.RECORD_AUDIO, MY_PERMISSIONS_REQUEST_AUDIO);
     }
 
@@ -101,6 +101,9 @@ public class MainActivity extends Activity {
         callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        if (Build.VERSION.SDK_INT >= 11){
+            callView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
         callView.setWebContentsDebuggingEnabled(true);
         callView.setInitialScale(100);
         callView.setWebChromeClient(new WebChromeClient(){
@@ -119,11 +122,11 @@ public class MainActivity extends Activity {
             @Override
             public void onPageFinished(final WebView view, String url) {
                 print("call_view_finished_loading");
+                mainView.addView(callView);
+                mainView.bringChildToFront(callView);
             }
         });
         callView.loadUrl(url);
-        mainView.addView(callView);
-        mainView.bringChildToFront(callView);
 
     }
 
@@ -133,7 +136,7 @@ public class MainActivity extends Activity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webView.getSettings().setSupportMultipleWindows(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         webView.setWebContentsDebuggingEnabled(true);

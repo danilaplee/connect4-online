@@ -25,7 +25,10 @@ export default {
 				for (var i = c.length - 1; i >= 0; i--) candidates.push(c[i])
 			}
 			catch(err) {
+				console.error("========================")
 				console.error("storage queue err")
+				console.error(err)
+				console.error("========================")
 			}
 			console.log("total queue")
 			console.log(candidates)
