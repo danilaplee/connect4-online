@@ -8,12 +8,14 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -89,6 +91,8 @@ public class MainActivity extends Activity {
     }
 
     private void createCallWindow(String url) {
+        print("creating_call_window");
+        print(url);
         callView = new WebView(mContext);
         callView.getSettings().setJavaScriptEnabled(true);
         callView.getSettings().setDomStorageEnabled(true);
@@ -98,7 +102,7 @@ public class MainActivity extends Activity {
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         callView.setWebContentsDebuggingEnabled(true);
-        callView.setInitialScale(185);
+        callView.setInitialScale(100);
         callView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
@@ -114,34 +118,12 @@ public class MainActivity extends Activity {
         {
             @Override
             public void onPageFinished(final WebView view, String url) {
-                if(hasLoadedWebview == 1) return;
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                hasLoadedWebview = 1;
-                mainView.addView(callView);
-                addJavascriptInterfaces();
-                requestPermissions();
-            }
-
-            @SuppressWarnings("deprecation")
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.contains("#call")) {
-                    view.loadUrl(url);
-                    return true;
-                }
-                return true;
-            }
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                final Uri uri = request.getUrl();
-                if (uri.toString().contains("#call")) {
-                    view.loadUrl(uri.toString());
-                    return true;
-                }
-                return true;
+                print("call_view_finished_loading");
             }
         });
-        webView.loadUrl(url);
+        callView.loadUrl(url);
+        mainView.addView(callView);
+        mainView.bringChildToFront(callView);
 
     }
 
@@ -155,6 +137,9 @@ public class MainActivity extends Activity {
         webView.getSettings().setSupportMultipleWindows(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         webView.setWebContentsDebuggingEnabled(true);
+        if (Build.VERSION.SDK_INT >= 11){
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
         webView.setInitialScale(185);
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
@@ -196,7 +181,7 @@ public class MainActivity extends Activity {
                     return true;
                 }
                 if (url.contains("#call")) {
-                    createCallWindow(url.toString().replace("app://", ""));
+                    createCallWindow(url.replace("app://", ""));
                     return true;
                 }
                 view.loadUrl(url);

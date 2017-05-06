@@ -48,7 +48,7 @@ export default {
 			var y 			= parseInt(column.height * size)-(size / 2);
 			if(y < 0) y = this.height + y - 6
 			var start_y 	= size / 2;
-			var y_speed 	= size / 4
+			var y_speed 	= size / self.drop_speed;
 			var opacity 	= 0.1;
 			if(start_y => y) opacity = 1;
 			if(!self.unused_balls.length) var circle = new PIXI.Graphics();

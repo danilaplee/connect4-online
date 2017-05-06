@@ -129,6 +129,7 @@ export default {
 		else {
 			console.log("android transferring location")
 			window.location = "app://"+link
+			self.drop_speed = 2;
 		}
 		self.socket.disconnect()
 		self.socket = null;

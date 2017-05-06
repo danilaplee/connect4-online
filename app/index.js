@@ -75,6 +75,7 @@ var instance =
 		}
 		localStorage.removeItem("connection_offer")
 		createMainDom()
+		this.drop_speed 			= 4;
 		this.width 					= 600;
 		this.height 				= 400;
 		this.tile_size 				= 100;
