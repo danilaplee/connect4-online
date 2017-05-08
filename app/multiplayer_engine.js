@@ -438,7 +438,7 @@ export default {
 		copy_ln.innerHTML = "Done!"
 		setTimeout(function(){
 			copy_ln.innerHTML = prev_txt
-		}, 1000)
+		}, 600)
 		return bResult;
     }
 }
