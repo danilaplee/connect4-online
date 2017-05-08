@@ -1,3 +1,5 @@
+//TURN SERVER 
+//turnserver --syslog -a -L 127.0.0.1 -L ::1 -E 127.0.0.1 -E ::1 --max-bps=3000000 -f -m 10 --min-port=32355 --max-port=65535 --user=282245111379330808:JZEOEt2V3Qb0y27GRntt2u2PAYA= -r starp.tech --log-file=stdout -v
 import React 	from 'react';
 import ReactDOM from 'react-dom';
 import io 		from 'socket.io-client';
@@ -258,14 +260,14 @@ export default {
 			      'url': 'stun:stun.l.google.com:19302'
 			    },
 			    {
-			      'url': 'turn:192.158.29.39:3478?transport=udp',
+			      'url': 'turn:137.74.113.238:3478?transport=udp',
 			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-			      'username': '28224511:1379330808'
+			      'username': '282245111379330808'
 			    },
 			    {
-			      'url': 'turn:192.158.29.39:3478?transport=tcp',
+			      'url': 'turn:137.74.113.238:3478?transport=tcp',
 			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
-			      'username': '28224511:1379330808'
+			      'username': '282245111379330808'
 			    }
 			]});
 			if(stream) pc.addStream(stream);
