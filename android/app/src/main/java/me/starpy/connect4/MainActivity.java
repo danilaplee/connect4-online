@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
     private static final int MY_PERMISSIONS_REQUEST_INTERNET = 4;
     private static final int MY_PERMISSIONS_REQUEST_WAKE = 5;
     public Context mContext = this;
-    public String  appUrl   = "https://danilaplee.github.io/connect4-online/bin";
+    public String  appUrl   = "https://starpy.me/connect4";
     public int mainLayout;
     public WebView webView;
     public WebView callView;
@@ -59,6 +59,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        Uri data = intent.getData();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         requestPermissionScheme(Manifest.permission.INTERNET, MY_PERMISSIONS_REQUEST_INTERNET);
         requestPermissionScheme(Manifest.permission.WAKE_LOCK, MY_PERMISSIONS_REQUEST_WAKE);
@@ -69,10 +73,14 @@ public class MainActivity extends Activity {
         webFrame = new FrameLayout(mContext);
         webFrame.setLayoutParams(params);
         mainView.addView(webFrame);
-        loadChromeApp(appUrl);
-        getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        if(data != null) {
+            print("got an incoming link = "+data.toString());
+            loadChromeApp(data.toString());
+        }
+        else {
+            loadChromeApp(appUrl);
+        }
     }
 
     private void addJavascriptInterfaces() {
