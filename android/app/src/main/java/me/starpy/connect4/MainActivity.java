@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -69,6 +70,9 @@ public class MainActivity extends Activity {
         webFrame.setLayoutParams(params);
         mainView.addView(webFrame);
         loadChromeApp(appUrl);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
     }
 
     private void addJavascriptInterfaces() {
@@ -105,8 +109,8 @@ public class MainActivity extends Activity {
         callView.getSettings().setDomStorageEnabled(true);
         callView.getSettings().setPluginState(WebSettings.PluginState.ON);
         callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        callView.getSettings().setRenderPriority(WebSettings.RenderPriority.LOW);
-        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        callView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         callView.getSettings().setDatabaseEnabled(true);
@@ -130,19 +134,24 @@ public class MainActivity extends Activity {
                 });
             }
         });
-        callView.setWebViewClient(new WebViewClient()
-        {
-            @Override
-            public void onPageFinished(final WebView view, String url) {
-                print("call_view_finished_loading");
-                webFrame.addView(callView);
-                webFrame.bringChildToFront(callView);
-            }
-        });
+//        callView.setWebViewClient(new WebViewClient()
+//        {
+//            @Override
+//            public void onPageFinished(final WebView view, String url) {
+//                print("call_view_finished_loading");
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                    }
+//                });
+//            }
+//        });
         callView.setLayoutParams(new FrameLayout.LayoutParams(512, 384));
         callView.setY(mainView.getHeight()-384);
         callView.setX(mainView.getWidth()-512);
         callView.loadUrl(url);
+        webFrame.addView(callView);
+        webFrame.bringChildToFront(callView);
 
     }
 
@@ -165,24 +174,24 @@ public class MainActivity extends Activity {
             webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
         }
         webView.setInitialScale(185);
-        webView.setWebChromeClient(new WebChromeClient(){
-            @Override
-            public void onPermissionRequest(final PermissionRequest request) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        request.grant(request.getResources());
-                    }
-                });
-            }
-            @Override
-            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, Message resultMsg)
-            {
-                print("overriding window create");
-                print(resultMsg.toString());
-                return false;
-            }
-        });
+//        webView.setWebChromeClient(new WebChromeClient(){
+//            @Override
+//            public void onPermissionRequest(final PermissionRequest request) {
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        request.grant(request.getResources());
+//                    }
+//                });
+//            }
+//            @Override
+//            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, Message resultMsg)
+//            {
+//                print("overriding window create");
+//                print(resultMsg.toString());
+//                return false;
+//            }
+//        });
         webView.setWebViewClient(new WebViewClient()
         {
             @Override
@@ -215,12 +224,19 @@ public class MainActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 final Uri uri = request.getUrl();
                 Log.e("connect4","overriding load: "+uri.toString());
+
                 if (uri.toString().startsWith("mailto:")) {
                     startActivity(new Intent(Intent.ACTION_SENDTO, uri));
                     return true;
                 }
                 if (uri.toString().contains("#call")) {
-                    createCallWindow(uri.toString().replace("app://", ""));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            createCallWindow(uri.toString().replace("app://", ""));
+                        }
+                    });
                     return true;
                 }
                 view.loadUrl(uri.toString());
