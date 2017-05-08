@@ -262,7 +262,7 @@ export default {
 				      'credential': 'youhavetoberealistic',
 				      'username': 'ninefingers'
 				    }
-			if(navigator.userAgent.search("Android") == -1) {
+			if(navigator.userAgent.search("Android") == -1 && window.location.origin.search("localhost") == -1) {
 				params = {
 				      'urls': 'turn:starp.tech:3478',
 				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
