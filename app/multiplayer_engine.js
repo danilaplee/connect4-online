@@ -257,21 +257,20 @@ export default {
 		var self = this
 		var addLocalStream = function(stream)
 		{
-			var params = {
-				      'urls': 'turn:starp.tech:3478',
-				      'credential': 'youhavetoberealistic',
-				      'username': 'ninefingers'
-				    }
-			if(navigator.userAgent.search("Android") == -1 && window.location.origin.search("localhost") == -1) {
-				params = {
-				      'urls': 'turn:starp.tech:3478',
-				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-				      'username': '282245111379330808'
-				    }
+			var	params = {
+				'urls': 'turn:starp.tech:3478?transport=udp',
+				'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
+				'username': '282245111379330808'
 			}
+			var params2 = JSON.parse(JSON.stringify(params))
+				params2.urls = params2.urls.replace("turn", "stun").replace("?transport=udp", "")
+			var params3 = JSON.parse(JSON.stringify(params))
+				params3.urls = params3.urls.replace("?transport=ucp", "?transport=tcp")
 			var pc = new PeerConnection(
 			{	'iceServers': 
 				[
+					params2,
+					params3,
 				    params
 				]
 			});
