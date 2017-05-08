@@ -82,7 +82,7 @@ export default class Customizer extends React.Component {
 		      <div className="modal-body">
 		      	<div className="col-xs-12" style={{padding:0}}>
 				    <SliderPicker 
-						color={ this.props.player.color_obj.hex }
+						color={ this.props.player.color_obj.hex || defaults.color_obj.hex }
 						onChangeComplete={ this.handleColorPick }
 					/>
 				</div>
