@@ -172,6 +172,7 @@ export default {
 		
 		self.socket.emit('openSession', self.multiplayer_session)
 		var dataReceived = false;
+		var time = null;
 		self.socket.on('yourSession', function(info)
 		{
 			if(dataReceived == true) return;
@@ -183,38 +184,41 @@ export default {
 			self.multiplayer_session_active = true;
 			self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
 
-			self.socket.on('ballDropped', function(column)
-			{
-				self.updateColumn(column)
-			})
+			time = setTimeout(function(){
+				clearTimeout(time)
+				self.socket.on('ballDropped', function(column)
+				{
+					self.updateColumn(column)
+				})
 
-			self.socket.on('restartGame', function(starting_player)
-			{
-				self.restarting_multiplayer = true;
-				if(starting_player === 1) 
+				self.socket.on('restartGame', function(starting_player)
 				{
-					if(self.guest) self.active_user = self.player_two;
-					else self.active_user = self.player_one
+					self.restarting_multiplayer = true;
+					if(starting_player === 1) 
+					{
+						if(self.guest) self.active_user = self.player_two;
+						else self.active_user = self.player_one
+					}
+					if(starting_player === 2) 
+					{
+						if(self.guest) self.active_user = self.player_one;
+						else self.active_user = self.player_two
+					}
+					self.startGame();
+				})
+				if(!self.multiplayer_promise) {
+					self.player_two 	= info.player1
+					self.player_two.id 	= 2;
+					self.active_user = self.player_two;
+					self.modal_container.style.display = 'none';
+					self.startGame();
+					return;
 				}
-				if(starting_player === 2) 
-				{
-					if(self.guest) self.active_user = self.player_one;
-					else self.active_user = self.player_two
-				}
-				self.startGame();
-			})
-			if(!self.multiplayer_promise) {
-				self.player_two 	= info.player1
+				self.player_two 	= info.player2
 				self.player_two.id 	= 2;
-				self.active_user = self.player_two;
 				self.modal_container.style.display = 'none';
-				self.startGame();
-				return;
-			}
-			self.player_two 	= info.player2
-			self.player_two.id 	= 2;
-			self.modal_container.style.display = 'none';
-			self.multiplayer_promise()
+				self.multiplayer_promise()
+			}, 1000)
 		})
 	},
 	openSession()
