@@ -254,24 +254,20 @@ export default {
 		var addLocalStream = function(stream)
 		{
 			var pc = new PeerConnection(
-			{'iceServers': 
-			[
-			    {
-			      'url': 'stun:137.74.113.238:3478',
-			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-			      'username': '282245111379330808'
-			    },
-			    {
-			      'url': 'turn:137.74.113.238:3478?transport=udp',
-			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-			      'username': '282245111379330808'
-			    },
-			    {
-			      'url': 'turn:137.74.113.238:3478?transport=tcp',
-			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-			      'username': '282245111379330808'
-			    }
-			]});
+			{	'iceServers': 
+				[
+				    {
+				      'urls': 'stun:137.74.113.238:3478',
+				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
+				      'username': '282245111379330808'
+				    },
+				    {
+				      'urls': 'turn:137.74.113.238:3478',
+				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
+				      'username': '282245111379330808'
+				    }
+				]
+			});
 			if(stream) pc.addStream(stream);
 			pc.onicecandidate 	= self.gotIceCandidate;
 			pc.onaddstream 		= self.gotRemoteStream;
