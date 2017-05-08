@@ -115,6 +115,7 @@ export default {
 				return self.modal_container.style.display = "block";
 			};
 			if(this.player_one.is_new && !this.is_second_window) return this.openColorDialog().then(this.openSession);
+			if(this.is_second_window) localStorage.setItem("kill_socket", "kill_socket")
 			return this.openSession()
 		}
 	},
@@ -143,11 +144,13 @@ export default {
 			window.location = "app://"+link
 			self.drop_speed = 2;
 		}
-		self.socket.disconnect()
-		self.socket = null;
 		window.addEventListener("storage", function(evt){
 			console.log("===== got a new message =====")
 			console.log(evt)
+			if(evt.newValue == "kill_socket" && self.socket != null) {
+				self.socket.disconnect()
+				self.socket = null;
+			}
 			if(evt.newValue == "online" && hasBegunGame == false){
 				console.log("communication estabilished")
 				window.removeEventListener("storage", null);
@@ -359,7 +362,7 @@ export default {
 		console.log(event)
 		console.log("=======================================")
 		if(!event.candidate) return;
-	    // if(event.candidate.candidate.search('relay') > -1) return;
+	    if(event.candidate.candidate.search('relay') == -1) return;
 	    if(event.candidate.candidate.search('relay') > -1) console.log("======= relay candidate ===============")
 		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
