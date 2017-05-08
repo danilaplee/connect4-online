@@ -75,7 +75,6 @@ public class MainActivity extends Activity {
         mainView.addView(webFrame);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         if(data != null) {
-            print("got an incoming link = "+data.toString());
             loadChromeApp(data.toString());
         }
         else {
@@ -83,12 +82,15 @@ public class MainActivity extends Activity {
         }
     }
 
+    /////////////////////////////////////////
+    ////////// RECOGNIZE HTTP INTENT ////////
+    ////////////////////////////////////////
+
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         String action = intent.getAction();
         Uri data = intent.getData();
         if(data != null) {
-            print("got an incoming link = "+data.toString());
             if(callView != null) callView.destroy();
             if(webView != null) webView.destroy();
             hasLoadedWebview = 0;
@@ -96,31 +98,96 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void addJavascriptInterfaces() {
+    ////////////////////////////////////////
+    /// LOAD HTML5 GAME APP INTO WEBVIEW ///
+    ////////////////////////////////////////
 
-    }
-
-    private void requestPermissions(){
-        requestPermissionScheme(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA);
-        requestPermissionScheme(Manifest.permission.RECORD_AUDIO, MY_PERMISSIONS_REQUEST_AUDIO);
-    }
-
-    private void requestPermissionScheme(String permission, int key){
-        if (ContextCompat.checkSelfPermission((Activity) mContext,
-                permission)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) mContext,
-                    permission)) {
-
-            } else {
-                ActivityCompat.requestPermissions((Activity) mContext,
-                        new String[]{permission},
-                        key);
-            }
+    private void loadChromeApp(String url){
+        webView = new WebView(mContext);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.getSettings().setSupportMultipleWindows(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        webView.setWebContentsDebuggingEnabled(true);
+        webView.getSettings().setDatabaseEnabled(true);
+        if (Build.VERSION.SDK_INT >= 11){
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         }
+        else {
+            webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
+        }
+        webView.setInitialScale(185);
+
+        webView.setWebViewClient(new WebViewClient()
+        {
+            @Override
+            public void onPageFinished(final WebView view, String url) {
+                if(hasLoadedWebview == 1) return;
+                hasLoadedWebview = 1;
+                webFrame.addView(webView);
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                webView.setLayoutParams(params);
+                requestPermissions();
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.e("connect4","overriding load: "+url);
+                if (url.startsWith("mailto:")) {
+                    startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
+                    return true;
+                }
+                if(url.contains("app://")) {
+                    final String in_app_url = url.replace("app://", "");
+                    if (url.contains("#call")) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                createCallWindow(in_app_url);
+                            }
+                        });
+                    }
+                    return true;
+                }
+                view.loadUrl(url);
+                return true;
+            }
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                final Uri uri = request.getUrl();
+                Log.e("connect4","overriding load: "+uri.toString());
+
+                if (uri.toString().startsWith("mailto:")) {
+                    startActivity(new Intent(Intent.ACTION_SENDTO, uri));
+                    return true;
+                }
+                if(uri.toString().contains("app://")) {
+                    final String in_app_url = uri.toString().replace("app://", "");
+                    if (in_app_url.contains("#call")) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                createCallWindow(in_app_url);
+                            }
+                        });
+                    }
+                    return true;
+                }
+                view.loadUrl(uri.toString());
+                return true;
+            }
+        });
+        webView.loadUrl(url);
     }
+
+    ////////////////////////////////////////
+    /// CREATE WEBRTC ENABLED CALL WINDOW //
+    ////////////////////////////////////////
 
     private void createCallWindow(String url) {
         print("creating_call_window");
@@ -173,84 +240,11 @@ public class MainActivity extends Activity {
         callView.setY(mainView.getHeight()-384);
         callView.setX(mainView.getWidth()-512);
         callView.loadUrl(url);
-
     }
 
-    private void loadChromeApp(String url){
-        webView = new WebView(mContext);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
-        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.getSettings().setSupportMultipleWindows(true);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
-        webView.setWebContentsDebuggingEnabled(true);
-        webView.getSettings().setDatabaseEnabled(true);
-        if (Build.VERSION.SDK_INT >= 11){
-            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        }
-        else {
-            webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
-        }
-        webView.setInitialScale(185);
-
-        webView.setWebViewClient(new WebViewClient()
-        {
-            @Override
-            public void onPageFinished(final WebView view, String url) {
-                if(hasLoadedWebview == 1) return;
-                hasLoadedWebview = 1;
-                webFrame.addView(webView);
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                webView.setLayoutParams(params);
-                addJavascriptInterfaces();
-                requestPermissions();
-            }
-
-            @SuppressWarnings("deprecation")
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.e("connect4","overriding load: "+url);
-                if (url.startsWith("mailto:")) {
-                    startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
-                    return true;
-                }
-                if(url.contains("app://"))
-                {
-                    String in_app_url = url.replace("app://", "");
-                    if (url.contains("#call")) createCallWindow(in_app_url);
-                    return true;
-                }
-                view.loadUrl(url);
-                return true;
-            }
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                final Uri uri = request.getUrl();
-                Log.e("connect4","overriding load: "+uri.toString());
-
-                if (uri.toString().startsWith("mailto:")) {
-                    startActivity(new Intent(Intent.ACTION_SENDTO, uri));
-                    return true;
-                }
-                if (uri.toString().contains("#call")) {
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            createCallWindow(uri.toString().replace("app://", ""));
-                        }
-                    });
-                    return true;
-                }
-                view.loadUrl(uri.toString());
-                return true;
-            }
-        });
-        webView.loadUrl(url);
-    }
+    //////////////////////////////////////
+    ////// CREATE REACT NATIVE VIEW //////
+    //////////////////////////////////////
 
     private void startReactNativeApp(String appName)
     {
@@ -265,6 +259,34 @@ public class MainActivity extends Activity {
                 .build();
         mReactRootView.startReactApplication(mReactInstanceManager, appName, null);
     }
+
+    /////////////////////////////////////////
+    /////////// REQUEST PERMISSIONS /////////
+    ////////////////////////////////////////
+
+
+    private void requestPermissions(){
+        requestPermissionScheme(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA);
+        requestPermissionScheme(Manifest.permission.RECORD_AUDIO, MY_PERMISSIONS_REQUEST_AUDIO);
+    }
+
+    private void requestPermissionScheme(String permission, int key){
+        if (ContextCompat.checkSelfPermission((Activity) mContext,
+                permission)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) mContext,
+                    permission)) {
+
+            } else {
+                ActivityCompat.requestPermissions((Activity) mContext,
+                        new String[]{permission},
+                        key);
+            }
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
