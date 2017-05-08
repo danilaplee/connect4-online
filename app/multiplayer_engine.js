@@ -257,7 +257,7 @@ export default {
 			{	'iceServers': 
 				[
 				    {
-				      'urls': 'turn:starp.tech:3478',
+				      'urls': 'turn:starp.tech:3478?transport=udp',
 				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
 				      'username': '282245111379330808'
 				    }
