@@ -110,7 +110,7 @@ public class MainActivity extends Activity {
         callView.getSettings().setPluginState(WebSettings.PluginState.ON);
         callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         callView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         callView.getSettings().setDatabaseEnabled(true);
@@ -134,24 +134,24 @@ public class MainActivity extends Activity {
                 });
             }
         });
-//        callView.setWebViewClient(new WebViewClient()
-//        {
-//            @Override
-//            public void onPageFinished(final WebView view, String url) {
-//                print("call_view_finished_loading");
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                    }
-//                });
-//            }
-//        });
+        callView.setWebViewClient(new WebViewClient()
+        {
+            @Override
+            public void onPageFinished(final WebView view, String url) {
+                print("call_view_finished_loading");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        webFrame.addView(callView);
+                        webFrame.bringChildToFront(callView);
+                    }
+                });
+            }
+        });
         callView.setLayoutParams(new FrameLayout.LayoutParams(512, 384));
         callView.setY(mainView.getHeight()-384);
         callView.setX(mainView.getWidth()-512);
         callView.loadUrl(url);
-        webFrame.addView(callView);
-        webFrame.bringChildToFront(callView);
 
     }
 
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         webView.getSettings().setPluginState(WebSettings.PluginState.ON);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.getSettings().setSupportMultipleWindows(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         webView.setWebContentsDebuggingEnabled(true);
@@ -174,24 +174,7 @@ public class MainActivity extends Activity {
             webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
         }
         webView.setInitialScale(185);
-//        webView.setWebChromeClient(new WebChromeClient(){
-//            @Override
-//            public void onPermissionRequest(final PermissionRequest request) {
-//                MainActivity.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        request.grant(request.getResources());
-//                    }
-//                });
-//            }
-//            @Override
-//            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, Message resultMsg)
-//            {
-//                print("overriding window create");
-//                print(resultMsg.toString());
-//                return false;
-//            }
-//        });
+
         webView.setWebViewClient(new WebViewClient()
         {
             @Override
@@ -213,8 +196,10 @@ public class MainActivity extends Activity {
                     startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
                     return true;
                 }
-                if (url.contains("#call")) {
-                    createCallWindow(url.replace("app://", ""));
+                if(url.contains("app://"))
+                {
+                    String in_app_url = url.replace("app://", "");
+                    if (url.contains("#call")) createCallWindow(in_app_url);
                     return true;
                 }
                 view.loadUrl(url);

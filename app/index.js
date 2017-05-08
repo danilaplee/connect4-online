@@ -114,6 +114,7 @@ var instance =
 		this.gotRemoteStream 		= multiplayer.gotRemoteStream.bind(this)
 		this.gotIceCandidate 		= multiplayer.gotIceCandidate.bind(this)
 		this.createAnswer 			= multiplayer.createAnswer.bind(this)
+		this.copyToClipboard 		= multiplayer.copyToClipboard.bind(this)
 		this.help 					= '1) to start a new game run game.startGame() \n'
 									+ '2) to set game mode edit game.mode \n'
 									+ 'available options are "single", "multi" and "hot" '
