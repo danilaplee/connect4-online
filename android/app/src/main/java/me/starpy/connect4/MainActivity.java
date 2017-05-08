@@ -8,17 +8,23 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.facebook.react.LifecycleState;
@@ -39,20 +45,34 @@ public class MainActivity extends Activity {
     public String  appUrl   = "https://danilaplee.github.io/connect4-online/bin";
     public int mainLayout;
     public WebView webView;
+    public WebView callView;
+    public FrameLayout webFrame;
     public LinearLayout mainView;
     private int hasLoadedWebview = 0;
     private ReactRootView mReactRootView;
     private ReactInstanceManager mReactInstanceManager;
 
+    public void print(String string) {
+        Log.e("me.starpy.connect4", string);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         requestPermissionScheme(Manifest.permission.INTERNET, MY_PERMISSIONS_REQUEST_INTERNET);
         requestPermissionScheme(Manifest.permission.WAKE_LOCK, MY_PERMISSIONS_REQUEST_WAKE);
         mainLayout = R.layout.activity_main;
         setContentView(mainLayout);
         mainView = (LinearLayout) findViewById(R.id.mainView);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        webFrame = new FrameLayout(mContext);
+        webFrame.setLayoutParams(params);
+        mainView.addView(webFrame);
         loadChromeApp(appUrl);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
     }
 
     private void addJavascriptInterfaces() {
@@ -61,7 +81,6 @@ public class MainActivity extends Activity {
 
     private void requestPermissions(){
         requestPermissionScheme(Manifest.permission.CAMERA, MY_PERMISSIONS_REQUEST_CAMERA);
-        requestPermissionScheme(Manifest.permission.CAPTURE_VIDEO_OUTPUT, MY_PERMISSIONS_REQUEST_VIDEO);
         requestPermissionScheme(Manifest.permission.RECORD_AUDIO, MY_PERMISSIONS_REQUEST_AUDIO);
     }
 
@@ -74,37 +93,37 @@ public class MainActivity extends Activity {
             if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) mContext,
                     permission)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
             } else {
-
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions((Activity) mContext,
                         new String[]{permission},
                         key);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
         }
     }
 
-    private void loadChromeApp(String url){
-        webView = new WebView(mContext);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
-        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.getSettings().setSupportMultipleWindows(true);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+    private void createCallWindow(String url) {
+        print("creating_call_window");
+        print(url);
+        callView = new WebView(mContext);
+        callView.getSettings().setJavaScriptEnabled(true);
+        callView.getSettings().setDomStorageEnabled(true);
+        callView.getSettings().setPluginState(WebSettings.PluginState.ON);
+        callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        callView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+        callView.getSettings().setSupportMultipleWindows(true);
+        callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        callView.getSettings().setDatabaseEnabled(true);
+        if (Build.VERSION.SDK_INT >= 11){
+            callView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
+        else {
+            callView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
+        }
+        callView.setWebContentsDebuggingEnabled(true);
 
-        webView.setInitialScale(185);
-        webView.setWebChromeClient(new WebChromeClient(){
+        callView.setInitialScale(100);
+        callView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 MainActivity.this.runOnUiThread(new Runnable() {
@@ -115,24 +134,87 @@ public class MainActivity extends Activity {
                 });
             }
         });
+//        callView.setWebViewClient(new WebViewClient()
+//        {
+//            @Override
+//            public void onPageFinished(final WebView view, String url) {
+//                print("call_view_finished_loading");
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                    }
+//                });
+//            }
+//        });
+        callView.setLayoutParams(new FrameLayout.LayoutParams(512, 384));
+        callView.setY(mainView.getHeight()-384);
+        callView.setX(mainView.getWidth()-512);
+        callView.loadUrl(url);
+        webFrame.addView(callView);
+        webFrame.bringChildToFront(callView);
+
+    }
+
+    private void loadChromeApp(String url){
+        webView = new WebView(mContext);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        webView.getSettings().setSupportMultipleWindows(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        webView.setWebContentsDebuggingEnabled(true);
+        webView.getSettings().setDatabaseEnabled(true);
+        if (Build.VERSION.SDK_INT >= 11){
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
+        else {
+            webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
+        }
+        webView.setInitialScale(185);
+//        webView.setWebChromeClient(new WebChromeClient(){
+//            @Override
+//            public void onPermissionRequest(final PermissionRequest request) {
+//                MainActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        request.grant(request.getResources());
+//                    }
+//                });
+//            }
+//            @Override
+//            public boolean onCreateWindow(WebView view, boolean dialog, boolean userGesture, Message resultMsg)
+//            {
+//                print("overriding window create");
+//                print(resultMsg.toString());
+//                return false;
+//            }
+//        });
         webView.setWebViewClient(new WebViewClient()
         {
-
             @Override
             public void onPageFinished(final WebView view, String url) {
                 if(hasLoadedWebview == 1) return;
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 hasLoadedWebview = 1;
-                mainView.addView(webView);
+                webFrame.addView(webView);
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                webView.setLayoutParams(params);
                 addJavascriptInterfaces();
                 requestPermissions();
-
             }
+
             @SuppressWarnings("deprecation")
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.e("connect4","overriding load: "+url);
                 if (url.startsWith("mailto:")) {
                     startActivity(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)));
+                    return true;
+                }
+                if (url.contains("#call")) {
+                    createCallWindow(url.replace("app://", ""));
                     return true;
                 }
                 view.loadUrl(url);
@@ -141,13 +223,22 @@ public class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 final Uri uri = request.getUrl();
-                Log.e("overriding load", uri.toString());
+                Log.e("connect4","overriding load: "+uri.toString());
+
                 if (uri.toString().startsWith("mailto:")) {
-                    //Handle mail Urls
                     startActivity(new Intent(Intent.ACTION_SENDTO, uri));
                     return true;
                 }
-                //Handle Web Urls
+                if (uri.toString().contains("#call")) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            createCallWindow(uri.toString().replace("app://", ""));
+                        }
+                    });
+                    return true;
+                }
                 view.loadUrl(uri.toString());
                 return true;
             }
