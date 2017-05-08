@@ -263,15 +263,20 @@ export default {
 				'username': '282245111379330808'
 			}
 			var params2 = JSON.parse(JSON.stringify(params))
-				params2.urls = params2.urls.replace("turn", "stun").replace("?transport=udp", "")
+				params2.url = params2.urls.replace("turn", "stun").replace("?transport=udp", "")
+			delete params2.urls
 			var params3 = JSON.parse(JSON.stringify(params))
-				params3.urls = params3.urls.replace("?transport=ucp", "?transport=tcp")
+				params3.urls = params3.urls.replace("?transport=udp", "?transport=tcp")
+			var params4 = {
+				urls:[params.urls,params3.urls,params.urls.replace("?transport=udp", "")],
+				credential:params.credential,
+				username:params.username
+			}
 			var pc = new PeerConnection(
 			{	'iceServers': 
 				[
 					params2,
-					params3,
-				    params
+					params4
 				]
 			});
 			if(stream) pc.addStream(stream);
