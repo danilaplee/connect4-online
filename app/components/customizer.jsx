@@ -63,6 +63,15 @@ export default class Customizer extends React.Component {
 		  padding: '.3em .6em',
 		  zIndex: '2'
 		};
+		var defaults = {
+			color:0x2d8638,
+			color_obj:
+			{
+				hex:'#2d8638'
+			},
+			emoji:":dizzy:",
+			emoji_img:"https://twemoji.maxcdn.com/svg/1f4ab.svg"
+		}
 	    return <div className="modal">
 		  <div className="modal-dialog">
 		    <div className="modal-content">
