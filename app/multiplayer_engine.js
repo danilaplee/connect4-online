@@ -261,7 +261,7 @@ export default {
 			{	'iceServers': 
 				[
 				    {
-				      'urls': 'turn:starp.tech:3478?transport=udp',
+				      'urls': 'turn:137.74.113.238:3478?transport=udp',
 				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
 				      'username': '282245111379330808'
 				    }
@@ -348,8 +348,9 @@ export default {
 		console.log('======== created ice candidate ========')
 		console.log(event)
 		console.log("=======================================")
-	    if(event.candidate.search('relay') == -1) return;
-		if(event.candidate) this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
+		if(!event.candidate) return;
+	    // if(event.candidate.candidate.search('relay') == -1) return;
+		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 
 	{
