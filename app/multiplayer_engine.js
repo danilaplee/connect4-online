@@ -258,17 +258,18 @@ export default {
 		var addLocalStream = function(stream)
 		{
 			var	params = {
-				'urls': 'turn:starp.tech:3478?transport=udp',
+				'urls': 'turn:starp.tech:3478?transport=tcp',
 				'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
 				'username': '282245111379330808'
 			}
+			if(localStorage.getItem("master") == "true") params.username += "22"
 			var params2 = JSON.parse(JSON.stringify(params))
 				params2.url = params2.urls.replace("turn", "stun").replace("?transport=udp", "")
 			delete params2.urls
-			var params3 = JSON.parse(JSON.stringify(params))
-				params3.urls = params3.urls.replace("?transport=udp", "?transport=tcp")
+			// var params3 = JSON.parse(JSON.stringify(params))
+				// params3.urls = params3.urls.replace("?transport=udp", "?transport=tcp")
 			var params4 = {
-				urls:[params.urls,params3.urls,params.urls.replace("?transport=udp", "")],
+				urls:[params.urls,params.urls.replace("?transport=udp", "")],
 				credential:params.credential,
 				username:params.username
 			}
@@ -358,8 +359,8 @@ export default {
 		console.log(event)
 		console.log("=======================================")
 		if(!event.candidate) return;
-	    if(event.candidate.candidate.search('relay') == -1) return;
-	    console.log("======= relay candidate ===============")
+	    // if(event.candidate.candidate.search('relay') > -1) return;
+	    if(event.candidate.candidate.search('relay') > -1) console.log("======= relay candidate ===============")
 		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 
