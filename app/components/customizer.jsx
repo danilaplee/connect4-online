@@ -42,6 +42,7 @@ export default class Customizer extends React.Component {
 						profile:player
 					})
 					localStorage.setItem('connect4', user_data)
+					localStorage.setItem("db_version", "0.1.0");
 					self.props.promise();
 					if(!self.props.game.in_progress && self.props.game.multiplayer_session) self.props.game.startGame();
 				}
