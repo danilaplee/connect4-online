@@ -348,6 +348,7 @@ export default {
 		console.log('======== created ice candidate ========')
 		console.log(event)
 		console.log("=======================================")
+	    if(relay && ice.candidate.indexOf('relay') == -1) return;
 		if(event.candidate) this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 
