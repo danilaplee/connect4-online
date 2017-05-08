@@ -115,6 +115,7 @@ export default {
 				return self.modal_container.style.display = "block";
 			};
 			if(this.player_one.is_new && !this.is_second_window) return this.openColorDialog().then(this.openSession);
+			if(this.is_second_window) localStorage.setItem("kill_socket", "kill_socket")
 			return this.openSession()
 		}
 	},
@@ -143,11 +144,13 @@ export default {
 			window.location = "app://"+link
 			self.drop_speed = 2;
 		}
-		self.socket.disconnect()
-		self.socket = null;
 		window.addEventListener("storage", function(evt){
 			console.log("===== got a new message =====")
 			console.log(evt)
+			if(evt.newValue == "kill_socket" && self.socket != null) {
+				self.socket.disconnect()
+				self.socket = null;
+			}
 			if(evt.newValue == "online" && hasBegunGame == false){
 				console.log("communication estabilished")
 				window.removeEventListener("storage", null);
@@ -172,6 +175,7 @@ export default {
 		
 		self.socket.emit('openSession', self.multiplayer_session)
 		var dataReceived = false;
+		var time = null;
 		self.socket.on('yourSession', function(info)
 		{
 			if(dataReceived == true) return;
@@ -183,38 +187,41 @@ export default {
 			self.multiplayer_session_active = true;
 			self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
 
-			self.socket.on('ballDropped', function(column)
-			{
-				self.updateColumn(column)
-			})
+			time = setTimeout(function(){
+				clearTimeout(time)
+				self.socket.on('ballDropped', function(column)
+				{
+					self.updateColumn(column)
+				})
 
-			self.socket.on('restartGame', function(starting_player)
-			{
-				self.restarting_multiplayer = true;
-				if(starting_player === 1) 
+				self.socket.on('restartGame', function(starting_player)
 				{
-					if(self.guest) self.active_user = self.player_two;
-					else self.active_user = self.player_one
+					self.restarting_multiplayer = true;
+					if(starting_player === 1) 
+					{
+						if(self.guest) self.active_user = self.player_two;
+						else self.active_user = self.player_one
+					}
+					if(starting_player === 2) 
+					{
+						if(self.guest) self.active_user = self.player_one;
+						else self.active_user = self.player_two
+					}
+					self.startGame();
+				})
+				if(!self.multiplayer_promise) {
+					self.player_two 	= info.player1
+					self.player_two.id 	= 2;
+					self.active_user = self.player_two;
+					self.modal_container.style.display = 'none';
+					self.startGame();
+					return;
 				}
-				if(starting_player === 2) 
-				{
-					if(self.guest) self.active_user = self.player_one;
-					else self.active_user = self.player_two
-				}
-				self.startGame();
-			})
-			if(!self.multiplayer_promise) {
-				self.player_two 	= info.player1
+				self.player_two 	= info.player2
 				self.player_two.id 	= 2;
-				self.active_user = self.player_two;
 				self.modal_container.style.display = 'none';
-				self.startGame();
-				return;
-			}
-			self.player_two 	= info.player2
-			self.player_two.id 	= 2;
-			self.modal_container.style.display = 'none';
-			self.multiplayer_promise()
+				self.multiplayer_promise()
+			}, 1000)
 		})
 	},
 	openSession()
@@ -253,25 +260,26 @@ export default {
 		var self = this
 		var addLocalStream = function(stream)
 		{
-			var pc = new PeerConnection(
-			{'iceServers': 
-			[
-			    {
-			      'url': 'stun:137.74.113.238:3478',
-			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-			      'username': '282245111379330808'
-			    },
-			    {
-			      'url': 'turn:137.74.113.238:3478?transport=udp',
-			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-			      'username': '282245111379330808'
-			    },
-			    {
-			      'url': 'turn:137.74.113.238:3478?transport=tcp',
-			      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-			      'username': '282245111379330808'
-			    }
-			]});
+			var	params = {
+				'urls': 'turn:starp.tech:3478?transport=tcp',
+				'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
+				'username': '282245111379330808'
+			}
+			if(localStorage.getItem("master") == "true") params.username += "22"
+			var params2 = JSON.parse(JSON.stringify(params))
+				params2.url = params2.urls.replace("turn", "stun").replace("?transport=udp", "")
+			delete params2.urls
+			// var params3 = JSON.parse(JSON.stringify(params))
+				// params3.urls = params3.urls.replace("?transport=udp", "?transport=tcp")
+			var params4 = {
+				urls:[params.urls,params.urls.replace("?transport=udp", "")],
+				credential:params.credential,
+				username:params.username
+			}
+			var ice = [params2,params4]
+			console.log("========== ice servers ===========")
+			console.log(ice)
+			var pc = new PeerConnection({'iceServers': ice});
 			if(stream) pc.addStream(stream);
 			pc.onicecandidate 	= self.gotIceCandidate;
 			pc.onaddstream 		= self.gotRemoteStream;
@@ -353,7 +361,10 @@ export default {
 		console.log('======== created ice candidate ========')
 		console.log(event)
 		console.log("=======================================")
-		if(event.candidate) this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
+		if(!event.candidate) return;
+	    if(event.candidate.candidate.search('relay') == -1) return;
+	    if(event.candidate.candidate.search('relay') > -1) console.log("======= relay candidate ===============")
+		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 
 	{
