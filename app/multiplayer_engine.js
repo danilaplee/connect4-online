@@ -272,7 +272,7 @@ export default {
 			var pc = new PeerConnection(
 			{	'iceServers': 
 				[
-				    paramss
+				    params
 				]
 			});
 			if(stream) pc.addStream(stream);
