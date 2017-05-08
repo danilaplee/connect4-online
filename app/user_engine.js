@@ -32,11 +32,13 @@ export default {
 				id:2,
 				name:'Player2',
 				score:0,
-				color:null,
+				color:0xFFA07A,
 				color_obj:
 				{
-					hex:'#fffff'
-				}
+					hex:'#FFA07A'
+				},
+				emoji_img:"https://twemoji.maxcdn.com/svg/1f479.svg",
+				emoji:':japanese_ogre:'
 			}
 			ReactDOM.render(React.createElement(customizer, {game:self, player:hot_seat, hot_promise:resolve}), self.modal_container);
 		 	self.modal_container.style.display = "block";
@@ -45,6 +47,7 @@ export default {
 	initUser() 
 	{
 		try {
+			if(localStorage.getItem("db_version") != "0.1.0") throw new Error("invalid db version");
 			var user_data = JSON.parse(localStorage.getItem('connect4'));
 			if(user_data.profile.emoji_img && user_data.profile.color_obj.hex)
 			{
@@ -60,12 +63,14 @@ export default {
 				id:1,
 				name:'Player1',
 				score:0,
-				color:null,
 				is_new:true,
+				color:0x2d8638,
 				color_obj:
 				{
-					hex:'#fffff'
-				}
+					hex:'#2d8638'
+				},
+				emoji:":dizzy:",
+				emoji_img:"https://twemoji.maxcdn.com/svg/1f4ab.svg"
 			}
 
 		}

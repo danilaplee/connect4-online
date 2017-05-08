@@ -42,6 +42,7 @@ export default class Customizer extends React.Component {
 						profile:player
 					})
 					localStorage.setItem('connect4', user_data)
+					localStorage.setItem("db_version", "0.1.0");
 					self.props.promise();
 					if(!self.props.game.in_progress && self.props.game.multiplayer_session) self.props.game.startGame();
 				}
@@ -62,6 +63,15 @@ export default class Customizer extends React.Component {
 		  padding: '.3em .6em',
 		  zIndex: '2'
 		};
+		var defaults = {
+			color:0x2d8638,
+			color_obj:
+			{
+				hex:'#2d8638'
+			},
+			emoji:":dizzy:",
+			emoji_img:"https://twemoji.maxcdn.com/svg/1f4ab.svg"
+		}
 	    return <div className="modal">
 		  <div className="modal-dialog">
 		    <div className="modal-content">
@@ -72,7 +82,7 @@ export default class Customizer extends React.Component {
 		      <div className="modal-body">
 		      	<div className="col-xs-12" style={{padding:0}}>
 				    <SliderPicker 
-						color={ this.props.player.color_obj.hex }
+						color={ this.props.player.color_obj.hex || defaults.color_obj.hex }
 						onChangeComplete={ this.handleColorPick }
 					/>
 				</div>
