@@ -257,19 +257,22 @@ export default {
 		var self = this
 		var addLocalStream = function(stream)
 		{
-			var pc = new PeerConnection(
-			{	'iceServers': 
-				[
-				    // {
-				    //   'urls': 'turn:starp.tech:3478',
-				    //   'credential': 'youhavetoberealistic',
-				    //   'username': 'ninefingers'
-				    // }
-				    {
+			var params = {
+				      'urls': 'turn:starp.tech:3478',
+				      'credential': 'youhavetoberealistic',
+				      'username': 'ninefingers'
+				    }
+			if(navigator.userAgent.search("Android") == -1) {
+				params = {
 				      'urls': 'turn:starp.tech:3478',
 				      'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
 				      'username': '282245111379330808'
 				    }
+			}
+			var pc = new PeerConnection(
+			{	'iceServers': 
+				[
+				    paramss
 				]
 			});
 			if(stream) pc.addStream(stream);
