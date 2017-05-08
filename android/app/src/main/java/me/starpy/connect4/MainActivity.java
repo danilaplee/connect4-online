@@ -83,6 +83,19 @@ public class MainActivity extends Activity {
         }
     }
 
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String action = intent.getAction();
+        Uri data = intent.getData();
+        if(data != null) {
+            print("got an incoming link = "+data.toString());
+            if(callView != null) callView.destroy();
+            if(webView != null) webView.destroy();
+            hasLoadedWebview = 0;
+            loadChromeApp(data.toString());
+        }
+    }
+
     private void addJavascriptInterfaces() {
 
     }
