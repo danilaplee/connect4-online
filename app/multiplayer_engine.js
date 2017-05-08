@@ -357,7 +357,7 @@ export default {
 		console.log(event)
 		console.log("=======================================")
 		if(!event.candidate) return;
-	    if(event.candidate.candidate.search('relay') == -1) return;
+	    // if(event.candidate.candidate.search('relay') == -1) return;
 		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 
