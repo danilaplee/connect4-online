@@ -272,13 +272,10 @@ export default {
 				credential:params.credential,
 				username:params.username
 			}
-			var pc = new PeerConnection(
-			{	'iceServers': 
-				[
-					params2,
-					params4
-				]
-			});
+			var ice = [params2,params4]
+			console.log("========== ice servers ===========")
+			console.log(ice)
+			var pc = new PeerConnection({'iceServers': ice});
 			if(stream) pc.addStream(stream);
 			pc.onicecandidate 	= self.gotIceCandidate;
 			pc.onaddstream 		= self.gotRemoteStream;
@@ -361,7 +358,8 @@ export default {
 		console.log(event)
 		console.log("=======================================")
 		if(!event.candidate) return;
-	    // if(event.candidate.candidate.search('relay') == -1) return;
+	    if(event.candidate.candidate.search('relay') == -1) return;
+	    console.log("======= relay candidate ===============")
 		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
 	},
 	createSession() 
