@@ -399,10 +399,14 @@ export default {
 				var body 	= 'Your Friend has Invited you to Play Connect4 Online with Him!'
 					body	+= '\n Press here to start! ->'
 					body 	+= '\n'+session.link
-				var mailto  = "<a href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email this link to someone!</a>"
+				var mailto  = "<a class='multi-player-link' href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email It</a>"
+				var copy_ln = "<a id='copy_ln' class='multi-player-link' href='#' onclick='Connect4.copyToClipboard(\""+session.link+"\")'>Copy To Clipboad</a>";
+				var component_text = "<p style='font-size:16px;'>"+session.link+"</p>"+mailto+"<br>"+copy_ln
+				var component_title = "Share this link to play a multiplayer game!"
+
 				ReactDOM.render(React.createElement(basic_modal, {
-					title:"Share this link to play a multiplayer game!",
-					text:mailto,
+					title:component_title,
+					text:component_text,
 					modal_container:self.modal_container
 				}), self.modal_container);
 
@@ -411,5 +415,30 @@ export default {
 				self.socket.removeListener('newSession')
 			})
 		})
-	}
+	},
+	copyToClipboard(sText) {
+		var oText = false,
+		    bResult = false;
+		try {
+		  oText = document.createElement("textarea");
+		  oText.className = "clipboard"
+		  oText.value = sText
+		  document.body.appendChild(oText)
+		  oText.select();
+		  oText.focus()
+		  document.execCommand("Copy");
+		  bResult = true;
+		} catch(e) {
+			console.error("cp error")
+			console.error(e)
+		}
+		document.body.removeChild(oText)
+		var copy_ln = document.getElementById("copy_ln")
+		var prev_txt = copy_ln.innerHTML +""
+		copy_ln.innerHTML = "Done!"
+		setTimeout(function(){
+			copy_ln.innerHTML = prev_txt
+		}, 1000)
+		return bResult;
+    }
 }
