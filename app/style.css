@@ -1,7 +1,7 @@
 
 @font-face {
   font-family:Phosphate; /* Имя шрифта */
-  src: url(fonts/Phosphate.ttc); /* Путь к файлу со шрифтом */
+  src: url(/fonts/Phosphate.ttc); /* Путь к файлу со шрифтом */
 }
 body
 {
