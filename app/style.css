@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css?family=Cabin+Sketch');
 body
 {
   min-width: 750px;
@@ -132,8 +133,9 @@ body
 .list-group-item {
     padding: 15px;
     font-size: 14px;
-    font-family: Helvetica-Bold;
-    color: cadetblue;;
+    font-family: "Cabin Sketch";
+    font-weight:bold;
+    color: cadetblue;
 }
 .list-group-item a {
     color: cadetblue;
@@ -142,8 +144,9 @@ body
 {
   	text-transform: uppercase;
     font-size: 20px;
-    font-family: Phosphate;
+    font-family:"Cabin Sketch";
     color:indianred;
+    font-weight:bold;
 }
 .multi-player-link 
 {
