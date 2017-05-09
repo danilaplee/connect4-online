@@ -1,6 +1,6 @@
 @font-face {
-	    font-family:Phosphate; /* Имя шрифта */
-	    src: url(https://starpy.me/fonts/Phosphate.ttc); /* Путь к файлу со шрифтом */
+	font-family:Phosphate; /* Имя шрифта */
+	src: url(/fonts/Phosphate.ttc); /* Путь к файлу со шрифтом */
 }
 body
 {
