@@ -21,6 +21,14 @@ body
 	height:100%;
 	text-align: center;
 }
+.jumbotron p {
+	font-size: 28px;
+	-webkit-font-smoothing:antialiased;
+}
+.jumbotron h1 {
+	font-size: 88px;
+	-webkit-font-smoothing:antialiased;
+}
 @media screen and (max-height: 600px)
 {
   .gametable-container
