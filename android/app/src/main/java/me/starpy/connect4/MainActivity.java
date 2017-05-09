@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
         mainView.addView(webFrame);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         if(data != null) {
-            loadChromeApp(data.toString());
+            loadChromeApp(data.toString().replace("me.starpy.connect4://", "https://"));
         }
         else {
             loadChromeApp(appUrl);
@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
             if(callView != null) callView.destroy();
             if(webView != null) webView.destroy();
             hasLoadedWebview = 0;
-            loadChromeApp(data.toString());
+            loadChromeApp(data.toString().replace("me.starpy.connect4://", "https://"));
         }
     }
 

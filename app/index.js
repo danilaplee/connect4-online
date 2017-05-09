@@ -66,8 +66,7 @@ var instance =
 {
 	init() 
 	{
-		// if(navigator.userAgent.search("Android") > -1 && navigator.userAgent.search("me.starpy.connect4") == -1) 
-			return createAndroidBlocker();
+		if(navigator.userAgent.search("Android") > -1 && navigator.userAgent.search("me.starpy.connect4") == -1) return createAndroidBlocker();
 		if(window.location.hash.search('#call') > -1)
 		{
 			createMinimalDom();

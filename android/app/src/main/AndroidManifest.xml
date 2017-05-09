@@ -38,6 +38,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="http" android:host="starpy.me" android:pathPrefix="/connect4" />
                 <data android:scheme="https" android:host="starpy.me"  android:pathPrefix="/connect4"  />
+                <data android:host="starpy.me" android:scheme="me.starpy.connect4" android:pathPattern=".*"></data>
             </intent-filter>
 
         </activity>
