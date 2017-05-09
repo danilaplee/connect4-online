@@ -48,11 +48,14 @@ var createMinimalDom = function() {
 }
 
 var createAndroidBlocker = function() {
-	var html  = '<div class="jumobtron">'
+	var html  = '<div class="parent-vertical header-info">'
+		html += '<div class="jumobtron">'
 		html += 	'<div class="container">'
-		html += 	'<h1><img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:60px;height:60px;padding:0 5px;">Please open the android app:</h1>'
+		html += 	'<img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:100px;height:100px;padding:0 5px;">'
+		html += 	'<h1>Please open the android app:</h1>'
 		html += 	'<a class="btn btn-primary btn-lg" href="'+window.location.href+'">Click here!</a>'
 		html += 	'</div>'
+		html += '</div>'
 		html += '</div>'
 	  	appendHtml(document.body, html);
 }
