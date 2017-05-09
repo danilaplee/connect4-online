@@ -148,9 +148,14 @@ body
     color:indianred;
     font-weight:bold;
 }
+.modal-title {
+    font-family:"Cabin Sketch";
+    font-weight:bold;
+}
 .multi-player-link 
 {
 	font-size: 24px;
+    font-family:"Cabin Sketch";
 	color: cadetblue;;
 }
 .clipboard {
