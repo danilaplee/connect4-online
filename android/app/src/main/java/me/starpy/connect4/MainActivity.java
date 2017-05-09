@@ -104,6 +104,7 @@ public class MainActivity extends Activity {
 
     private void loadChromeApp(String url){
         webView = new WebView(mContext);
+        webView.getSettings().setUserAgentString(webView.getSettings().getUserAgentString()+ " "+ getString(R.string.user_agent_suffix));
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
@@ -193,6 +194,7 @@ public class MainActivity extends Activity {
         print("creating_call_window");
         print(url);
         callView = new WebView(mContext);
+        callView.getSettings().setUserAgentString(callView.getSettings().getUserAgentString()+ " "+ getString(R.string.user_agent_suffix));
         callView.getSettings().setJavaScriptEnabled(true);
         callView.getSettings().setDomStorageEnabled(true);
         callView.getSettings().setPluginState(WebSettings.PluginState.ON);

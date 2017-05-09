@@ -236,7 +236,6 @@ export default {
 		if(this.mode == 'multi' && !this.restarting_multiplayer) 
 		{
 			if(!this.multiplayer_session_active) return this.createSession().then(runGame);
-			// if(this.game_count) 
 			return this.socket.emit('restartGame', this.multiplayer_session)
 		}
 		if(this.mode == 'hot') 	return this.addHotSeat().then(runGame);

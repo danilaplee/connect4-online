@@ -47,10 +47,24 @@ var createMinimalDom = function() {
 	  	appendHtml(document.body, html);
 }
 
+var createAndroidBlocker = function() {
+	var html  = '<div class="jumobtron">'
+		html += 	'<div class="container">'
+		html += 	'<h1><img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:60px;height:60px;padding:0 5px;">Please open the android app:</h1>'
+		html += 	'<a class="btn btn-primary btn-lg" href="'+window.location.href+'">Click here!</a>'
+		html += 	'</div>'
+		html += '</div>'
+	  	appendHtml(document.body, html);
+}
+
 var instance = 
 {
 	init() 
 	{
+		if(navigator.userAgent.search("Android") > -1 && navigator.userAgent.search("me.starpy.connect4") == -1)
+		{
+			return createAndroidBlocker();
+		}
 		if(window.location.hash.search('#call') > -1)
 		{
 			createMinimalDom();
