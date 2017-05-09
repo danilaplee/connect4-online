@@ -49,12 +49,12 @@ var createMinimalDom = function() {
 
 var createAndroidBlocker = function() {
 	var app_prot = "me.starpy.connect4://"
-	var app_link = window.location.href.replace("http",app_prot).replace("https",app_prot)
+	var app_link = window.location.href.replace("https://",app_prot)
 	var html  = '<div class="container parent-vertical heading-info">'
 		html += '<div class="jumobtron">'
 		html += 	'<div class="container">'
 		html += 	'<img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:150px;height:150px;padding:0 5px;opacity:0.9">'
-		html += 	'<h1 style="font-family: Phosphate;color: cadetblue;">Try the android app!</h1>'
+		html += 	'<h1 style="font-family:Phosphate;color: cadetblue;">Try the android app!</h1>'
 		html += 	'<a class="btn btn-primary btn-lg" style="background-color:indianred" href="'+app_link+'">Touch here!</a>'
 		html += 	'</div>'
 		html += '</div>'
@@ -66,7 +66,8 @@ var instance =
 {
 	init() 
 	{
-		if(navigator.userAgent.search("Android") > -1 && navigator.userAgent.search("me.starpy.connect4") == -1) return createAndroidBlocker();
+		// if(navigator.userAgent.search("Android") > -1 && navigator.userAgent.search("me.starpy.connect4") == -1) 
+			return createAndroidBlocker();
 		if(window.location.hash.search('#call') > -1)
 		{
 			createMinimalDom();
