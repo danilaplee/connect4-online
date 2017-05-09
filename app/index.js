@@ -54,7 +54,7 @@ var createAndroidBlocker = function() {
 		html += '<div class="jumobtron">'
 		html += 	'<div class="container">'
 		html += 	'<img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:150px;height:150px;padding:0 5px;opacity:0.9">'
-		html += 	'<h1 style="font-family:"Cabin Sketch";font-weight:bold;color: cadetblue;">Try the android app!</h1>'
+		html += 	'<h1 style="font-size:48px;" class="winner_title">Try the Connect4 2.0 android app!</h1>'
 		html += 	'<a class="btn btn-primary btn-lg" style="background-color:indianred" href="'+app_link+'">Touch here!</a>'
 		html += 	'</div>'
 		html += '</div>'
