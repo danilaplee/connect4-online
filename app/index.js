@@ -17,7 +17,7 @@ require("./style.css")
 var appendHtml = function(el, str) {
   var div = document.createElement('div');
   div.innerHTML = str;
-  while (div.children.length > 0) el.append(div.children[0])
+  while (div.children.length > 0) el.appendChild(div.children[0])
   div = null
 }
 
