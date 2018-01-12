@@ -1,8 +1,13 @@
 
 import React 		from 'react';
 import ReactDOM 	from 'react-dom';
+import generateName from 'sillyname';
+import matrix	from 'matrix-js-sdk';
+import uuid 	from 'uuid';
 //COMPONENTS
 import customizer from './components/customizer.jsx';
+var matrixURL 			= "https://starpy.me"
+var registerURL 		= "https://starpy.me/c4/register"
 
 export default {
 	openColorDialog() 
@@ -74,5 +79,95 @@ export default {
 			}
 
 		}
-	}
+	},
+
+	getUser()
+	{
+		var matrixUser = {
+			"name":generateName().split(" ")[0],
+			"password":(uuid.v4()).replace("-", "").replace("-", "").split("-")[0]
+		}
+		try {
+			const oldUser = JSON.parse(localStorage.getItem("matrix_user"))
+			if(oldUser != null) matrixUser = oldUser;
+		}
+		catch(err){
+			localStorage.setItem("matrix_user", JSON.stringify(matrixUser))
+		}
+		return matrixUser;
+	},
+
+	registerUser()
+	{
+		var self   = this
+		const user = self.getUser()
+		if(user.registered) return self.matrixAuth();
+		return self.ajaxReq(registerURL, "POST", user)
+		.then(function(data)
+		{
+			const d = JSON.parse(data)
+			user.mdata = d;
+			user.registered = true;
+
+			localStorage.setItem("matrix_user", JSON.stringify(user))
+			return self.matrixAuth()
+		})
+	},
+
+	matrixAuth()
+	{
+		var self   = this
+		return new Promise(function(resolve, reject)
+		{
+			const user = self.getUser()
+			self.matrix_user = user;
+			if(!user.registered) return self.registerUser();
+			const url = matrixURL+"/_matrix/client/r0/login"
+			const body = {
+				type:"m.login.password",
+				user:user.mdata.user_id,
+				password:user.password,
+				initial_device_display_name: generateName().split(" ")[0],
+			}
+			self
+			.ajaxReq(url, "POST", body)
+			.then(function(res)
+			{
+				var data = JSON.parse(res)
+				self.matrix_token 	= data.access_token
+				self.matrix_id 		= data.user_id
+				resolve()
+			})
+		})
+	},
+
+	matrixInit()
+	{
+		var self = this
+		return new Promise(function(resolve, reject)
+		{
+			self
+			.matrixAuth()
+			.then(function()
+			{
+				return matrix.createClient({
+					baseUrl:matrixURL,
+					accessToken:self.matrix_token,
+					userId:self.matrix_id
+				})
+			})
+			.then(function(client){
+				self.matrixClient = client
+				setTimeout(function(){
+					self.matrixClient.on("Room.timeline", self.timelineUpdate)
+					if(self.multiplayer_session) return self.openMatrixSession().then(resolve)
+				}, 1000)
+				self.matrixClient.startClient()
+				if(!self.multiplayer_session)resolve()
+			})
+			.then(function(){
+				resolve()
+			})
+		})
+	},
 }

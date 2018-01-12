@@ -3,6 +3,9 @@
 import React 	from 'react';
 import ReactDOM from 'react-dom';
 import io 		from 'socket.io-client';
+import generateName from 'sillyname';
+import matrix	from 'matrix-js-sdk';
+import uuid 	from 'uuid';
 
 //COMPONENTS
 import basic_modal from './components/basic_modal.jsx';
@@ -11,161 +14,132 @@ var PeerConnection 		= window.mozRTCPeerConnection || window.webkitRTCPeerConnec
 var IceCandidate 		= window.mozRTCIceCandidate || window.RTCIceCandidate;
 var SessionDescription 	= window.mozRTCSessionDescription || window.RTCSessionDescription;
 navigator.getUserMedia 	= navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-
 export default {
+	//////OLD///////
 	bindMultiplayer()
 	{
-		localStorage.setItem("connection_status", "offline")
-		var self 	= this
-		this.socket = io('https://starpy.me/',{path:"/c4/socket.io"})
-		this.candidatesQueue = []
-		var processQueue = function()
-		{
-			var candidates = self.candidatesQueue
-			try {
-				var c = JSON.parse(localStorage.getItem("connection_candidates"))
-				console.log("======== total candidates in localStorage ==========")
-				console.log(c)
-				if(c != null) for (var i = c.length - 1; i >= 0; i--) candidates.push(c[i])
-			}
-			catch(err) {
-				console.error("========================")
-				console.error("storage queue err")
-				console.error(err)
-				console.error("========================")
-			}
-			console.log("total queue")
-			console.log(candidates)
-			if(candidates.length) while(candidates.length) self.pc.addIceCandidate(candidates.pop())
-		}
-		this.socket.on('callData', function(data)
-		{
-			if(data.type == 'offer') {
-				localStorage.setItem("connection_offer", JSON.stringify(data))
-				if(self.is_second_window) { 
-					self.getLocalStream(function()
-				  	{
-				  		self.pc.setRemoteDescription(new SessionDescription(data))
-				  		self.description_set = true;
-				  		self.createAnswer();
-						processQueue();
-				  	})
-				} 
-				else {
-					self.openSecondWindow()
-				}
-			}
-			if(data.type == 'answer') 
-			{
-				self.pc.setRemoteDescription(new SessionDescription(data))
-				self.description_set = true;
-				processQueue()
-			};
-			if(data.type == 'candidate')
-			{
-				console.log("====================== received candidate ============================")
-				console.log(data)
-				var candidate = new IceCandidate({sdpMLineIndex: data.candidate.sdpMLineIndex, candidate: data.candidate.candidate});
-			    console.log(candidate)
-			    console.log("============== is description set = "+self.description_set+" =========")
-			    if(self.description_set) self.pc.addIceCandidate(candidate);
-			    else self.candidatesQueue.push(candidate)
-			    console.log("======== total candidates queue = "+self.candidatesQueue.length+" =========")
-			    localStorage.setItem("connection_candidates", JSON.stringify(self.candidatesQueue))
-			};
-		})
-		try {
-			var offer = JSON.parse(localStorage.getItem("connection_offer"))
-			if(offer != null)
-			{
-			  	self.offer = offer
-				self.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
-				self.socket.emit("replaceGameSocket", self.player_one, self.multiplayer_session)
-				console.log("===== connecting master player =====")
-				console.log("starting session id "+this.multiplayer_session)
-				console.log(self.player_one)
-				self.getLocalStream(function()
-			  	{
-			  		self.pc.setRemoteDescription(new SessionDescription(offer))
-			  		self.description_set = true;
-			  		self.createAnswer();
-					processQueue();
-			  	})
-			  	return
-			}
-		}
-		catch(err){
-			self.offer = null
-			console.error("==== offer parse error =====")
-			console.error(err)
-		}
-		if(window.location.hash.search('#multiplayer_session_') > -1 && !this.multiplayer_session_active)
-		{
+		if(window.location.hash.search('#multiplayer_session_') > -1 && !this.multiplayer_session_active) {
 			this.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
-			console.log("===== connecting guest player =====")
-			console.log("starting session id "+this.multiplayer_session)
-			if(navigator.vendor != 'Google Inc.') 
-			{
-				ReactDOM.render(React.createElement(basic_modal, 
+		}
+		return this.matrixInit()
+	},
+	ajaxReq(url, method, body) 
+	{
+		return new Promise(function(resolve, reject) 
+		{
+			var req = new XMLHttpRequest()
+			const d = JSON.stringify(body)
+				req.onreadystatechange = function(evnt) 
 				{
-					title:'Multiplayer issue',
-					text:'Looks like you are using an unsupported browser :( <br> please user Chrome or Opera for Multiplayer. <br> Thank you.',
+					if (req.readyState != 4) return;
+				  	if (req.status != 200) return reject("STATUS OF REQUEST == "+req.status+", ERROR MESSAGE == "+req.statusText);
+				  	resolve(req.responseText)
+				}
+				req.open(method, url, true);
+				req.setRequestHeader("Content-Type","application/json") 
+				if(!body) req.send();
+				else req.send(d);
+		});
+	},
+
+	timelineUpdate(event, room, toStartOfTimeline, removed, data) 
+    {
+	    if(!this.mxroomid) return;
+	    const lastmessage = room.timeline[room.timeline.length - 1];
+	    if(lastmessage.event.room_id != this.mxroomid) return;
+	    if(lastmessage.event && lastmessage.event.type == "m.room.message")
+	    {
+		    var text = lastmessage.event.content.body
+		    if(text.search("has joined ") > -1) {
+
+		    }
+		    console.log(lastmessage.event)
+		    console.log(text)
+		    this.showNotification(text)
+
+	    }
+    },
+    showNotification(txt)
+    {
+	    this._notificationSystem.addNotification({
+	      message: txt,
+	      level: 'success',
+	      autoDismiss: 10,
+	      position: 'br'
+	    });
+    },
+
+	createMatrixSession()
+	{
+		const self = this
+		const client = self.matrixClient
+		const session_id = generateName().split(" ")[0].toLowerCase()
+		return new Promise(function(resolve)
+		{
+
+			self.multiplayer_promise = resolve;
+			client
+			.createRoom(
+			{
+			  	"preset": "public_chat",
+				"room_alias_name":session_id,
+				"topic":"emoji-connect",
+				"visibility":"public"
+			})
+			.then(function()
+			{
+				return client.joinRoom("#"+session_id+":matrix.starpy.me")
+			})	
+			.then(function(data)
+			{
+				self.mxroomid = data.roomId
+				var session = {
+					id:session_id
+				}
+				session.link = window.location.origin+window.location.pathname+'#multiplayer_session_'+session_id
+				window.location.hash = "#multiplayer_session_"+session_id
+				self.multiplayer_session = session_id
+				var subject = "Your are invited you to play Connect4 Online!"
+				var body 	= 'Your Friend has Invited you to Play Connect4 Online with Him!'
+					body	+= '\n Press here to start! ->'
+					body 	+= '\n'+session.link
+				var mailto  = "<a class='multi-player-link' href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email It</a>"
+				var copy_ln = "<a id='copy_ln' class='multi-player-link' href='#multiplayer_session_"+session_id+"' onclick='window.copyToClipboard(\""+session.link+"\")'>Copy To Clipboad</a>";
+				var component_text = "<p style='font-size:16px;'>"+session.link+"</p>"+mailto+"<br>"+copy_ln
+				var component_title = "Share this link to play a multiplayer game!"
+
+				ReactDOM.render(React.createElement(basic_modal, {
+					title:component_title,
+					text:component_text,
 					modal_container:self.modal_container
 				}), self.modal_container);
-				return self.modal_container.style.display = "block";
-			};
-			if(this.player_one.is_new && !this.is_second_window) return this.openColorDialog().then(this.openSession);
-			if(this.is_second_window) localStorage.setItem("kill_socket", "kill_socket")
-			return this.openSession()
-		}
-	},
-	openSecondWindow()
-	{
-		console.log("opening new window")
-		var hsh = window.location.hash
-		var hasBegunGame = false;
-		var self = this
 
-		if(hsh == "" || hsh == null) { hsh = "#multiplayer_session_"+this.multiplayer_session}
-		var link = window.location.origin + window.location.pathname + "#call" + hsh
+				self.modal_container.style.display = "block";
+				return client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has created room "+session_id)
 
-		console.log(link)
-		console.log("===================")
-
-		if(navigator.userAgent.search("Android") == -1)
-		{
-			console.log("==== browser opening new window =====")
-			var win_ops = "width=512,height=384,resizable=yes,scrollbars=no,status=no,location=no,toolbar=no,menubar=no"
-			self.second_window = window.open(link, "multiplayer_session", win_ops)
-			self.second_window.focus()
-		}
-		else {
-			console.log("android transferring location")
-			window.location = "app://"+link
-			self.drop_speed = 2;
-		}
-		window.addEventListener("storage", function(evt){
-			console.log("===== got a new message =====")
-			console.log(evt)
-			if(evt.newValue == "kill_socket" && self.socket != null) {
-				self.socket.disconnect()
-				self.socket = null;
-			}
-			if(evt.newValue == "online" && hasBegunGame == false){
-				console.log("communication estabilished")
-				window.removeEventListener("storage", null);
-				hasBegunGame = true;
-				self.beginGame();
-			}
+			})
 		})
+
 	},
-	enableMainWindow()
+
+	openMatrixSession()
 	{
-		console.log("connection estabilished")
-		console.log("running game")
-		setTimeout(function(){
-			localStorage.setItem("connection_status", "online")
-		}, 1000)
+		var self = this
+		var client = this.matrixClient
+		self.mxid = "#"+self.multiplayer_session+":matrix.starpy.me"
+		return new Promise(function(resolve)
+		{
+			return client
+			.joinRoom(self.mxid)
+			.then(function(data)
+			{
+				console.log("joined room")
+				console.log(data)
+				self.mxroomid = data.roomId
+				console.log("==============")
+				return client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has joined "+self.multiplayer_session)
+			})
+		})
 	},
 	beginGame()
 	{
@@ -224,6 +198,7 @@ export default {
 			}, 1000)
 		})
 	},
+
 	openSession()
 	{
 		var self = this
@@ -255,117 +230,6 @@ export default {
 		  	})
 		})
 	},
-	getLocalStream(callback) 
-	{
-		var self = this
-		var addLocalStream = function(stream)
-		{
-			var	params = {
-				'urls': 'turn:starp.tech:3478?transport=tcp',
-				'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA',
-				'username': '282245111379330808'
-			}
-			if(localStorage.getItem("master") == "true") params.username += "22"
-			var params2 = JSON.parse(JSON.stringify(params))
-				params2.url = params2.urls.replace("turn", "stun").replace("?transport=udp", "")
-			delete params2.urls
-			// var params3 = JSON.parse(JSON.stringify(params))
-				// params3.urls = params3.urls.replace("?transport=udp", "?transport=tcp")
-			var params4 = {
-				urls:[params.urls,params.urls.replace("?transport=udp", "")],
-				credential:params.credential,
-				username:params.username
-			}
-			var ice = [params2,params4]
-			console.log("========== ice servers ===========")
-			console.log(ice)
-			var pc = new PeerConnection({'iceServers': ice});
-			if(stream) pc.addStream(stream);
-			pc.onicecandidate 	= self.gotIceCandidate;
-			pc.onaddstream 		= self.gotRemoteStream;
-			self.pc 			= pc;
-			if(callback) callback()
-		}
-		navigator.getUserMedia(
-		{ audio: true, video: true }, 
-		addLocalStream, 
-		function(error) 
-		{ 
-			console.log(error) 
-			self.noVideo = true;
-			addLocalStream()
-		});
-	},
-	createOffer() 
-	{
-		var params 				=  { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }
-		if(navigator.userAgent.search("Android") == -1)
-		{
-			params.maxWidth 	= 320
-	       	params.maxHeight 	= 240
-	    }
-	 	this.pc.createOffer(
-	    	this.gotLocalDescription, 
-	    	function(error) { console.log(error) }, 
-	    	{ 'mandatory':params }
-	  	);
-	},
-	gotLocalDescription(event)
-	{
-		console.log("sending local description")
-		this.pc.setLocalDescription(new SessionDescription(event))
-		this.socket.emit('transferCallData', this.multiplayer_session, event);
-	},
-	gotRemoteStream(evt)
-	{
-		var self = this
-		self.multiplayer_session_active = true;
-		self.remoteVideo.style.display = 'block';
-		self.remoteVideoDisclaimer.style.display = 'block';
-		if(self.remoteVideo) self.remoteVideo.src = URL.createObjectURL(evt.stream)
-		if(self.multiplayer_promise) 
-		{
-			self.socket.emit('openSession', this.multiplayer_session)
-			self.socket.on('yourSession', function(info)
-			{
-				self.socket.removeListener('yourSession')
-				self.player_two 	= info.player2
-				self.player_two.id 	= 2;
-				self.active_user 	= self.player_two
-				self.modal_container.style.display = 'none';
-				self.multiplayer_promise()
-			})
-		}
-		else 
-		{
-			console.log("==== running hide modal container =====")
-			if(self.is_second_window) return self.enableMainWindow();
-			self.modal_container.style.display = 'none';
-			self.mode = "multi";
-			self.startGame();
-		}
-		setTimeout(function(){
-			self.remoteVideoDisclaimer.innerHTML = 'YOUR FRIEND HAS NOT ENABLED CAMERA'
-		}, 1000)
-	},
-	createAnswer() 
-	{
-	  this.pc.createAnswer(
-	    this.gotLocalDescription,
-	    function(error) { console.log(error) }, 
-	    { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } }
-	  );
-	},
-	gotIceCandidate(event)
-	{
-		console.log('======== created ice candidate ========')
-		console.log(event)
-		console.log("=======================================")
-		if(!event.candidate) return;
-	    if(event.candidate.candidate.search('relay') == -1) return;
-	    if(event.candidate.candidate.search('relay') > -1) console.log("======= relay candidate ===============")
-		this.socket.emit('transferCallData', this.multiplayer_session, {type:"candidate", candidate:event.candidate});
-	},
 	createSession() 
 	{
 		var self 	= this
@@ -373,62 +237,23 @@ export default {
 		while (myNode.firstChild) {
 			ReactDOM.unmountComponentAtNode(myNode)
 		};
-		if(navigator.vendor != 'Google Inc.') 
-		{
-			ReactDOM.render(React.createElement(basic_modal, 
-			{
-				title:'Multiplayer issue',
-				text:'Looks like you are using an unsupported browser :( \n please user Chrome or Opera for Multiplayer. \n Thank you.',
-				modal_container:self.modal_container
-			}), self.modal_container);
-			return self.modal_container.style.display = "block";
-		};
-		var socket = this.socket
-			socket.emit('initSession', this.player_one)
-		return new Promise(function(resolve, reject)
-		{
-			socket.on('newSession', function(session_id)
-			{
 
-				var session = {
-					id:session_id
-				}
-				session.link = window.location.origin+window.location.pathname+'#multiplayer_session_'+session_id
-				self.multiplayer_session = session_id
-				var subject = "Your are invited you to play Connect4 Online!"
-				var body 	= 'Your Friend has Invited you to Play Connect4 Online with Him!'
-					body	+= '\n Press here to start! ->'
-					body 	+= '\n'+session.link
-				var mailto  = "<a class='multi-player-link' href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email It</a>"
-				var copy_ln = "<a id='copy_ln' class='multi-player-link' href='#' onclick='Connect4.copyToClipboard(\""+session.link+"\")'>Copy To Clipboad</a>";
-				var component_text = "<p style='font-size:16px;'>"+session.link+"</p>"+mailto+"<br>"+copy_ln
-				var component_title = "Share this link to play a multiplayer game!"
-
-				ReactDOM.render(React.createElement(basic_modal, {
-					title:component_title,
-					text:component_text,
-					modal_container:self.modal_container
-				}), self.modal_container);
-
-				self.modal_container.style.display = "block";
-				self.multiplayer_promise = resolve;
-				self.socket.removeListener('newSession')
-			})
-		})
+		return self.createMatrixSession()
 	},
 	copyToClipboard(sText) {
 		var oText = false,
 		    bResult = false;
+		var hash = window.location.hash.toString()
 		try {
-		  oText = document.createElement("textarea");
-		  oText.className = "clipboard"
-		  oText.value = sText
-		  document.body.appendChild(oText)
-		  oText.select();
-		  oText.focus()
-		  document.execCommand("Copy");
-		  bResult = true;
-		} catch(e) {
+		  	oText = document.createElement("textarea");
+		  	oText.className = "clipboard"
+		  	oText.value = sText
+		  	document.body.appendChild(oText)
+		  	oText.select();
+		  	oText.focus()
+		  	document.execCommand("Copy");
+		  	bResult = true;
+		} 	catch(e) {
 			console.error("cp error")
 			console.error(e)
 		}

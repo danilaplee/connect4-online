@@ -23,7 +23,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:alwaysRetainTaskState="true"
             android:keepScreenOn="true">
             <intent-filter>

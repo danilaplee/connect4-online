@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -54,6 +55,11 @@ public class MainActivity extends Activity {
 
     public void print(String string) {
         Log.e("me.starpy.connect4", string);
+    }
+
+    @Override
+    public void onBackPressed() {
+        return;
     }
 
     @Override
@@ -126,6 +132,11 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient()
         {
             @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                if(hasLoadedWebview == 1) return;
+                super.onPageStarted(view,url,favicon);
+            }
+            @Override
             public void onPageFinished(final WebView view, String url) {
                 if(hasLoadedWebview == 1) return;
                 hasLoadedWebview = 1;
@@ -185,7 +196,21 @@ public class MainActivity extends Activity {
         });
         webView.loadUrl(url);
     }
-
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState )
+//    {
+//        super.onSaveInstanceState(outState);
+//        webView.saveState(outState);
+//        callView.saveState(outState);
+//    }
+//
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState)
+//    {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        webView.restoreState(savedInstanceState);
+//        callView.restoreState(outState);
+//    }
     ////////////////////////////////////////
     /// CREATE WEBRTC ENABLED CALL WINDOW //
     ////////////////////////////////////////
@@ -200,7 +225,7 @@ public class MainActivity extends Activity {
         callView.getSettings().setPluginState(WebSettings.PluginState.ON);
         callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         callView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         callView.getSettings().setDatabaseEnabled(true);

@@ -92,8 +92,8 @@ var instance =
 		localStorage.removeItem("connection_offer")
 		createMainDom()
 		this.drop_speed 			= 4;
-		this.width 					= 600;
-		this.height 				= 400;
+		this.width 					= 800;
+		this.height 				= 500;
 		this.tile_size 				= 100;
 		this.engine 				= game.name
 		this.game_count 			= 0;
@@ -118,25 +118,25 @@ var instance =
 		this.makeAiTurn				= game.makeAiTurn.bind(this);
 		this.openColorDialog		= user.openColorDialog.bind(this);
 		this.initUser				= user.initUser.bind(this);
-		this.addHotSeat		 		= user.addHotSeat.bind(this)
-		this.openSecondWindow 		= multiplayer.openSecondWindow.bind(this)
+		this.addHotSeat		 		= user.addHotSeat.bind(this);
+
+		//OLD MULTIPLAYER
 		this.beginGame 				= multiplayer.beginGame.bind(this)
 		this.createSession 			= multiplayer.createSession.bind(this)
-		this.bindMultiplayer 		= multiplayer.bindMultiplayer.bind(this)
 		this.openSession 			= multiplayer.openSession.bind(this)
-		this.getLocalStream 		= multiplayer.getLocalStream.bind(this)
-		this.createOffer 			= multiplayer.createOffer.bind(this)
-		this.gotLocalDescription	= multiplayer.gotLocalDescription.bind(this)
-		this.gotRemoteStream 		= multiplayer.gotRemoteStream.bind(this)
-		this.gotIceCandidate 		= multiplayer.gotIceCandidate.bind(this)
-		this.createAnswer 			= multiplayer.createAnswer.bind(this)
-		this.copyToClipboard 		= multiplayer.copyToClipboard.bind(this)
-		this.help 					= '1) to start a new game run game.startGame() \n'
-									+ '2) to set game mode edit game.mode \n'
-									+ 'available options are "single", "multi" and "hot" '
-									+ '3) to make a turn run game.updateColumn(column_id) \n'
-									+ '4) to edit your player info edit game.player_one \n'
-									+ 'the icon will update on turn change ;) '
+
+		//NEW MULTIPLAYER
+		this.bindMultiplayer 		= multiplayer.bindMultiplayer.bind(this)
+		this.ajaxReq				= multiplayer.ajaxReq.bind(this)
+		this.getUser 				= user.getUser.bind(this)
+		this.registerUser 			= user.registerUser.bind(this)
+		this.matrixAuth 			= user.matrixAuth.bind(this)
+		this.matrixInit 			= user.matrixInit.bind(this)
+		this.timelineUpdate 		= multiplayer.timelineUpdate.bind(this)
+		this.createMatrixSession 	= multiplayer.createMatrixSession.bind(this)
+		this.openMatrixSession 		= multiplayer.openMatrixSession.bind(this)
+		this.showNotification 		= multiplayer.showNotification.bind(this)
+		window.copyToClipboard 		= multiplayer.copyToClipboard
 
 		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);
 
@@ -146,5 +146,5 @@ var instance =
 	}
 }
 
-window.Connect4 = new instance.init()
-window.game = Connect4
+new instance.init()
+

@@ -9,7 +9,7 @@ body
   position: static;
   margin:auto;
   width:600px;
-  height:600px;
+  height:900px;
 }
 .parent-vertical {
   display: flex;

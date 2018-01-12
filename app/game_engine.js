@@ -39,7 +39,7 @@ export default {
 	},
 	animateFall(column)
 	{
-		var self 	= this
+		var self 		= this
 		let size 		= this.tile_size;
 		let color 		= this.active_user.color
 		return new Promise(function(resolve, reject)
@@ -123,7 +123,11 @@ export default {
 		this.animate()
 		this.in_progress = false;
 		self.winner_text.innerHTML  = '<h5 class="winner_title">PLAYER #'+winner.id+' HAS WON!</h4>'
-								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" onclick="game.startGame()">PLAY AGAIN</h4>';
+								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" id="play_again">PLAY AGAIN</h4>';
+		self.restart_button = document.getElementById("play_again")
+		self.restart_button.addEventListener(function(){
+			self.startGame()
+		})
 		self.winner_text.style.display = 'block';
 	},
 	updateColumn(column, position) 
