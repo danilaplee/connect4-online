@@ -27,5 +27,151 @@
 
 	    })
 	</script>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="2000" height="2000" viewBox="0 0 400 400" style="position: fixed;left: -100px;top:-300px;">
+  
+  <defs>
+    <!-- Clip Mask -->
+    <clipPath id="clip-mask">
+      <circle cx="100" cy="100" r="100"/>
+    </clipPath>
+    <!-- Glow -->
+    <filter id="blur" x="-200%" y="-200%" width="30" height="30">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+    </filter>
+    <!-- Star -->
+    <g id="star">
+      <circle cx="0" cy="0" r="2"
+              fill="#FFF"
+              filter="url(#blur)"/>
+      <circle cx="0" cy="0" r="2"
+              fill="#FFF"/>
+    </g>
+    <!-- Sailboat -->
+    <g id="sailboat">
+      <g id="boat">
+        <path fill="#1C4757"
+              d="M100 105 L115 120 L100 120 Z" />
+        <path fill="#1C4757"
+              d="M95 122 L115 122 L113 125 L98 125 Z" />
+        <animateMotion dur="4.5s"
+              values="0, 0; 0, -10; 0, 0"
+              repeatCount="indefinite" />
+      </g>
+    </g>
+    <!-- Moon -->
+    <g id="moon">
+      <g>
+        <circle r="30"
+                fill="#80939A"
+                filter="url(#blur)"/>
+        <circle r="30" fill="#F4F2E4"/>
+        <animateMotion 
+              begin="0s"
+              dur="40s"
+              from="140, 160"
+              to="0, -50"
+              repeatCount="indefinite" />
+      </g>
+    </g>
+    <!-- Wave Top -->
+    <g id="wave-top">
+      <g>
+        <path id="wave-1-shadow"
+              stroke="black"
+              stroke-width="0"
+              filter="url(#blur)"
+              fill="#80939A"
+              d="M200 120, 200 200, 0 200, 0 100 Q 50 140, 100 120 T 200 140 Z" >
+          <animate dur="4.5s"
+                repeatCount="indefinite"
+                attributeName="d"
+                attributeType="XML"
+                values="M200 120, 200 200, 0 200, 0 100 Q 50 140, 100 120 T 200 140 Z;
+                        M200 100, 200 200, 0 200, 0 140 Q 50 100, 100 120 T 200 100 Z;
+                        M200 120, 200 200, 0 200, 0 100 Q 50 140, 100 120 T 200 140 Z" />
+        </path>
+      </g>
+      <g>
+        <path id="wave-1"
+              fill="#18958F"
+              d="M200 120, 200 200, 0 200, 0 100 Q 50 140, 100 120 T 200 140 Z" >
+          <animate dur="4.5s"
+                repeatCount="indefinite"
+                attributeName="d"
+                attributeType="XML"
+                values="M200 120, 200 200, 0 200, 0 100 Q 50 140, 100 120 T 200 140 Z;
+                        M200 100, 200 200, 0 200, 0 140 Q 50 100, 100 120 T 200 100 Z;
+                        M200 120, 200 200, 0 200, 0 100 Q 50 140, 100 120 T 200 140 Z" />
+        </path>
+      </g>
+    </g>
+    <!-- Wave Bottom -->
+    <g id="wave-bottom">
+      <path id="wave-2"
+            fill="#1C4757"
+            d="M200 120, 200 200, 0 200, 0 100 Q 50 120, 100 110 T 200 120 Z" >
+        <animate dur="2s"
+              repeatCount="indefinite"
+              attributeName="d"
+              attributeType="XML"
+              values="M200 120, 200 200, 0 200, 0 100 Q 50 120, 100 110 T 200 120 Z;
+                      M200 100, 200 200, 0 200, 0 120 Q 50 100, 100 110 T 200 100 Z;
+                      M200 120, 200 200, 0 200, 0 100 Q 50 120, 100 110 T 200 120 Z" />
+      </path>
+    </g>
+    <!-- Outline -->
+    <g id="outline">
+      <circle cx="0" cy="0" r="97"
+              fill="transparent"
+              stroke="#1C4757"
+              stroke-width="6" />
+    </g>
+  </defs>
+  
+  <!-- SVG -->
+  <g clip-path="url(#clip-mask)">
+    <!-- World -->
+    <circle cx="100" cy="100" r="100"
+            fill="#AED7C1" />
+    <!-- Stars -->
+    <g>
+      <g id="stars">
+        <use xlink:href="#star" x="0" y="90"/>
+        <use xlink:href="#star" x="40" y="40"/>
+        <use xlink:href="#star" x="80" y="40"/>
+        <use xlink:href="#star" x="70" y="70"/>
+        <use xlink:href="#star" x="50" y="80"/>
+        <use xlink:href="#star" x="130" y="20"/>
+        <use xlink:href="#star" x="0" y="0"/>
+        <use xlink:href="#star" x="-20" y="-50"/>
+        <use xlink:href="#star" x="40" y="-35"/>
+        <use xlink:href="#star" x="50" y="-30"/>
+        <use xlink:href="#star" x="-80" y="40"/>
+        <use xlink:href="#star" x="-90" y="45"/>
+        <use xlink:href="#star" x="-40" y="65"/>
+        <use xlink:href="#star" x="-100" y="10"/>
+        <use xlink:href="#star" x="-70" y="0"/>
+        <use xlink:href="#star" x="-50" y="10"/>
+        <use xlink:href="#star" x="-130" y="-50"/>
+        <use xlink:href="#star" x="-140" y="-60"/>
+      </g>
+      <animateMotion xlink:href="#stars"
+            begin="0s"
+            dur="30s"
+            from="200, 200"
+            to="0, -100"
+            repeatCount="indefinite" />
+    </g>
+    <!-- Stuff -->
+    <g>
+      <use xlink:href="#moon" />
+      <use xlink:href="#wave-top" y="5"/>
+      <use xlink:href="#wave-bottom" y="33"/>
+      <use xlink:href="#sailboat" x="-30" y="15" />
+    </g>
+    </g>
+  </svg>
 </body>
 </html>

@@ -39,7 +39,7 @@ body
 }
 #gametable
 {
-	background: #fff;
+	background: transparent;
 	height: 400px;
 	vertical-align: middle;
 	display: table-cell;
