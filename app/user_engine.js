@@ -2,14 +2,18 @@
 import React 		from 'react';
 import ReactDOM 	from 'react-dom';
 import generateName from 'sillyname';
-import matrix	from 'matrix-js-sdk';
-import uuid 	from 'uuid';
+import matrix		from 'matrix-js-sdk';
+import uuid 		from 'uuid';
+
 //COMPONENTS
 import customizer from './components/customizer.jsx';
-var matrixURL 			= "https://starpy.me"
-var registerURL 		= "https://starpy.me/c4/register"
+
+//CONSTANTS
+const matrixURL 	= "https://starpy.me"
+const registerURL 	= "https://starpy.me/c4/register"
 
 export default {
+
 	openColorDialog() 
 	{
 		var self 	= this
@@ -24,6 +28,7 @@ export default {
 			myNode.style.display = "block";
 		})
 	},
+
 	addHotSeat()
 	{
 		var self = this
@@ -56,8 +61,8 @@ export default {
 			var user_data = JSON.parse(localStorage.getItem('connect4'));
 			if(user_data.profile.emoji_img && user_data.profile.color_obj.hex)
 			{
-				if(!this.is_second_window) this.user_token.innerHTML = '<img src="'+user_data.profile.emoji_img+'" style="width:80px">';
-				if(!this.is_second_window) this.user_token.style.background = user_data.profile.color_obj.hex
+				this.user_token.innerHTML = '<img src="'+user_data.profile.emoji_img+'" style="width:80px">';
+				this.user_token.style.background = user_data.profile.color_obj.hex
 				return user_data.profile;
 			}
 			throw new Error('invalid profile')
@@ -80,7 +85,10 @@ export default {
 
 		}
 	},
-
+	getUserById(userID)
+	{
+		return this.ajaxReq(matrixURL+"/_matrix/client/r0/profile/"+userID, "GET") //+"?access_token="+this.matrix_token,"GET")
+	},
 	getUser()
 	{
 		var matrixUser = {
@@ -113,7 +121,10 @@ export default {
 			return self.matrixAuth()
 		})
 	},
-
+	setMatrixAvatar()
+	{
+		return this.matrixClient.setAvatarUrl(JSON.stringify(this.player_one))
+	},
 	matrixAuth()
 	{
 		var self   = this
@@ -121,7 +132,7 @@ export default {
 		{
 			const user = self.getUser()
 			self.matrix_user = user;
-			if(!user.registered) return self.registerUser();
+			if(!user.registered) return self.registerUser().then(resolve);
 			const url = matrixURL+"/_matrix/client/r0/login"
 			const body = {
 				type:"m.login.password",
@@ -156,13 +167,26 @@ export default {
 					userId:self.matrix_id
 				})
 			})
-			.then(function(client){
+			.then(function(client)
+			{
 				self.matrixClient = client
 				setTimeout(function(){
+					
+					self.setMatrixAvatar()
 					self.matrixClient.on("Room.timeline", self.timelineUpdate)
+					
+					if(self.multiplayer_session && self.player_one.is_new) return self.openColorDialog()
+						.then(function(){ 
+							console.log("created new custom user")
+							console.log("openning previous matrix session")
+							return self.openMatrixSession()
+						}).then(resolve)
+
 					if(self.multiplayer_session) return self.openMatrixSession().then(resolve)
-				}, 1000)
-				self.matrixClient.startClient()
+				
+				}, 100)
+				
+				self.matrixClient.startClient(10)
 				if(!self.multiplayer_session)resolve()
 			})
 			.then(function(){

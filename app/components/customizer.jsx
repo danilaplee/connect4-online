@@ -43,8 +43,11 @@ export default class Customizer extends React.Component {
 					})
 					localStorage.setItem('connect4', user_data)
 					localStorage.setItem("db_version", "0.1.0");
-					self.props.promise();
-					if(!self.props.game.in_progress && self.props.game.multiplayer_session) self.props.game.startGame();
+					if(self.props.game.matrixClient) self.props.game.setMatrixAvatar();
+					if(self.props.promise) self.props.promise();
+					else {
+						if(!self.props.game.in_progress && self.props.game.multiplayer_session) self.props.game.startGame();
+					}
 				}
 				else
 				{

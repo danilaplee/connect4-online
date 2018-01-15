@@ -106,6 +106,7 @@ export default {
 	},
 	endGame(winner)
 	{
+		var self 				= this
 		var balls 				= winner.balls
 		var half_tile 			= this.tile_size / 2
 		var quad_tile 			= this.tile_size / 4
@@ -125,7 +126,7 @@ export default {
 		self.winner_text.innerHTML  = '<h5 class="winner_title">PLAYER #'+winner.id+' HAS WON!</h4>'
 								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" id="play_again">PLAY AGAIN</h4>';
 		self.restart_button = document.getElementById("play_again")
-		self.restart_button.addEventListener(function(){
+		self.restart_button.addEventListener("click", function(){
 			self.startGame()
 		})
 		self.winner_text.style.display = 'block';
@@ -134,7 +135,7 @@ export default {
 	{
 		var self = this
 		if(!column && position) column = position.x / this.tile_size
-		if(this.multiplayer_session_active && this.active_user.id === 1) this.socket.emit('dropBall', this.multiplayer_session, column);
+		if(this.multiplayer_session_active && this.active_user.id === 1) self.dropMultiPlayerBall(column)
 		// console.log('===== updating column #'+column+' =====')
 		let ball 	= JSON.parse(JSON.stringify(self.active_user));
 		if(self.column_counter[column]) 
@@ -240,7 +241,7 @@ export default {
 		if(this.mode == 'multi' && !this.restarting_multiplayer) 
 		{
 			if(!this.multiplayer_session_active) return this.createSession().then(runGame);
-			return this.socket.emit('restartGame', this.multiplayer_session)
+			return this.sendRestartMXGame()
 		}
 		if(this.mode == 'hot') 	return this.addHotSeat().then(runGame);
 		return runGame();
@@ -296,6 +297,7 @@ export default {
 		if(!winning_number) winning_number = 4
 		var checkVertical = function(column)
 		{
+			if(!column) return null;
 			var winner 	= {}
 			var balls 	= column.positions
 			var prevID 	= 0;
@@ -323,10 +325,12 @@ export default {
 		}
 		var checkHorizontal = function(column, ball, ball_index)
 		{
+			if(!column) return null;
 			var winner 	= {}
 			for (var i = keys.length - 1; i >= 0; i--) 
 			{
 				var col 		= counter[keys[i]];
+				if(!col) continue;
 				var id 			= col.index
 				var side_ball 	= col.positions[ball_index]
 

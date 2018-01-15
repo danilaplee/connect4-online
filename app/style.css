@@ -158,6 +158,15 @@ body
     font-family:"Cabin Sketch";
 	color: cadetblue;
 }
+.list-group .show-if-small {
+	display: none;
+}
+.list-group.small .list-group-item {
+	display: none;
+}
+.list-group.small .show-if-small {
+	display: block;
+}
 .clipboard {
 	top:-100%;
 }

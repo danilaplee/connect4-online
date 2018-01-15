@@ -51,7 +51,7 @@ var createAndroidBlocker = function() {
 	var app_prot = "me.starpy.connect4://"
 	var app_link = window.location.href.replace("https://",app_prot)
 	var html  = '<div class="container parent-vertical heading-info">'
-		html += '<div class="jumobtron">'
+		html += '<div class="jumbotron">'
 		html += 	'<div class="container">'
 		html += 	'<img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:150px;height:150px;padding:0 5px;opacity:0.9">'
 		html += 	'<h1 style="font-size:60px;" class="winner_title">Try the Connect4 2.0 <br> Android App!</h1>'
@@ -67,29 +67,6 @@ var instance =
 	init() 
 	{
 		if(navigator.userAgent.search("Android") > -1 && navigator.userAgent.search("me.starpy.connect4") == -1) return createAndroidBlocker();
-		if(window.location.hash.search('#call') > -1)
-		{
-			createMinimalDom();
-			this.mode 					= 'multi'
-			this.is_second_window 		= true;
-			this.initUser				= user.initUser.bind(this);
-			this.player_one 			= this.initUser();
-			this.remoteVideo 			= document.getElementById('mainVideo')
-			this.remoteVideoDisclaimer 	= document.getElementById('remoteVideoDisclaimer')
-			this.enableMainWindow 		= multiplayer.enableMainWindow.bind(this)
-			this.createSession 			= multiplayer.createSession.bind(this)
-			this.bindMultiplayer 		= multiplayer.bindMultiplayer.bind(this)
-			this.openSession 			= multiplayer.openSession.bind(this)
-			this.getLocalStream 		= multiplayer.getLocalStream.bind(this)
-			this.createOffer 			= multiplayer.createOffer.bind(this)
-			this.gotLocalDescription	= multiplayer.gotLocalDescription.bind(this)
-			this.gotRemoteStream 		= multiplayer.gotRemoteStream.bind(this)
-			this.gotIceCandidate 		= multiplayer.gotIceCandidate.bind(this)
-			this.createAnswer 			= multiplayer.createAnswer.bind(this)
-			this.bindMultiplayer()
-			return this;
-		}
-		localStorage.removeItem("connection_offer")
 		createMainDom()
 		this.drop_speed 			= 4;
 		this.width 					= 800;
@@ -120,28 +97,38 @@ var instance =
 		this.initUser				= user.initUser.bind(this);
 		this.addHotSeat		 		= user.addHotSeat.bind(this);
 
-		//OLD MULTIPLAYER
-		this.beginGame 				= multiplayer.beginGame.bind(this)
-		this.createSession 			= multiplayer.createSession.bind(this)
-		this.openSession 			= multiplayer.openSession.bind(this)
-
 		//NEW MULTIPLAYER
+		this.createSession 			= multiplayer.createSession.bind(this)
 		this.bindMultiplayer 		= multiplayer.bindMultiplayer.bind(this)
 		this.ajaxReq				= multiplayer.ajaxReq.bind(this)
 		this.getUser 				= user.getUser.bind(this)
+		this.getUserById 			= user.getUserById.bind(this)
 		this.registerUser 			= user.registerUser.bind(this)
 		this.matrixAuth 			= user.matrixAuth.bind(this)
 		this.matrixInit 			= user.matrixInit.bind(this)
+		this.setMatrixAvatar 		= user.setMatrixAvatar.bind(this)
 		this.timelineUpdate 		= multiplayer.timelineUpdate.bind(this)
+		this.assignSecondPlayer 	= multiplayer.assignSecondPlayer.bind(this)
+		this.sendRestartMXGame 		= multiplayer.sendRestartMXGame.bind(this)
 		this.createMatrixSession 	= multiplayer.createMatrixSession.bind(this)
 		this.openMatrixSession 		= multiplayer.openMatrixSession.bind(this)
 		this.showNotification 		= multiplayer.showNotification.bind(this)
+		this.startMXGame 			= multiplayer.startMXGame.bind(this)
+		this.restartMXGame 			= multiplayer.restartMXGame.bind(this)
+		this.dropMultiPlayerBall 	= multiplayer.dropMultiPlayerBall.bind(this)
 		window.copyToClipboard 		= multiplayer.copyToClipboard
 
 		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);
 
 		this.player_one = this.initUser();
+		var self = this
+		if(this.player_one.is_new) return this.openColorDialog()
+		.then(function(){ 
+			return self.bindMultiplayer()
+		})
 		this.bindMultiplayer()
+
+
 		return this;
 	}
 }
