@@ -71,8 +71,6 @@ export default {
 	},
 	startMXGame() {
 		if(!this.player_two) return
-		// console.log("starting game")
-		// console.log(self.player_two)
 		if(!this.multiplayer_promise) {
 			this.active_user = this.player_two;
 			this.modal_container.style.display = 'none';
@@ -101,12 +99,9 @@ export default {
 	},
 	assignSecondPlayer()
 	{
-		// console.log("start assign "+this.player2mxid)
 		var self 		= this
 			self.is_assigned = true;
 		const assign 	= function(data) {	
-			// console.log("second player")
-			// console.log(data)
 			self.player_two = data
 			self.player_two.id = 2;
 			self.player_two.ai = false;
@@ -131,6 +126,8 @@ export default {
 	    const lastmessage = room.timeline[room.timeline.length - 1];
 
 	    if(lastmessage.event && lastmessage.event.room_id != this.mxroomid) return;
+	    
+	    this.mxroom_timeline = room.timeline;
 
 	    if(!self.player_two && !self.is_assigned) {
 	    	const users = room.currentState.getMembers()
@@ -238,9 +235,6 @@ export default {
 		var self = this
 		var client = this.matrixClient
 		self.mxid = "#"+self.multiplayer_session+":matrix.starpy.me"
-		// console.log("==== opening session =====")
-		// console.log(self.mxid)
-		// console.log("==========================")
 		return new Promise(function(resolve)
 		{
 			self.modal_container.style.display = "block";
@@ -249,8 +243,6 @@ export default {
 			.joinRoom(self.mxid)
 			.then(function(data)
 			{
-				// console.log("room data")
-				// console.log(data)
 				self.mxroomObject = data;
 				self.mxroomid = data.roomId
 				self.multiplayer_session_active = true;
@@ -269,32 +261,5 @@ export default {
 		};
 
 		return self.createMatrixSession()
-	},
-	
-	copyToClipboard(sText) {
-		var oText = false,
-		    bResult = false;
-		var hash = window.location.hash.toString()
-		try {
-		  	oText = document.createElement("textarea");
-		  	oText.className = "clipboard"
-		  	oText.value = sText
-		  	document.body.appendChild(oText)
-		  	oText.select();
-		  	oText.focus()
-		  	document.execCommand("Copy");
-		  	bResult = true;
-		} 	catch(e) {
-			console.error("cp error")
-			console.error(e)
-		}
-		document.body.removeChild(oText)
-		var copy_ln = document.getElementById("copy_ln")
-		var prev_txt = copy_ln.innerHTML +""
-		copy_ln.innerHTML = "Done!"
-		setTimeout(function(){
-			copy_ln.innerHTML = prev_txt
-		}, 600)
-		return bResult;
-    }
+	}
 }

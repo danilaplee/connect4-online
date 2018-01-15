@@ -201,13 +201,13 @@ export default {
 	},
 	startGame(options)
 	{
-		if(!this.restarting_multiplayer) this.active_user = this.player_one
+		if(!this.restarting_multiplayer) this.active_user = this.player_one;
+		if(!this.game_controls) this.createGameControls();
 		var self  		= this
 		self.winner_text.innerHTML = '';
 		self.winner_text.style.display = 'none';
 		var runGame 		= function()
 		{
-			// console.log('===== running game #'+self.game_count+' starting player #'+self.active_user.id+' =======')
 			self.game_count++;
 			self.user_token.style.background = self.active_user.color_obj.hex
 			self.user_token.innerHTML 		 = '<img src="'+self.active_user.emoji_img+'" style="width:80px">';
@@ -248,9 +248,10 @@ export default {
 	},
 	makeAiTurn()
 	{
-		var self = this
-		var cols = self.columns
+		var self 	= this
+		var cols 	= self.columns
 		var counter = self.column_counter
+		
 		var getRandomColumn = function()
 		{
 			var col = getRandomInt(0, cols-1)
@@ -261,9 +262,8 @@ export default {
 			}
 			return col;
 		}
-		var random = getRandomColumn()
 
-		// console.log('===== making ai move random is '+random+' =====')
+		var random = getRandomColumn()
 
 		var tryTargetedMove = function(move)
 		{

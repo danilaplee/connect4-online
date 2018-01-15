@@ -171,7 +171,7 @@ export default {
 			{
 				self.matrixClient = client
 				setTimeout(function(){
-					
+
 					self.setMatrixAvatar()
 					self.matrixClient.on("Room.timeline", self.timelineUpdate)
 					
@@ -184,7 +184,7 @@ export default {
 
 					if(self.multiplayer_session) return self.openMatrixSession().then(resolve)
 				
-				}, 100)
+				}, 800)
 				
 				self.matrixClient.startClient(10)
 				if(!self.multiplayer_session)resolve()
