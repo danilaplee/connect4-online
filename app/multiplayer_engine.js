@@ -28,13 +28,15 @@ export default {
 		}
 		return this.matrixInit()
 	},
-	sendBotMessage(txt, human)
+	sendBotMessage(txt, human, loading)
 	{
 		var self = this
+		if(txt && txt.loading) loading = txt.loading
 		if(txt && txt.human) human = txt.human
 		if(txt && txt.content) txt = txt.content
 		return new Promise(function(resolve,reject){
 			self.botui.message.add({ 
+				loading:loading,
 	    		human:human,
 			  	content: txt,
 			}).then(function(){
