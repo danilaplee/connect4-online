@@ -142,14 +142,10 @@ export default {
 		const user = this.matrixClient.getUser(this.player2mxid)
 		if(!user || !user.avatarUrl) return this.getUserById(this.player2mxid)
 		.then(d => {
-			// console.log("get user by id")
-			// console.log(d)
 			const user 	= JSON.parse(d) 
 			if(!user.avatar_url) return new Promise(resolve=>{
 				setTimeout(function(){
 					self.getUserById(self.player2mxid).then(n_d=>{
-						// console.log("get user by id2")
-						// console.log(n_d)
 						const u 	= JSON.parse(n_d) 
 						const da 	= JSON.parse(u.avatar_url)
 						assign(da)
