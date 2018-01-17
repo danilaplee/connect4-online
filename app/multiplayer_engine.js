@@ -217,6 +217,7 @@ export default {
     },
 	createMatrixSession()
 	{
+		console.log('creating session')
 		if(this.multiplayer_session) return;
 		this.mode 			= "multi"
 		this.player_two 	= null;
@@ -268,33 +269,32 @@ export default {
 		self.mxid = "#"+self.multiplayer_session+":matrix.starpy.me"
 		return new Promise(function(resolve)
 		{
+			
 			self.first_message_sent = false;
-			client
-			.joinRoom(self.mxid)
-			.then(function(data)
+			self
+			.createChatControls()
+			.then(function()
 			{
-				self.mxroomid = data.roomId;
-				self.multiplayer_session_active = true;
-				return self.createChatControls()
-				
-			}).then(function(){
-				return client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has joined "+self.multiplayer_session)
-			})
-			.then(function(){
-				self.first_message_sent = true;
-				resolve()
+				client
+				.joinRoom(self.mxid)
+				.then(function(data)
+				{
+					self.mxroomid = data.roomId;
+					self.multiplayer_session_active = true;
+					
+				}).then(function(){
+					return client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has joined "+self.multiplayer_session)
+				})
+				.then(function(){
+					self.first_message_sent = true;
+					resolve()
+				})
 			})
 		})
 	},
 
 	createSession() 
 	{
-		var self 	= this
-		var myNode 	= self.modal_container;
-		while (myNode.firstChild) {
-			ReactDOM.unmountComponentAtNode(myNode)
-		};
-
-		return self.createMatrixSession()
+		return this.createMatrixSession()
 	}
 }

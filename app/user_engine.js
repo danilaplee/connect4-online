@@ -118,6 +118,7 @@ export default {
 			user.mdata = d;
 			user.registered = true;
 			user.deviceId = user.deviceId
+			user.is_new = true;
 
 			localStorage.setItem("matrix_user", JSON.stringify(user))
 			return self.matrixAuth()

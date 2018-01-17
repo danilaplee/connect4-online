@@ -84,7 +84,7 @@ var instance =
 		this.player_one = this.initUser();
 		var self = this
 		if(this.player_one.is_new) return this.openColorDialog()
-		.then(()=>this.bindMultiplayer())
+		.then(()=>{return this.bindMultiplayer()})
 		this.bindMultiplayer()
 
 		return this;

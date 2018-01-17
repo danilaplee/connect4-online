@@ -244,6 +244,7 @@ export default {
 		if(this.mode == 'multi' && !this.restarting_multiplayer) 
 		{
 			if(!this.multiplayer_session_active || this.creating_room) {
+				console.log('creating_room')
 				this.new_game_promise = runGame;
 				return this.createSession();
 			}
