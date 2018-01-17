@@ -8,6 +8,10 @@ import uuid 	from 'uuid';
 
 //COMPONENTS
 import basic_modal from './components/basic_modal.jsx';
+function strip(html){
+   var doc = new DOMParser().parseFromString(html, 'text/html');
+   return doc.body.textContent || "";
+}
 
 var PeerConnection 		= window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 var IceCandidate 		= window.mozRTCIceCandidate || window.RTCIceCandidate;
@@ -17,25 +21,43 @@ export default {
 	bindMultiplayer()
 	{
 		var self = this
-		if(window.location.hash.search('#multiplayer_session_') > -1 && !this.multiplayer_session_active) 
+		if(window.location.hash.search('#room_') > -1 && !this.multiplayer_session_active) 
 		{
 			this.mode = "multi"
-			this.multiplayer_session = window.location.hash.replace("#call", "").replace('#multiplayer_session_', '')
-			setTimeout(function(){
-
-				const component_title 	= "Connecting to Multiplayer Session"
-				const component_text 	= "Please, wait. Connecting to session "+self.multiplayer_session+"..."
-
-				ReactDOM.render(React.createElement(basic_modal, {
-					title:component_title,
-					text:component_text,
-					modal_container:self.modal_container
-				}), self.modal_container);
-
-			}, 300)
+			this.multiplayer_session = window.location.hash.replace("#call", "").replace('#room_', '')
 		}
 		return this.matrixInit()
 	},
+	sendBotMessage(txt, human)
+	{
+		var self = this
+		if(txt && txt.human) human = txt.human
+		if(txt && txt.content) txt = txt.content
+		return new Promise(function(resolve,reject){
+			self.botui.message.add({ 
+	    		human:human,
+			  	content: txt,
+			}).then(function(){
+				self.scrollToBottom()
+				resolve()
+			})
+		})
+	},
+    showNotification(txt, human)
+    {
+    	const self = this
+    	return self.sendBotMessage({ 
+    		human:human,
+		  	content: txt,
+		}).then(function(){
+		    return self._notificationSystem.addNotification({
+		      message: strip(txt),
+		      level: 'success',
+		      autoDismiss: 10,
+		      position: 'br'
+		    });
+		})
+    },
 	ajaxReq(url, method, body) 
 	{
 		return new Promise(function(resolve, reject) 
@@ -63,28 +85,35 @@ export default {
 	},
 	sendRestartMXGame()
 	{
-		const self = this
+		var self = this
 		if(self.restartTimer) clearTimeout(self.restartTimer)
 		self.restartTimer = setTimeout(function(){
 			self.matrixClient.sendTextMessage(self.mxroomid, self.matrix_user.name+" restarted the game ")
 		}, 300)
 	},
+	sendMXMessage(text)
+	{
+		if(!this.mxroomid) return
+		var self = this
+		if(self.mxMessageTimer) clearTimeout(self.mxMessageTimer)
+		self.mxMessageTimer = setTimeout(function(){
+			self.matrixClient.sendTextMessage(self.mxroomid, self.matrix_user.name+" says: <b>"+text+"</b>")
+		}, 300)
+	},
 	startMXGame() {
 		if(!this.player_two) return
-		if(!this.multiplayer_promise) {
+		if(!this.game_is_new) {
 			this.active_user = this.player_two;
-			this.modal_container.style.display = 'none';
 			this.startGame();
 			return;
 		}
-		this.modal_container.style.display = 'none';
-		this.active_user = this.player_two;
-		this.multiplayer_promise()
+		this.game_is_new = false;
+		if(this.new_game_promise) this.new_game_promise()
 	},
 	restartMXGame(starting_player) {
-		if(!this.player_two || this.player_two == {}) return
+		if(!this.player_two) return
 		var self = this
-		self.restarting_multiplayer = true;
+			self.restarting_multiplayer = true;
 		if(starting_player === 1) 
 		{
 			if(self.guest) self.active_user = self.player_two;
@@ -103,6 +132,7 @@ export default {
 			self.is_assigned = true;
 		const assign 	= function(data) {	
 			self.player_two = data
+			self.is_assigned = false;
 			self.player_two.id = 2;
 			self.player_two.ai = false;
 			self.player_two.name = self.player2
@@ -112,7 +142,21 @@ export default {
 		const user = this.matrixClient.getUser(this.player2mxid)
 		if(!user || !user.avatarUrl) return this.getUserById(this.player2mxid)
 		.then(d => {
+			// console.log("get user by id")
+			// console.log(d)
 			const user 	= JSON.parse(d) 
+			if(!user.avatar_url) return new Promise(resolve=>{
+				setTimeout(function(){
+					self.getUserById(self.player2mxid).then(n_d=>{
+						// console.log("get user by id2")
+						// console.log(n_d)
+						const u 	= JSON.parse(n_d) 
+						const da 	= JSON.parse(u.avatar_url)
+						assign(da)
+						resolve()
+					})
+				}, 1000)
+			})
 			const data 	= JSON.parse(user.avatar_url)
 			assign(data)
 		})
@@ -142,8 +186,14 @@ export default {
 	    				break;
 	    			}
 	    		}
-	    		if(not_me.powerLevel == 100) self.creator = false;
-	    		else self.creator = true;
+	    		if(not_me.powerLevel == 100) {
+	    			self.creator = false;
+	    			self.guest 	 = true;
+	    		}
+	    		else {
+	    			self.creator = true;
+	    			self.guest = false;
+	    		}
 		    	self.player2mxid 	= not_me.userId
 		    	self.player2 		= not_me.userId
 		    	self.assignSecondPlayer()
@@ -154,25 +204,21 @@ export default {
 	    {
 		    var text = lastmessage.event.content.body
 
-		    this.showNotification(text)
+		    if(text.split(" ")[0] == self.matrix_user.name) this.showNotification(text, true)
+		    else this.showNotification(text)
 		    if(self.player_two == null) return;
 		    const restarted = (text.search("restarted") > -1)
-		    if(restarted && text.split(" restarted")[0] == self.matrix_user.name) return self.restartMXGame(1)
-		    if(restarted && text.split(" restarted")[0] != self.matrix_user.name) return self.restartMXGame(2)
-		    if(text.search("dropped") > -1 && text.split(" dropped")[0] != self.matrix_user.name && self.active_user && self.active_user.id == 2) self.updateColumn(text.split("column ")[1])
+		    if(restarted && self.player_two){
+		    	const author = text.split(" restarted")[0]
+		    	if(author == self.matrix_user.name && self.creator) return self.restartMXGame(1)
+		    	if(author == self.matrix_user.name && !self.creator) return self.restartMXGame(2)
+		    	if(author != self.matrix_user.name && self.creator) return self.restartMXGame(2)
+		    	if(author != self.matrix_user.name && !self.creator) return self.restartMXGame(1)
+		    } 
+		    if(text.search("dropped") > -1 && text.split(" dropped")[0] != self.matrix_user.name && self.active_user && self.active_user.id == 2) self.updateColumn(strip(text).split("column ")[1])
 
 	    }
     },
-    showNotification(txt)
-    {
-	    this._notificationSystem.addNotification({
-	      message: txt,
-	      level: 'success',
-	      autoDismiss: 10,
-	      position: 'br'
-	    });
-    },
-
 	createMatrixSession()
 	{
 		if(this.multiplayer_session) return;
@@ -183,7 +229,7 @@ export default {
 		const session_id 	= generateName().split(" ")[0].toLowerCase()
 		return new Promise(function(resolve)
 		{
-			self.multiplayer_promise = resolve;
+			self.first_message_sent = false;
 			client
 			.createRoom(
 			{
@@ -198,33 +244,22 @@ export default {
 			})	
 			.then(function(data)
 			{
+				self.creating_room = false;
 				self.mxroomObject = data;
 				self.mxroomid = data.roomId
 				self.multiplayer_session_active = true;
-				var session = {
-					id:session_id
-				}
-				session.link = window.location.origin+window.location.pathname+'#multiplayer_session_'+session_id
-				window.location.hash = "#multiplayer_session_"+session_id
 				self.multiplayer_session = session_id
-				var subject = "Your are invited you to play Connect4 Online!"
-				var body 	= 'Your Friend has Invited you to Play Connect4 Online with Him!'
-					body	+= '\n Press here to start! ->'
-					body 	+= '\n'+session.link
-				var mailto  = "<a class='multi-player-link' href='mailto:?subject="+subject+'&body='+encodeURIComponent(body)+"'>Email It</a>"
-				var copy_ln = "<a id='copy_ln' class='multi-player-link' href='#multiplayer_session_"+session_id+"' onclick='window.copyToClipboard(\""+session.link+"\")'>Copy To Clipboad</a>";
-				var component_text = "<p style='font-size:16px;'>"+session.link+"</p>"+mailto+"<br>"+copy_ln
-				var component_title = "Share this link to play a multiplayer game!"
+				self.game_is_new = true;
+				window.location.hash = '#room_'+session_id
+				resolve()
+				return self.createChatControls()
 
-				ReactDOM.render(React.createElement(basic_modal, {
-					title:component_title,
-					text:component_text,
-					modal_container:self.modal_container
-				}), self.modal_container);
+			}).then(function(){
 
-				self.modal_container.style.display = "block";
-				return client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has created room "+session_id)
-
+					client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has created room "+session_id)
+					.then(function(){
+						self.first_message_sent = true;
+					})
 			})
 		})
 
@@ -237,17 +272,21 @@ export default {
 		self.mxid = "#"+self.multiplayer_session+":matrix.starpy.me"
 		return new Promise(function(resolve)
 		{
-			self.modal_container.style.display = "block";
-
-			return client
+			self.first_message_sent = false;
+			client
 			.joinRoom(self.mxid)
 			.then(function(data)
 			{
-				self.mxroomObject = data;
-				self.mxroomid = data.roomId
+				self.mxroomid = data.roomId;
 				self.multiplayer_session_active = true;
-				return client
-				.sendTextMessage(self.mxroomid, self.matrix_user.name+" has joined "+self.multiplayer_session)
+				return self.createChatControls()
+				
+			}).then(function(){
+				return client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has joined "+self.multiplayer_session)
+			})
+			.then(function(){
+				self.first_message_sent = true;
+				resolve()
 			})
 		})
 	},

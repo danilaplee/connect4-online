@@ -5,6 +5,7 @@ const startGame = function(mode)
 {
 	var self = this
 	this.props.game.mode = mode
+	if(mode == "multi") return self.props.game.createChatControls();
 	if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
 	else this.props.game.startGame();
 	return false;
@@ -31,7 +32,6 @@ export default class NavComponent extends React.Component {
 			return false;
 		}
 		const handleTransform = function(type){
-	  		console.log(type)
 	  		const el = document.getElementById("dynamic-nav")
 	  		if(!el) return;
 	  		if(type == "show") el.className = "list-group"
@@ -41,13 +41,13 @@ export default class NavComponent extends React.Component {
 	    <div>
 	    	<ul id="dynamic-nav" className="list-group">
 				<li className="list-group-item">
-					<a onClick={handleClick.bind(this,'single')}>Play Singleplayer Game</a>
+					<a onClick={handleClick.bind(this,'single')}>Singleplayer</a>
 				</li>
 				<li className="list-group-item">
-				    <a onClick={handleClick.bind(this,'multi')}>Play Multiplayer Game</a>
+				    <a onClick={handleClick.bind(this,'multi')}>Multiplayer</a>
 				</li>
 				<li className="list-group-item">
-				   <a onClick={handleClick.bind(this,'hot')}>Play Hotseat Game</a>
+				   <a onClick={handleClick.bind(this,'hot')}>Hotseat</a>
 				</li>
 				<li className="list-group-item">
 				   <a onClick={this.props.game.openColorDialog}>Settings</a>

@@ -48,11 +48,21 @@ body
 }
 #gametoolbar
 {
+	background: transparent;
 	position:fixed;
 	top:10px;
 	left:10px;
 	height: 150px;
-	width:200px;
+	width:140px;
+}
+#dynamic-nav
+{
+
+	transition: height 1s;
+	-webkit-transition: height 1s; 
+	-moz-transition: height 1s; 
+	-ms-transition: height 1s; 
+	-o-transition: height 1s; 
 }
 
 #gamemodal
@@ -170,3 +180,36 @@ body
 .clipboard {
 	top:-100%;
 }
+.botui-app-container {
+	position: fixed;
+    top: 40px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border-radius: 20px;
+    border: #ebebeb 3px solid;
+    overflow: hidden;
+}
+.botui-app-container .close  {
+    position: absolute;
+    right: 10px;
+    top:10px;
+    border: 0;
+    font-size: 40px;
+    z-index: 1001;
+}
+.botui-app-container .close:focus {
+    outline:0
+}
+.botui-messages-container {
+	overflow: scroll;
+    height: 400px;
+}
+.botui-message-content
+{
+	max-width: 90%;
+}
+
+
+

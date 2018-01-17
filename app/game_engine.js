@@ -187,7 +187,7 @@ export default {
 		{
 		    for (var i = 0; i < field_length; i++) 
 		    {
-		        var tile = PIXI.Sprite.fromImage('texture.jpg');
+		        var tile = PIXI.Sprite.fromImage('texture.png');
 		        	tile.x = tile_size * i;
 		        	tile.y = tile_size * j;
 		        	tile.interactive = true;
@@ -208,12 +208,15 @@ export default {
 		self.winner_text.style.display = 'none';
 		var runGame 		= function()
 		{
-			self.game_count++;
-			self.user_token.style.background = self.active_user.color_obj.hex
-			self.user_token.innerHTML 		 = '<img src="'+self.active_user.emoji_img+'" style="width:80px">';
-			self.controls_blocked 			 = null;
-			self.in_progress 				 = true;
-			self.restarting_multiplayer   	 = null;
+			return new Promise(res => {
+				self.game_count++;
+				self.user_token.style.background = self.active_user.color_obj.hex
+				self.user_token.innerHTML 		 = '<img src="'+self.active_user.emoji_img+'" style="width:80px">';
+				self.controls_blocked 			 = null;
+				self.in_progress 				 = true;
+				self.restarting_multiplayer   	 = null;
+				res()
+			})
 
 		}
 		if(this.canvas) 
@@ -240,10 +243,13 @@ export default {
 		if(this.mode == 'single') this.player_two = ai_profile
 		if(this.mode == 'multi' && !this.restarting_multiplayer) 
 		{
-			if(!this.multiplayer_session_active) return this.createSession().then(runGame);
-			return this.sendRestartMXGame()
+			if(!this.multiplayer_session_active || this.creating_room) {
+				this.new_game_promise = runGame;
+				return this.createSession();
+			}
+			return this.sendRestartMXGame();
 		}
-		if(this.mode == 'hot') 	return this.addHotSeat().then(runGame);
+		if(this.mode == 'hot') 	return this.addHotSeat().then(function(){ return runGame });
 		return runGame();
 	},
 	makeAiTurn()

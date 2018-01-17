@@ -8,8 +8,6 @@ export default class BasicModal extends React.Component {
 		this.closeModal = helpers.closeModal.bind(this)
 	}
 	render() {
-		var self = this
-		
 	    return <div className="modal">
 		  <div className="modal-dialog">
 		    <div className="modal-content">

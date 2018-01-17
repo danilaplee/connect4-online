@@ -3,6 +3,7 @@ import React 	from 'react';
 import ReactDOM from 'react-dom';
 
 //FUNCTIONAL PROGRAMMING LIBS
+// global.Olm = require('../node_modules/olm/olm.js');
 import game 		from './game_engine';
 import user 		from './user_engine';
 import multiplayer 	from './multiplayer_engine';
@@ -12,9 +13,9 @@ import dom 			from "./dom_engine";
 import Nav from './components/nav.jsx';
 
 //CSS
-
+require("../node_modules/botui/build/botui.min.css")
+require("../node_modules/botui/build/botui-theme-default.css")
 require("./style.css")
-
 //OBJECTIVE GAME INSTANCE
 var instance = 
 {
@@ -34,6 +35,7 @@ var instance =
 		this.gametable				= document.getElementById('gametable')
 		this.navbar   				= document.getElementById('gametoolbar')
 		this.modal_container 		= document.getElementById('gamemodal')
+		this.gamechat 				= document.getElementById('gamechat')
 		this.user_token 			= document.getElementById('active_user_token')
 		this.remoteVideo 			= document.getElementById('remoteVideo')
 		this.remoteVideoDisclaimer 	= document.getElementById('remoteVideoDisclaimer')
@@ -70,8 +72,11 @@ var instance =
 		this.startMXGame 			= multiplayer.startMXGame.bind(this)
 		this.restartMXGame 			= multiplayer.restartMXGame.bind(this)
 		this.dropMultiPlayerBall 	= multiplayer.dropMultiPlayerBall.bind(this)
+		this.sendMXMessage 			= multiplayer.sendMXMessage.bind(this)
+		this.sendBotMessage 		= multiplayer.sendBotMessage.bind(this)
 		this.createChatControls 	= dom.createChatControls.bind(this)
 		this.createGameControls 	= dom.createGameControls.bind(this)
+		this.scrollToBottom 		= dom.scrollToBottom.bind(this)
 		window.copyToClipboard 		= dom.copyToClipboard.bind(this)
 
 		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);
@@ -81,7 +86,6 @@ var instance =
 		if(this.player_one.is_new) return this.openColorDialog()
 		.then(()=>this.bindMultiplayer())
 		this.bindMultiplayer()
-
 
 		return this;
 	}

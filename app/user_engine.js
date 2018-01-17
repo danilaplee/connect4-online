@@ -1,9 +1,9 @@
-
 import React 		from 'react';
 import ReactDOM 	from 'react-dom';
 import generateName from 'sillyname';
 import matrix		from 'matrix-js-sdk';
 import uuid 		from 'uuid';
+import MockStorageApi from '../node_modules/matrix-js-sdk/spec/MockStorageApi';
 
 //COMPONENTS
 import customizer from './components/customizer.jsx';
@@ -19,7 +19,7 @@ export default {
 		var self 	= this
 		var player 	= self.player_one;
 		var myNode 	= self.modal_container;
-
+			
 		while (myNode.firstChild) ReactDOM.unmountComponentAtNode(myNode)
 			
 		return new Promise(function(resolve, reject)
@@ -93,7 +93,8 @@ export default {
 	{
 		var matrixUser = {
 			"name":generateName().split(" ")[0],
-			"password":(uuid.v4()).replace("-", "").replace("-", "").split("-")[0]
+			"password":(uuid.v4()).replace("-", "").replace("-", "").split("-")[0],
+			"deviceId":generateName().split(" ")[0]
 		}
 		try {
 			const oldUser = JSON.parse(localStorage.getItem("matrix_user"))
@@ -116,6 +117,7 @@ export default {
 			const d = JSON.parse(data)
 			user.mdata = d;
 			user.registered = true;
+			user.deviceId = user.deviceId
 
 			localStorage.setItem("matrix_user", JSON.stringify(user))
 			return self.matrixAuth()
@@ -138,7 +140,7 @@ export default {
 				type:"m.login.password",
 				user:user.mdata.user_id,
 				password:user.password,
-				initial_device_display_name: generateName().split(" ")[0],
+				initial_device_display_name: user.deviceId,
 			}
 			self
 			.ajaxReq(url, "POST", body)
@@ -155,6 +157,8 @@ export default {
 	matrixInit()
 	{
 		var self = this
+			const mock = new MockStorageApi()
+			self.mxstore = new matrix.WebStorageSessionStore(mock)
 		return new Promise(function(resolve, reject)
 		{
 			self
@@ -162,35 +166,30 @@ export default {
 			.then(function()
 			{
 				return matrix.createClient({
+					deviceId:self.matrix_user.deviceId,
 					baseUrl:matrixURL,
 					accessToken:self.matrix_token,
-					userId:self.matrix_id
+					userId:self.matrix_id,
+					sessionStore:self.mxstore
 				})
 			})
 			.then(function(client)
 			{
 				self.matrixClient = client
+				return self.matrixClient.initCrypto()
+			})
+			.then(function(){
+				return self.matrixClient.startClient()
+			})
+			.then(function(){
 				setTimeout(function(){
 
 					self.setMatrixAvatar()
 					self.matrixClient.on("Room.timeline", self.timelineUpdate)
-					
-					if(self.multiplayer_session && self.player_one.is_new) return self.openColorDialog()
-						.then(function(){ 
-							console.log("created new custom user")
-							console.log("openning previous matrix session")
-							return self.openMatrixSession()
-						}).then(resolve)
-
 					if(self.multiplayer_session) return self.openMatrixSession().then(resolve)
 				
 				}, 800)
-				
-				self.matrixClient.startClient(10)
-				if(!self.multiplayer_session)resolve()
-			})
-			.then(function(){
-				resolve()
+				if(!self.multiplayer_session) resolve()
 			})
 		})
 	},
