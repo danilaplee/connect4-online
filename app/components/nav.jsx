@@ -4,8 +4,20 @@ import helpers 	from './helpers'
 const startGame = function(mode)
 {
 	var self = this
+	if(mode == "multi") {
+		this.props.game.mode = mode
+		return self.props.game.createChatControls();
+	}
+	else {
+		self.props.game.multiplayer_session = null;
+		self.props.game.mxroomid = null;
+		window.location.hash = ""
+		if(self.props.game.openChatButton.className.search(" hidden") == -1) self.props.game.openChatButton.className += " hidden"
+		if(self.props.game.callUserButton.className.search(" hidden") == -1) self.props.game.callUserButton.className += " hidden"
+		if(self.props.game.gamechat.className.search(" hidden") == -1) self.props.game.gamechat.className += " hidden"
+	}
 	this.props.game.mode = mode
-	if(mode == "multi") return self.props.game.createChatControls();
+
 	if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
 	else this.props.game.startGame();
 	return false;
@@ -45,9 +57,6 @@ export default class NavComponent extends React.Component {
 				</li>
 				<li className="list-group-item">
 				    <a onClick={handleClick.bind(this,'multi')}>Multiplayer</a>
-				</li>
-				<li className="list-group-item">
-				   <a onClick={handleClick.bind(this,'hot')}>Hotseat</a>
 				</li>
 				<li className="list-group-item">
 				   <a onClick={this.props.game.openColorDialog}>Settings</a>

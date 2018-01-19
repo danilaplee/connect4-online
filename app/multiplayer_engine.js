@@ -28,20 +28,31 @@ export default {
 		}
 		return this.matrixInit()
 	},
-	sendBotMessage(txt, human, loading)
+	sendBotMessage(txt, human, loading, update)
 	{
 		var self = this
+		// console.log(txt)
 		if(txt && txt.loading) loading = txt.loading
 		if(txt && txt.human) human = txt.human
+		if(txt && txt.update) update = txt.update
+		if(txt && !txt.content) txt = "loading";
 		if(txt && txt.content) txt = txt.content
+		// console.log(update,loading,human,txt)
 		return new Promise(function(resolve,reject){
+			if(update) return self.botui.message.update(update,{
+				content:txt,
+				loading:loading,
+				human:human
+			}).then(function(message){
+				resolve(message)
+			})
 			self.botui.message.add({ 
 				loading:loading,
 	    		human:human,
-			  	content: txt,
-			}).then(function(){
+			  	content:txt
+			}).then(function(message){
 				self.scrollToBottom()
-				resolve()
+				resolve(message)
 			})
 		})
 	},
@@ -89,9 +100,12 @@ export default {
 	{
 		var self = this
 		if(self.restartTimer) clearTimeout(self.restartTimer)
-		self.restartTimer = setTimeout(function(){
-			self.matrixClient.sendTextMessage(self.mxroomid, self.matrix_user.name+" restarted the game ")
-		}, 300)
+		return new Promise(function(resolve){
+			self.restartTimer = setTimeout(function(){
+				self.matrixClient.sendTextMessage(self.mxroomid, self.matrix_user.name+" restarted the game ")
+				resolve()
+			}, 300)
+		})
 	},
 	sendMXMessage(text)
 	{
@@ -138,6 +152,7 @@ export default {
 			self.player_two.id = 2;
 			self.player_two.ai = false;
 			self.player_two.name = self.player2
+			self.callUserButton.className = "ui-button";
 			if(self.creator) self.active_user = self.player_two
 			self.startMXGame();
 		}
@@ -217,9 +232,17 @@ export default {
 
 	    }
     },
+    callIncoming(call){
+    	console.log("==== call incoming ====")
+    	console.log(call)
+    	if(this.webcall) return;
+    	this.webcall = call;
+    	this.webcaller = false;
+    	this.callUserButton.innerHTML = "Answer Call"
+    },
 	createMatrixSession()
 	{
-		console.log('creating session')
+		// console.log('creating session')
 		if(this.multiplayer_session) return;
 		this.mode 			= "multi"
 		this.player_two 	= null;
@@ -251,19 +274,11 @@ export default {
 				self.game_is_new = true;
 				window.location.hash = '#room_'+session_id
 				resolve()
-				return self.createChatControls()
 
-			}).then(function(){
-
-					client.sendTextMessage(self.mxroomid, self.matrix_user.name+" has created room "+session_id)
-					.then(function(){
-						self.first_message_sent = true;
-					})
 			})
 		})
 
 	},
-
 	openMatrixSession()
 	{
 		var self = this
@@ -294,7 +309,45 @@ export default {
 			})
 		})
 	},
+	startVideoCall()
+	{
+		var self = this
+		this.webcall = matrixcs.createNewMatrixCall(
+            this.matrixClient, this.mxroomid
+        );
+        this.webcaller = true
+        this.acceptVideoCall()
+	},
+	acceptVideoCall()
+	{
+		var self = this
+		self.local_video.className = "video_container"
+		self.remote_video.className = "video_container"
+		this.callUserButton.innerHTML = "End Call";
+		this.webcall.on("hangup", function() {
+			self.endVideoCall()
+	    });
+	    this.webcall.on("error", function(err) {
+	    	if(err) console.error(err)
+			self.endVideoCall(true)
+	    });
+		if(!this.webcaller) this.webcall.answer()
+		self.webcall.placeVideoCall(
+            self.remote_video,
+            self.local_video
+        );
+	},
+	endVideoCall(hangup)
+	{
+		var self = this
+			self.local_video.className = "video_container hidden"
+			self.remote_video.className = "video_container hidden"
+			self.callUserButton.innerHTML = "Start Call";
+			if(hangup) self.webcall.hangup()
+			self.webcall = null;
+			self.webcaller = false;
 
+	},
 	createSession() 
 	{
 		return this.createMatrixSession()

@@ -187,6 +187,8 @@ export default {
 
 					self.setMatrixAvatar()
 					self.matrixClient.on("Room.timeline", self.timelineUpdate)
+					self.matrixClient.on("Call.incoming", self.callIncoming)
+					
 					if(self.multiplayer_session) return self.openMatrixSession().then(resolve)
 				
 				}, 800)

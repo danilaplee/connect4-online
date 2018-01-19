@@ -145,7 +145,7 @@ app.use(parser.json())
 app.use(function(req, res, next) 
 {
     res.set({
-        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Origin": "https://starpy.me",
         "Access-Control-Allow-Credentials":true,
         'Access-Control-Allow-Methods': 'GET,POST,PUT,HEAD,DELETE,OPTIONS',
         "Access-Control-Allow-Headers": "Content-Type"
