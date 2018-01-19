@@ -1,7 +1,12 @@
 const webpack = require('webpack');
-
+// console.log(olm)
 module.exports = {
     entry: './app/index.js',
+    resolve: {
+        alias: {
+          'vue': 'vue/dist/vue.min.js',
+        }
+    },
     output: {
         path: './bin',
         filename: 'bundle.js',

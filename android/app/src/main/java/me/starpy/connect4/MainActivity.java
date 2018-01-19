@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -57,6 +58,11 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onBackPressed() {
+        return;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -75,7 +81,7 @@ public class MainActivity extends Activity {
         mainView.addView(webFrame);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         if(data != null) {
-            loadChromeApp(data.toString());
+            loadChromeApp(data.toString().replace("me.starpy.connect4://", "https://"));
         }
         else {
             loadChromeApp(appUrl);
@@ -94,7 +100,7 @@ public class MainActivity extends Activity {
             if(callView != null) callView.destroy();
             if(webView != null) webView.destroy();
             hasLoadedWebview = 0;
-            loadChromeApp(data.toString());
+            loadChromeApp(data.toString().replace("me.starpy.connect4://", "https://"));
         }
     }
 
@@ -104,6 +110,7 @@ public class MainActivity extends Activity {
 
     private void loadChromeApp(String url){
         webView = new WebView(mContext);
+        webView.getSettings().setUserAgentString(webView.getSettings().getUserAgentString()+ " "+ getString(R.string.user_agent_suffix));
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
@@ -124,6 +131,11 @@ public class MainActivity extends Activity {
 
         webView.setWebViewClient(new WebViewClient()
         {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                if(hasLoadedWebview == 1) return;
+                super.onPageStarted(view,url,favicon);
+            }
             @Override
             public void onPageFinished(final WebView view, String url) {
                 if(hasLoadedWebview == 1) return;
@@ -184,7 +196,21 @@ public class MainActivity extends Activity {
         });
         webView.loadUrl(url);
     }
-
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState )
+//    {
+//        super.onSaveInstanceState(outState);
+//        webView.saveState(outState);
+//        callView.saveState(outState);
+//    }
+//
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState)
+//    {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        webView.restoreState(savedInstanceState);
+//        callView.restoreState(outState);
+//    }
     ////////////////////////////////////////
     /// CREATE WEBRTC ENABLED CALL WINDOW //
     ////////////////////////////////////////
@@ -193,12 +219,13 @@ public class MainActivity extends Activity {
         print("creating_call_window");
         print(url);
         callView = new WebView(mContext);
+        callView.getSettings().setUserAgentString(callView.getSettings().getUserAgentString()+ " "+ getString(R.string.user_agent_suffix));
         callView.getSettings().setJavaScriptEnabled(true);
         callView.getSettings().setDomStorageEnabled(true);
         callView.getSettings().setPluginState(WebSettings.PluginState.ON);
         callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         callView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        callView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         callView.getSettings().setSupportMultipleWindows(true);
         callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
         callView.getSettings().setDatabaseEnabled(true);

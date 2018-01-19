@@ -39,7 +39,7 @@ export default {
 	},
 	animateFall(column)
 	{
-		var self 	= this
+		var self 		= this
 		let size 		= this.tile_size;
 		let color 		= this.active_user.color
 		return new Promise(function(resolve, reject)
@@ -106,6 +106,7 @@ export default {
 	},
 	endGame(winner)
 	{
+		var self 				= this
 		var balls 				= winner.balls
 		var half_tile 			= this.tile_size / 2
 		var quad_tile 			= this.tile_size / 4
@@ -123,14 +124,18 @@ export default {
 		this.animate()
 		this.in_progress = false;
 		self.winner_text.innerHTML  = '<h5 class="winner_title">PLAYER #'+winner.id+' HAS WON!</h4>'
-								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" onclick="game.startGame()">PLAY AGAIN</h4>';
+								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" id="play_again">PLAY AGAIN</h4>';
+		self.restart_button = document.getElementById("play_again")
+		self.restart_button.addEventListener("click", function(){
+			self.startGame()
+		})
 		self.winner_text.style.display = 'block';
 	},
 	updateColumn(column, position) 
 	{
 		var self = this
 		if(!column && position) column = position.x / this.tile_size
-		if(this.multiplayer_session_active && this.active_user.id === 1) this.socket.emit('dropBall', this.multiplayer_session, column);
+		if(this.multiplayer_session_active && this.active_user.id === 1) self.dropMultiPlayerBall(column)
 		// console.log('===== updating column #'+column+' =====')
 		let ball 	= JSON.parse(JSON.stringify(self.active_user));
 		if(self.column_counter[column]) 
@@ -182,7 +187,7 @@ export default {
 		{
 		    for (var i = 0; i < field_length; i++) 
 		    {
-		        var tile = PIXI.Sprite.fromImage('texture.jpg');
+		        var tile = PIXI.Sprite.fromImage('texture.png');
 		        	tile.x = tile_size * i;
 		        	tile.y = tile_size * j;
 		        	tile.interactive = true;
@@ -196,19 +201,22 @@ export default {
 	},
 	startGame(options)
 	{
-		if(!this.restarting_multiplayer) this.active_user = this.player_one
+		if(!this.restarting_multiplayer) this.active_user = this.player_one;
+		if(!this.game_controls) this.createGameControls();
 		var self  		= this
 		self.winner_text.innerHTML = '';
 		self.winner_text.style.display = 'none';
 		var runGame 		= function()
 		{
-			// console.log('===== running game #'+self.game_count+' starting player #'+self.active_user.id+' =======')
-			self.game_count++;
-			self.user_token.style.background = self.active_user.color_obj.hex
-			self.user_token.innerHTML 		 = '<img src="'+self.active_user.emoji_img+'" style="width:80px">';
-			self.controls_blocked 			 = null;
-			self.in_progress 				 = true;
-			self.restarting_multiplayer   	 = null;
+			return new Promise(res => {
+				self.game_count++;
+				self.user_token.style.background = self.active_user.color_obj.hex
+				self.user_token.innerHTML 		 = '<img src="'+self.active_user.emoji_img+'" style="width:80px">';
+				self.controls_blocked 			 = null;
+				self.in_progress 				 = true;
+				self.restarting_multiplayer   	 = null;
+				res()
+			})
 
 		}
 		if(this.canvas) 
@@ -235,18 +243,22 @@ export default {
 		if(this.mode == 'single') this.player_two = ai_profile
 		if(this.mode == 'multi' && !this.restarting_multiplayer) 
 		{
-			if(!this.multiplayer_session_active) return this.createSession().then(runGame);
-			// if(this.game_count) 
-			return this.socket.emit('restartGame', this.multiplayer_session)
+			if(!this.multiplayer_session_active || this.creating_room) {
+				// console.log('creating_room')
+				this.new_game_promise = runGame;
+				return this.createSession();
+			}
+			return this.sendRestartMXGame();
 		}
-		if(this.mode == 'hot') 	return this.addHotSeat().then(runGame);
+		if(this.mode == 'hot') 	return this.addHotSeat().then(function(){ return runGame });
 		return runGame();
 	},
 	makeAiTurn()
 	{
-		var self = this
-		var cols = self.columns
+		var self 	= this
+		var cols 	= self.columns
 		var counter = self.column_counter
+		
 		var getRandomColumn = function()
 		{
 			var col = getRandomInt(0, cols-1)
@@ -257,9 +269,8 @@ export default {
 			}
 			return col;
 		}
-		var random = getRandomColumn()
 
-		// console.log('===== making ai move random is '+random+' =====')
+		var random = getRandomColumn()
 
 		var tryTargetedMove = function(move)
 		{
@@ -293,6 +304,7 @@ export default {
 		if(!winning_number) winning_number = 4
 		var checkVertical = function(column)
 		{
+			if(!column) return null;
 			var winner 	= {}
 			var balls 	= column.positions
 			var prevID 	= 0;
@@ -320,10 +332,12 @@ export default {
 		}
 		var checkHorizontal = function(column, ball, ball_index)
 		{
+			if(!column) return null;
 			var winner 	= {}
 			for (var i = keys.length - 1; i >= 0; i--) 
 			{
 				var col 		= counter[keys[i]];
+				if(!col) continue;
 				var id 			= col.index
 				var side_ball 	= col.positions[ball_index]
 

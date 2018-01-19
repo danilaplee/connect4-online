@@ -1,10 +1,18 @@
+import React from 'react'
+import ReactDOM from 'react-dom'
 export default {
 	closeModal: function()
 	{
-		console.log("===== close modal =====")
-		console.log(this.props)
-		var container = this.props.modal_container
-		if(this.props.game != null) container = this.props.game.modal_container 
-		container.style.display = 'none';
+		var container = this.props.game.modal_container 
+			container.style.display = 'none';
+
+		setTimeout(function(){
+			while (container.firstChild) {
+				ReactDOM.unmountComponentAtNode(container)
+			};
+		}, 300)
+	},
+  	hideChat(){
+		this.props.app.gamechat.className = "botui-app-container hidden"
 	}
 }

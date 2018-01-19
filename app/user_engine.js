@@ -1,16 +1,25 @@
-
 import React 		from 'react';
 import ReactDOM 	from 'react-dom';
+import generateName from 'sillyname';
+import matrix		from 'matrix-js-sdk';
+import uuid 		from 'uuid';
+import MockStorageApi from '../node_modules/matrix-js-sdk/spec/MockStorageApi';
+
 //COMPONENTS
 import customizer from './components/customizer.jsx';
 
+//CONSTANTS
+const matrixURL 	= "https://starpy.me"
+const registerURL 	= "https://starpy.me/c4/register"
+
 export default {
+
 	openColorDialog() 
 	{
 		var self 	= this
 		var player 	= self.player_one;
 		var myNode 	= self.modal_container;
-
+			
 		while (myNode.firstChild) ReactDOM.unmountComponentAtNode(myNode)
 			
 		return new Promise(function(resolve, reject)
@@ -19,6 +28,7 @@ export default {
 			myNode.style.display = "block";
 		})
 	},
+
 	addHotSeat()
 	{
 		var self = this
@@ -51,8 +61,8 @@ export default {
 			var user_data = JSON.parse(localStorage.getItem('connect4'));
 			if(user_data.profile.emoji_img && user_data.profile.color_obj.hex)
 			{
-				if(!this.is_second_window) this.user_token.innerHTML = '<img src="'+user_data.profile.emoji_img+'" style="width:80px">';
-				if(!this.is_second_window) this.user_token.style.background = user_data.profile.color_obj.hex
+				this.user_token.innerHTML = '<img src="'+user_data.profile.emoji_img+'" style="width:80px">';
+				this.user_token.style.background = user_data.profile.color_obj.hex
 				return user_data.profile;
 			}
 			throw new Error('invalid profile')
@@ -74,5 +84,116 @@ export default {
 			}
 
 		}
-	}
+	},
+	getUserById(userID)
+	{
+		return this.ajaxReq(matrixURL+"/_matrix/client/r0/profile/"+userID, "GET") //+"?access_token="+this.matrix_token,"GET")
+	},
+	getUser()
+	{
+		var matrixUser = {
+			"name":generateName().split(" ")[0],
+			"password":(uuid.v4()).replace("-", "").replace("-", "").split("-")[0],
+			"deviceId":generateName().split(" ")[0]
+		}
+		try {
+			const oldUser = JSON.parse(localStorage.getItem("matrix_user"))
+			if(oldUser != null) matrixUser = oldUser;
+		}
+		catch(err){
+			localStorage.setItem("matrix_user", JSON.stringify(matrixUser))
+		}
+		return matrixUser;
+	},
+
+	registerUser()
+	{
+		var self   = this
+		const user = self.getUser()
+		if(user.registered) return self.matrixAuth();
+		return self.ajaxReq(registerURL, "POST", user)
+		.then(function(data)
+		{
+			const d = JSON.parse(data)
+			user.mdata = d;
+			user.registered = true;
+			user.deviceId = user.deviceId
+			user.is_new = true;
+
+			localStorage.setItem("matrix_user", JSON.stringify(user))
+			return self.matrixAuth()
+		})
+	},
+	setMatrixAvatar()
+	{
+		return this.matrixClient.setAvatarUrl(JSON.stringify(this.player_one))
+	},
+	matrixAuth()
+	{
+		var self   = this
+		return new Promise(function(resolve, reject)
+		{
+			const user = self.getUser()
+			self.matrix_user = user;
+			if(!user.registered) return self.registerUser().then(resolve);
+			const url = matrixURL+"/_matrix/client/r0/login"
+			const body = {
+				type:"m.login.password",
+				user:user.mdata.user_id,
+				password:user.password,
+				initial_device_display_name: user.deviceId,
+			}
+			self
+			.ajaxReq(url, "POST", body)
+			.then(function(res)
+			{
+				var data = JSON.parse(res)
+				self.matrix_token 	= data.access_token
+				self.matrix_id 		= data.user_id
+				resolve()
+			})
+		})
+	},
+
+	matrixInit()
+	{
+		var self = this
+			const mock = new MockStorageApi()
+			self.mxstore = new matrix.WebStorageSessionStore(mock)
+		return new Promise(function(resolve, reject)
+		{
+			self
+			.matrixAuth()
+			.then(function()
+			{
+				return matrix.createClient({
+					deviceId:self.matrix_user.deviceId,
+					baseUrl:matrixURL,
+					accessToken:self.matrix_token,
+					userId:self.matrix_id,
+					sessionStore:self.mxstore
+				})
+			})
+			.then(function(client)
+			{
+				self.matrixClient = client
+				return self.matrixClient.initCrypto()
+			})
+			.then(function(){
+				return self.matrixClient.startClient()
+			})
+			.then(function(){
+				setTimeout(function(){
+
+					self.setMatrixAvatar()
+					self.matrixClient.on("Room.timeline", self.timelineUpdate)
+					self.matrixClient.on("Call.incoming", self.callIncoming)
+					
+					if(self.multiplayer_session) return self.openMatrixSession().then(resolve)
+				
+				}, 800)
+				if(!self.multiplayer_session) resolve()
+			})
+		})
+	},
 }
