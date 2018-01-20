@@ -209,21 +209,6 @@ public class MainActivity extends Activity {
         });
         webView.loadUrl(url);
     }
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState )
-//    {
-//        super.onSaveInstanceState(outState);
-//        webView.saveState(outState);
-//        callView.saveState(outState);
-//    }
-//
-//    @Override
-//    protected void onRestoreInstanceState(Bundle savedInstanceState)
-//    {
-//        super.onRestoreInstanceState(savedInstanceState);
-//        webView.restoreState(savedInstanceState);
-//        callView.restoreState(outState);
-//    }
 
     //////////////////////////////////////
     ////// CREATE REACT NATIVE VIEW //////
@@ -289,9 +274,6 @@ public class MainActivity extends Activity {
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
