@@ -125,9 +125,21 @@ public class MainActivity extends Activity {
             webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         }
         else {
-            webView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
+            webView.getSettings().setDatabasePath(webView.getContext().getCacheDir().getAbsolutePath());
         }
-        webView.setInitialScale(185);
+        webView.setInitialScale(160);
+
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        request.grant(request.getResources());
+                    }
+                });
+            }
+        });
 
         webView.setWebViewClient(new WebViewClient()
         {
@@ -136,6 +148,7 @@ public class MainActivity extends Activity {
                 if(hasLoadedWebview == 1) return;
                 super.onPageStarted(view,url,favicon);
             }
+
             @Override
             public void onPageFinished(final WebView view, String url) {
                 if(hasLoadedWebview == 1) return;
@@ -195,78 +208,6 @@ public class MainActivity extends Activity {
             }
         });
         webView.loadUrl(url);
-    }
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState )
-//    {
-//        super.onSaveInstanceState(outState);
-//        webView.saveState(outState);
-//        callView.saveState(outState);
-//    }
-//
-//    @Override
-//    protected void onRestoreInstanceState(Bundle savedInstanceState)
-//    {
-//        super.onRestoreInstanceState(savedInstanceState);
-//        webView.restoreState(savedInstanceState);
-//        callView.restoreState(outState);
-//    }
-    ////////////////////////////////////////
-    /// CREATE WEBRTC ENABLED CALL WINDOW //
-    ////////////////////////////////////////
-
-    private void createCallWindow(String url) {
-        print("creating_call_window");
-        print(url);
-        callView = new WebView(mContext);
-        callView.getSettings().setUserAgentString(callView.getSettings().getUserAgentString()+ " "+ getString(R.string.user_agent_suffix));
-        callView.getSettings().setJavaScriptEnabled(true);
-        callView.getSettings().setDomStorageEnabled(true);
-        callView.getSettings().setPluginState(WebSettings.PluginState.ON);
-        callView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        callView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        callView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        callView.getSettings().setSupportMultipleWindows(true);
-        callView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
-        callView.getSettings().setDatabaseEnabled(true);
-        if (Build.VERSION.SDK_INT >= 11){
-            callView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        }
-        else {
-            callView.getSettings().setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
-        }
-        callView.setWebContentsDebuggingEnabled(true);
-
-        callView.setInitialScale(100);
-        callView.setWebChromeClient(new WebChromeClient(){
-            @Override
-            public void onPermissionRequest(final PermissionRequest request) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        request.grant(request.getResources());
-                    }
-                });
-            }
-        });
-        callView.setWebViewClient(new WebViewClient()
-        {
-            @Override
-            public void onPageFinished(final WebView view, String url) {
-                print("call_view_finished_loading");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        webFrame.addView(callView);
-                        webFrame.bringChildToFront(callView);
-                    }
-                });
-            }
-        });
-        callView.setLayoutParams(new FrameLayout.LayoutParams(512, 384));
-        callView.setY(mainView.getHeight()-384);
-        callView.setX(mainView.getWidth()-512);
-        callView.loadUrl(url);
     }
 
     //////////////////////////////////////
@@ -333,9 +274,6 @@ public class MainActivity extends Activity {
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 

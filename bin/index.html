@@ -4,9 +4,119 @@
   <meta charset="UTF-8">
   <title>Connect 4 Online</title>
   <link href="bootstrap.min.css" rel="stylesheet">
+  <style type="text/css">
+    #preloader-frame {
+      height: 500px;
+      width: 500px;
+      margin: 10% auto;
+      /*box-shadow: inset 1px 1px 4px 2px var(--shadow);*/
+      display: flex;
+      position: relative;
+      overflow: hidden;
+      --shadow: #626861;
+      --background-color: cadetblue;
+    }
+    #preloader-frame p {
+      position: absolute;
+      bottom: 0;
+      left: 30px;
+      font-size: 24px;
+      /*color:#FFA07A;*/
+      color: white;
+      font-weight: bold;
+    }
+
+    #steps {
+      font-size: 0;
+      position: absolute;
+      bottom: 0;
+      white-space: nowrap;
+      animation: steps 1s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes steps {
+      100% {
+        transform: translatex(-125px) translatey(-100px);
+      }
+    }
+
+    #steps div {
+      width: 125px;
+      height: 500px;
+      background-color: var(--background-color);
+      display: inline-block;
+      margin: 0;
+    }
+
+
+
+    #steps div:first-child {
+      transform: translateY(100px);
+    }
+
+    #steps div:nth-child(2) {
+      transform: translateY(200px);
+    }
+
+    #steps div:nth-child(3) {
+      transform: translateY(300px);
+    }
+
+    #steps div:nth-child(4) {
+      transform: translateY(400px);
+    }
+
+    #steps div:last-child {
+      transform: translateY(500px);
+    }
+
+
+
+    #ball {
+      height: 90px;
+      width: 110px;
+      background-color: var(--background-color);
+      border-radius: 50%;
+      position: absolute;
+      background: #FFA07A;
+      transform: translatex(265px) translatey(211px);
+      animation: bounce 1s ease-in-out infinite;
+      z-index: -1;
+      padding: 30px;
+     
+    }
+
+    @keyframes bounce {
+      50% {
+        transform: translatex(275px); 
+        height: 105px;
+        width: 95px;
+        animation-timing-function: ease-in;
+      }
+      95% {
+        height: 100px;
+        width: 100px;
+      }
+    }
+
+  </style>
   <script type="text/javascript" src="./olm.js"></script>
 </head>
 <body>
+  <div id="preloader-frame">
+    <div id="steps">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div id="ball">
+      <img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:40px">
+    </div>
+    <p>Loading Game</p>
+  </div>
 	<script type="text/javascript">
   		var appendFile = function(file, callback)
   		{
