@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Connect4 2.0</string>
-    <string name="user_agent_suffix">me.starpy.connect4</string>
+    <string name="app_name">Emoji Connection</string>
+    <string name="user_agent_suffix">me.starpy.connect</string>
 </resources>

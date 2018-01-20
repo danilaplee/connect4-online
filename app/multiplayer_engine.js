@@ -216,8 +216,10 @@ export default {
 	    if(lastmessage.event && lastmessage.event.type == "m.room.message")
 	    {
 		    var text = lastmessage.event.content.body
-
-		    if(text.split(" ")[0] == self.matrix_user.name) this.showNotification(text, true)
+		    var myname = self.matrix_user.name
+		    if(myname.split(" ").length > 1) myname = myname.split(" ")[0]
+		    var first_name = text.split(" ")[0]
+		    if(first_name == myname) this.showNotification(text, true)
 		    else this.showNotification(text)
 		    if(self.player_two == null) return;
 		    const restarted = (text.search("restarted") > -1)
