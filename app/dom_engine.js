@@ -109,7 +109,7 @@ const dom = {
 		var html  = '<div class="gametable-container">'
 		  	html += 	'<div id="gametable"></div>'
 		    html += 	'<div id="winner_text">'
-		    html +=  		'<h5 class="winner_title" style="margin-top:100px;">Welcome to <br/> Emoji Connect!</h5>'
+		    html +=  		'<h5 class="winner_title">Welcome to <br/> Emoji Connect!</h5>'
 		    html +=		'</div>'
 		  	html +=	'</div>'
 			html +=	'<div id="gametoolbar"></div>'
