@@ -85,6 +85,7 @@ var instance =
 		this.createChatControls 	= dom.createChatControls.bind(this)
 		this.createGameControls 	= dom.createGameControls.bind(this)
 		this.scrollToBottom 		= dom.scrollToBottom.bind(this)
+		this.selectLevel 			= dom.selectLevel.bind(this)
 		window.copyToClipboard 		= dom.copyToClipboard.bind(this)
 
 		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);

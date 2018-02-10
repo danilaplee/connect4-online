@@ -2,6 +2,7 @@
 import React 	from 'react';
 import ReactDOM from 'react-dom';
 import ChatApp from './components/chat.jsx'
+import MapModal from './components/map_modal.jsx'
 
 const dom = {
 	appendHtml(el, str) {
@@ -49,6 +50,54 @@ const dom = {
 			self.openChatButton.className = "ui-button";
 		})
 	},
+	selectLevel()
+	{
+		const fixClass = (add) => {
+			this.gametable.className = this.gametable.className.replace("game-cog", "")
+			this.gametable.className = this.gametable.className.replace("game-tower", "")
+			this.gametable.className = this.gametable.className.replace("game-classic", "")
+			if(add) this.gametable.className += "game-"+add
+		}
+		const maps = 
+		{
+			tower:() => {
+				this.width  = 600;
+				this.height = 1000;
+				fixClass(this.map_type)
+			},
+			classic:() => {
+				this.width  = 800;
+				this.height = 500;
+				fixClass(this.map_type)	
+			},
+			cog:() => {
+				this.width  = 600;
+				this.height = 600;
+				fixClass(this.map_type)	
+			}
+		}
+		console.log('selecting level')
+		return new Promise(resolve => {
+
+			var myNode 	= this.modal_container;
+			
+			while (myNode.firstChild) ReactDOM.unmountComponentAtNode(myNode)
+				
+			new Promise(res => {
+				ReactDOM.render(React.createElement(MapModal, {game:this, promise:res}), myNode);
+				myNode.style.display = "block";
+			})
+			.then(map => {
+				console.log("map selectLevel = "+map)
+				console.log(maps[map])
+				this.map_type = map;
+				maps[map]()
+				this.createCanvas()
+				this.createLevel()
+				resolve(this.startGame())
+			})
+		})
+	},
 	scrollToBottom()
 	{
 		var el = document.getElementById("chat-bot")
@@ -60,7 +109,7 @@ const dom = {
 		var html  = '<div class="gametable-container">'
 		  	html += 	'<div id="gametable"></div>'
 		    html += 	'<div id="winner_text">'
-		    html +=  		'<h5 class="winner_title" style="margin-top:100px;">Welcome to Emoji Connect!</h5>'
+		    html +=  		'<h5 class="winner_title" style="margin-top:100px;">Welcome to <br/> Emoji Connect!</h5>'
 		    html +=		'</div>'
 		  	html +=	'</div>'
 			html +=	'<div id="gametoolbar"></div>'

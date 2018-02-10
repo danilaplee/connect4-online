@@ -19,7 +19,7 @@ const startGame = function(mode)
 	this.props.game.mode = mode
 
 	if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
-	else this.props.game.startGame();
+	else this.props.game.selectLevel()
 	return false;
 }
 

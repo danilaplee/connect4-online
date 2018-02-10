@@ -19,6 +19,12 @@ export default {
 	'name':'CONNECT4 GAME_ENGINE',
 	createCanvas()
 	{
+		if(this.canvas) {
+			const context = this.canvas.getContext("2d")
+			context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			this.canvas.remove();
+			this.canvas = null;
+		};
 		this.canvas 			 = window.document.createElement("canvas")
 		this.canvas.style.height = this.height + "px"
 		this.canvas.style.width  = this.width + "px"
