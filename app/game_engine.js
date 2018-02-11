@@ -20,9 +20,13 @@ export default {
 	createCanvas()
 	{
 		if(this.canvas) {
+			this.stage.destroy()
+			this.stage = null;
+			this.renderer.destroy()
+			this.renderer = null;
 			const context = this.canvas.getContext("2d")
 			context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-			this.canvas.remove();
+			this.gametable.removeChild(this.canvas);
 			this.canvas = null;
 		};
 		this.canvas 			 = window.document.createElement("canvas")

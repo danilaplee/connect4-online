@@ -1,8 +1,8 @@
 body {
-  	min-width: 750px;
-  	overflow:hidden;
+  min-width: 750px;
+  overflow:hidden;
 	-webkit-font-smoothing:antialiased;
-	font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif
+	font-family: "Cabin Sketch", "Open Sans",'Helvetica Neue',Helvetica,Arial,sans-serif
 }
 .gametable-container
 {
@@ -150,19 +150,20 @@ body {
 #winner_text
 {
   	position: absolute;
-    background: white;
+    background: #fff;
     text-align: center;
     top: 50px;
     margin: auto;
     left: 0;
     right: 0;
-    /* background: transparent; */
-    border-radius: 20px;
+    border-radius: 40px;
+    padding: 10px;
+    box-sizing: content-box;
     overflow: hidden;
     display: block;
     z-index: 4;
     width: 400px;
-    border: 4px solid #cd5c5c;
+    border: 4px solid #cd5c5c
 }
 .list-group-item {
     padding: 15px;

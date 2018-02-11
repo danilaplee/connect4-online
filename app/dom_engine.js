@@ -84,7 +84,7 @@ const dom = {
 			while (myNode.firstChild) ReactDOM.unmountComponentAtNode(myNode)
 				
 			new Promise(res => {
-				ReactDOM.render(React.createElement(MapModal, {game:this, promise:res}), myNode);
+				ReactDOM.render(React.createElement(MapModal, {game:this, promise:res, title:"Select a Level"}), myNode);
 				myNode.style.display = "block";
 			})
 			.then(map => {
