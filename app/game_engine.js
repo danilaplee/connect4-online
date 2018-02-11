@@ -15,6 +15,11 @@ var getRandomInt = function(min, max)
 {
   return Math.floor(Math.random() * (max - min)) + min;
 }
+
+const burnTower = () => {
+
+}
+
 export default {
 	'name':'CONNECT4 GAME_ENGINE',
 	createCanvas()
@@ -46,6 +51,14 @@ export default {
 	{
 		window.requestAnimationFrame(this.animate);
 		this.renderer.render(this.stage)
+	},
+	runFX()
+	{
+		if(this.map_type == "tower")
+		{
+			// const height = 
+			console.log(this)
+		}
 	},
 	animateFall(column)
 	{
@@ -104,7 +117,7 @@ export default {
 	{
 		let user  	= this.player_one
 		let other 	= this.player_two
-		let winner 	= this.findWinner(column)
+		let winner 	= this.findWinner(column);
 		if(winner) return this.endGame(winner);
 		if(this.active_user.id === user.id) this.active_user = other;
 		else this.active_user = user;
@@ -113,6 +126,7 @@ export default {
 		if(this.active_user.ai) return this.makeAiTurn();
 		if(this.active_user.id == 2 && this.multiplayer_session_active) return;
 		this.controls_blocked = null;
+		this.runFX();
 	},
 	endGame(winner)
 	{
