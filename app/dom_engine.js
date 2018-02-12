@@ -50,7 +50,7 @@ const dom = {
 			self.openChatButton.className = "ui-button";
 		})
 	},
-	selectLevel()
+	selectLevel(map)
 	{
 		const fixClass = (add) => {
 			this.gametable.className = this.gametable.className.replace("game-cog", "")
@@ -58,11 +58,13 @@ const dom = {
 			this.gametable.className = this.gametable.className.replace("game-classic", "")
 			if(add) this.gametable.className += "game-"+add
 		}
+
 		const maps = 
 		{
 			tower:() => {
 				this.width  = 600;
-				this.height = 1000;
+				this.height = 1100;
+				this.fire_offset = 900;
 				fixClass(this.map_type)
 			},
 			classic:() => {
@@ -76,7 +78,17 @@ const dom = {
 				fixClass(this.map_type)	
 			}
 		}
-		console.log('selecting level')
+
+		if(map)
+		{
+			this.map_type = map;
+			maps[map]()
+			this.createCanvas()
+			this.createLevel()
+			console.log('selecting level')
+			return this.startGame();
+		}
+		
 		return new Promise(resolve => {
 
 			var myNode 	= this.modal_container;
@@ -88,8 +100,6 @@ const dom = {
 				myNode.style.display = "block";
 			})
 			.then(map => {
-				console.log("map selectLevel = "+map)
-				console.log(maps[map])
 				this.map_type = map;
 				maps[map]()
 				this.createCanvas()
@@ -102,7 +112,7 @@ const dom = {
 	{
 		var el = document.getElementById("chat-bot")
 		var ele = el.querySelector(".botui-messages-container")
-		ele.scrollTop = ele.scrollHeight
+			ele.scrollTop = ele.scrollHeight
 	},
 	createMainDom() {
 

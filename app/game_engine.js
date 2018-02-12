@@ -1,6 +1,6 @@
-import PIXI from 'pixi.js';
-var ai_profile =
-{
+// import PIXI from '../node_modules/pixi.js/dist/pixi.js';
+export const fire_id = "xxx";
+const ai_profile = {
 	id:2,
 	ai:true,
 	color:0xFFA07A,
@@ -11,14 +11,19 @@ var ai_profile =
 	emoji_img:"https://twemoji.maxcdn.com/svg/1f479.svg",
 	emoji:':japanese_ogre:'
 }
-var getRandomInt = function(min, max) 
-{
-  return Math.floor(Math.random() * (max - min)) + min;
+const fire_profile = {
+	id:fire_id,
+	ai:true,
+	color:0xFFA07A,
+	color_obj:
+	{
+		hex:'#FFA07A'
+	},
+	emoji_img:"https://twemoji.maxcdn.com/svg/1f479.svg",
+	emoji:':japanese_ogre:'
 }
-
-const burnTower = () => {
-
-}
+export const profiles = [ai_profile, fire_profile] 
+export const getRandomInt = (min, max) => (Math.floor(Math.random() * (max - min)) + min)
 
 export default {
 	'name':'CONNECT4 GAME_ENGINE',
@@ -27,12 +32,18 @@ export default {
 		if(this.canvas) {
 			this.stage.destroy()
 			this.stage = null;
+			this.background.destroy()
+			this.background = null;
 			this.renderer.destroy()
 			this.renderer = null;
 			const context = this.canvas.getContext("2d")
 			context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			this.gametable.removeChild(this.canvas);
 			this.canvas = null;
+			this.column_counter = {}
+			this.balls = []
+			this.fires = []
+			this.unused_balls = []
 		};
 		this.canvas 			 = window.document.createElement("canvas")
 		this.canvas.style.height = this.height + "px"
@@ -44,6 +55,7 @@ export default {
 			transparent:true,
 			resolution:window.devicePixelRatio
 		}
+		console.log(PIXI)
 		this.renderer 		= new PIXI.CanvasRenderer(this.width, this.height, this.renderOptions);
 		this.stage 		 	= new PIXI.Container();
 	},
@@ -51,14 +63,6 @@ export default {
 	{
 		window.requestAnimationFrame(this.animate);
 		this.renderer.render(this.stage)
-	},
-	runFX()
-	{
-		if(this.map_type == "tower")
-		{
-			// const height = 
-			console.log(this)
-		}
 	},
 	animateFall(column)
 	{
@@ -104,29 +108,26 @@ export default {
 					window.requestAnimationFrame(drawFall);
 					return self.renderer.render(self.stage)
 				}
-				setTimeout(function()
-				{
-					return resolve()
-
-				}, 100)
+				setTimeout(()=>resolve(), 100)
 			}
 			return drawFall()
 		});
 	},
 	switchTurn(column)
 	{
-		let user  	= this.player_one
-		let other 	= this.player_two
-		let winner 	= this.findWinner(column);
-		if(winner) return this.endGame(winner);
-		if(this.active_user.id === user.id) this.active_user = other;
-		else this.active_user = user;
-		this.user_token.style.background = this.active_user.color_obj.hex
-		this.user_token.innerHTML 		 = '<img src="'+this.active_user.emoji_img+'" style="width:80px">';
-		if(this.active_user.ai) return this.makeAiTurn();
-		if(this.active_user.id == 2 && this.multiplayer_session_active) return;
-		this.controls_blocked = null;
-		this.runFX();
+		this.runFX().then(()=>{
+			let user  	= this.player_one
+			let other 	= this.player_two
+			let winner 	= this.findWinner(column);
+			if(winner) return this.endGame(winner);
+			if(this.active_user.id === user.id) this.active_user = other;
+			else this.active_user = user;
+			this.user_token.style.background = this.active_user.color_obj.hex
+			this.user_token.innerHTML 		 = '<img src="'+this.active_user.emoji_img+'" style="width:80px">';
+			if(this.active_user.ai) return this.makeAiTurn();
+			if(this.active_user.id == 2 && this.multiplayer_session_active) return;
+			this.controls_blocked = null;
+		})
 	},
 	endGame(winner)
 	{
@@ -135,32 +136,48 @@ export default {
 		var half_tile 			= this.tile_size / 2
 		var quad_tile 			= this.tile_size / 4
 		var emoji 				= balls[0].emoji_img
-		for (var i = balls.length - 1; i >= 0; i--) 
-		{
-			var sprite 			= PIXI.Sprite.fromImage(emoji)
-				sprite.x 		= balls[i].x - quad_tile;
-				sprite.y 		= balls[i].y - quad_tile;
-				sprite.width 	= half_tile;
-				sprite.height 	= half_tile;
-				sprite.tint 	= 0xFFFFFFFFF;
-			balls[i].ball.addChild(sprite);
+		const emo_key = encodeURIComponent(emoji)
+		if(!this.hasloaded) this.hasloaded = {}
+		console.log(emoji)
+		const resolveGame = () => {
+			for (var i = balls.length - 1; i >= 0; i--) 
+			{
+				var sprite 			= PIXI.Sprite.fromImage(emoji)
+					sprite.x 		= balls[i].x - quad_tile;
+					sprite.y 		= balls[i].y - quad_tile;
+					sprite.width 	= half_tile;
+					sprite.height 	= half_tile;
+					sprite.tint 	= 0xFFFFFFFFF;
+				balls[i].ball.addChild(sprite);
+			}
+			this.animate()
+			this.in_progress = false;
+			self.winner_text.innerHTML  = '<h5 class="winner_title">PLAYER #'+winner.id+' HAS WON!</h4>'
+									 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" id="play_again">PLAY AGAIN</h4>';
+			self.restart_button = document.getElementById("play_again")
+			self.restart_button.addEventListener("click", function(){
+				if(self.map_type == "tower") {
+					self.createCanvas()
+					self.createLevel()
+				}
+				self.startGame()
+			})
+			self.winner_text.style.display = 'block';
 		}
-		this.animate()
-		this.in_progress = false;
-		self.winner_text.innerHTML  = '<h5 class="winner_title">PLAYER #'+winner.id+' HAS WON!</h4>'
-								 	+ '<h5 class="winner_title" style="cursor:pointer;color:saddlebrown" id="play_again">PLAY AGAIN</h4>';
-		self.restart_button = document.getElementById("play_again")
-		self.restart_button.addEventListener("click", function(){
-			self.startGame()
+		if(!this.hasloaded[emo_key] == true) return PIXI.loader
+			.add(emo_key, emoji)
+			.load((loader, resources)=>{
+				this.hasloaded[emo_key] = true;
+				resolveGame()
 		})
-		self.winner_text.style.display = 'block';
+		return resolveGame()
 	},
 	updateColumn(column, position) 
 	{
 		var self = this
 		if(!column && position) column = position.x / this.tile_size
 		if(this.multiplayer_session_active && this.active_user.id === 1) self.dropMultiPlayerBall(column)
-		// console.log('===== updating column #'+column+' =====')
+
 		let ball 	= JSON.parse(JSON.stringify(self.active_user));
 		if(self.column_counter[column]) 
 		{
@@ -181,56 +198,14 @@ export default {
 			self.switchTurn(column)
 		})
 	},
-	createLevel()
-	{
-		var self 				= this;
-			self.background 	= new PIXI.Container();
-			self.background.x 	= this.width;
-			self.background.y 	= this.height;
-			self.tiles 			= []
-			self.balls 			= []
-			self.column_counter = {}
-			self.unused_balls 	= []
-			self.stage.addChild(self.background)
-
-		var field_length 			= 10;
-		var tile_size 	 			= self.tile_size
-
-		self.columns 		= this.width / tile_size
-		self.rows		 	= this.height / tile_size
-		self.column_counter = {}
-
-
-		var onColumnDown = function() {
-			if(self.controls_blocked) return;
-			if(self.multiplayer_session_active && self.active_user.id === 2) return;
-			self.updateColumn(null, this.position)
-		}
-
-		for (var j = 0; j < field_length; j++) 
-		{
-		    for (var i = 0; i < field_length; i++) 
-		    {
-		        var tile = PIXI.Sprite.fromImage('texture.png');
-		        	tile.x = tile_size * i;
-		        	tile.y = tile_size * j;
-		        	tile.interactive = true;
-		        	tile.on('mousedown', onColumnDown);
-		        	tile.on('touchstart', onColumnDown);
-		        self.tiles.push(tile);
-		        self.stage.addChild(tile);
-		    };
-		}
-		self.animate()
-	},
 	startGame(options)
 	{
 		if(!this.restarting_multiplayer) this.active_user = this.player_one;
 		if(!this.game_controls) this.createGameControls();
-		var self  		= this
+		var self = this
 		self.winner_text.innerHTML = '';
 		self.winner_text.style.display = 'none';
-		var runGame 		= function()
+		var runGame = function()
 		{
 			return new Promise(res => {
 				self.game_count++;
@@ -241,7 +216,6 @@ export default {
 				self.restarting_multiplayer   	 = null;
 				res()
 			})
-
 		}
 		if(this.canvas) 
 		{
@@ -268,13 +242,11 @@ export default {
 		if(this.mode == 'multi' && !this.restarting_multiplayer) 
 		{
 			if(!this.multiplayer_session_active || this.creating_room) {
-				// console.log('creating_room')
 				this.new_game_promise = runGame;
 				return this.createSession();
 			}
 			return this.sendRestartMXGame();
 		}
-		if(this.mode == 'hot') 	return this.addHotSeat().then(function(){ return runGame });
 		return runGame();
 	},
 	makeAiTurn()
@@ -300,7 +272,6 @@ export default {
 		{
 			if(move.column && counter[move.column] && counter[move.column].positions.length < self.rows)
 			{
-				// console.log('==== making targeted move '+move.type+' '+move.column+' =====')
 				if(move.type == 'vertical') 	return self.updateColumn(move.column);
 				if(move.type == 'horizontal') 	return self.updateColumn(move.column);
 				if(move.type == 'cross') 		return self.updateColumn(move.column);
@@ -334,6 +305,7 @@ export default {
 			var prevID 	= 0;
 			for (var i = balls.length - 1; i >= 0; i--) 
 			{
+				if(balls[i].id == fire_id) continue;
 				if(balls[i].id == prevID) 
 				{
 					if(prevID == winner.id) 
@@ -373,6 +345,7 @@ export default {
 				if(adjacent && checkCross(column, ball, ball_index, col)) return checkCross(column, ball, ball_index, col);
 				if(side_ball && adjacent && ball.id == side_ball.id) 
 				{
+					if(ball.id == fire_id) continue;
 					if(ball.id == winner.id) 
 					{
 						winner.score++;

@@ -8,6 +8,7 @@ import game 		from './game_engine';
 import user 		from './user_engine';
 import multiplayer 	from './multiplayer_engine';
 import dom 			from "./dom_engine";
+import map 			from "./map_engine";
 
 //COMPONENTS
 import Nav from './components/nav.jsx';
@@ -45,7 +46,7 @@ var instance =
 		this.remote_video 			= document.getElementById('remote_video')
 		this.createCanvas 			= game.createCanvas.bind(this);
 		this.animate 	 			= game.animate.bind(this);
-		this.createLevel 			= game.createLevel.bind(this);
+		this.createLevel 			= map.createLevel.bind(this);
 		this.startGame 	 			= game.startGame.bind(this);
 		this.updateColumn			= game.updateColumn.bind(this);
 		this.animateFall 			= game.animateFall.bind(this);
@@ -88,7 +89,8 @@ var instance =
 		window.copyToClipboard 		= dom.copyToClipboard.bind(this)
 		
 		this.selectLevel 			= dom.selectLevel.bind(this)
-		this.runFX 					= game.runFX.bind(this);
+		this.runFX 					= map.runFX.bind(this);
+		this.burnTower 				= map.burnTower.bind(this);
 
 		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);
 
