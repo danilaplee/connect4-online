@@ -55,7 +55,7 @@ export default {
 			transparent:true,
 			resolution:window.devicePixelRatio
 		}
-		console.log(PIXI)
+		// console.log(PIXI)
 		this.renderer 		= new PIXI.CanvasRenderer(this.width, this.height, this.renderOptions);
 		this.stage 		 	= new PIXI.Container();
 	},
@@ -138,7 +138,7 @@ export default {
 		var emoji 				= balls[0].emoji_img
 		const emo_key = encodeURIComponent(emoji)
 		if(!this.hasloaded) this.hasloaded = {}
-		console.log(emoji)
+		// console.log(emoji)
 		const resolveGame = () => {
 			for (var i = balls.length - 1; i >= 0; i--) 
 			{

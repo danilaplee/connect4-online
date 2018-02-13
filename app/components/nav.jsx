@@ -62,10 +62,10 @@ export default class NavComponent extends React.Component {
 				   <a onClick={this.props.game.openColorDialog}>Settings</a>
 				</li>
 				<li className="list-group-item">
-				   <a onClick={handleTransform.bind(this,"hide")}>Hide</a>
+				   <a onClick={handleTransform.bind(this,"hide")}>Hide Menu</a>
 				</li>
 				<li className="list-group-item show-if-small">
-				   <a onClick={handleTransform.bind(this,"show")}>Open</a>
+				   <a onClick={handleTransform.bind(this,"show")}>Open Menu</a>
 				</li>
 			</ul>
 			<div> 

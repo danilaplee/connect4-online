@@ -88,7 +88,7 @@ var instance =
 		this.scrollToBottom 		= dom.scrollToBottom.bind(this)
 		window.copyToClipboard 		= dom.copyToClipboard.bind(this)
 		
-		this.selectLevel 			= dom.selectLevel.bind(this)
+		this.selectLevel 			= map.selectLevel.bind(this)
 		this.runFX 					= map.runFX.bind(this);
 		this.burnTower 				= map.burnTower.bind(this);
 

@@ -1,6 +1,26 @@
+
+import React 	from 'react';
+import ReactDOM from 'react-dom';
+import MapModal from './components/map_modal.jsx'
+
 import {profiles, getRandomInt, fire_id} from './game_engine';
+
 const ai_profile = profiles[0]
 const fire_profile = profiles[1]
+const makeBurnPositions = (burn_index) => {
+	var arr = []
+	for (var i = 0; i < burn_index; i++) arr.push(fire_profile)
+	// console.log(arr)
+	return arr;
+}
+const default_column = (id, burn_index) => {
+	const obj = {
+		index:id,
+		height:10,
+		positions:makeBurnPositions(burn_index)
+	}
+	return obj
+}
 export default {
 	burnTower(burn_index) {
 		return new Promise(resolve => {
@@ -8,13 +28,13 @@ export default {
 			if(!this.fires) this.fires = []
 			if(this.burned) var prev_burn = parseInt(this.burned)
 			this.burned = burn_index;
+			var fire_diff = 0;
+			if(burn_index > 2) fire_diff = (burn_index - 2)*this.tile_size
 			const bottom_tiles = []
-			console.log("==== selecting for burn =====")
 			for (var i = 0; i < this.tiles.length; i++) {
 				if(prev_burn && this.tiles[i].position.y - (prev_burn*this.tile_size) <= 0) continue;
 				if(this.tiles[i].position.y - (burn_index*this.tile_size) <= 0) bottom_tiles.push(this.tiles[i]);
 			} 
-			console.log(bottom_tiles)
 			const burn = (resources) => {	
 
 				const fire_textures = [
@@ -27,7 +47,7 @@ export default {
 				for (var i = 0; i < bottom_tiles.length; i++) {
 					var fire_animation = new PIXI.extras.AnimatedSprite(fire_textures);
 						fire_animation.x = bottom_tiles[i].x
-						fire_animation.y = bottom_tiles[i].y + this.fire_offset;
+						fire_animation.y = this.height - bottom_tiles[i].y
 						fire_animation.loop = true;
 					    fire_animation.animationSpeed = 0.2;
 						fire_animation.alpha = 1;
@@ -37,7 +57,18 @@ export default {
 						this.fires.push(fire_animation)
 						this.stage.addChild(fire_animation)
 				}
-				console.log(this.column_counter)
+				const fire_height = ((this.height/this.tile_size) - burn_index) + 1;
+				const width_length = this.width/this.tile_size
+				var counter = 0;
+				while(counter <= width_length)
+				{
+					if(!this.column_counter[counter]) this.column_counter[counter] = default_column(counter, burn_index)
+					else {
+						for (var i = 0; i < burn_index; i++) this.column_counter[counter].positions[i] = fire_profile;
+						if(this.column_counter[counter].height > fire_height) this.column_counter[counter].height = fire_height
+					}
+					counter += 1;
+				}
 				resolve()
 			}
 			if(!this.loaded_fire_sequence) return PIXI.loader
@@ -47,7 +78,7 @@ export default {
 					this.loaded_fire_sequence = true;
 					burn(resources)
 			})
-			burn()
+			setTimeout(burn, 300)
 		})
 	},
 	runFX()
@@ -61,13 +92,71 @@ export default {
 
 				for (var i = keys.length - 1; i >= 0; i--) if(theight > this.column_counter[keys[i]].height) theight = this.column_counter[keys[i]].height
 				
-				if(theight == 6) return this.burnTower(2).then(resolve)
-				if(theight == 4) return this.burnTower(3).then(resolve)
-				if(theight == 2) return this.burnTower(6).then(resolve)
-				if(theight == 1) return this.burnTower(8).then(resolve)
+				if(theight == 9) return this.burnTower(2).then(resolve)
+				if(theight == 6) return this.burnTower(3).then(resolve)
+				if(theight == 4) return this.burnTower(4).then(resolve)
+				if(theight == 3) return this.burnTower(5).then(resolve)
+				if(theight == 1) return this.burnTower(7).then(resolve)
 			}
 
 			resolve()
+		})
+	},
+	selectLevel(map)
+	{
+		const fixClass = (add) => {
+			this.gametable.className = this.gametable.className.replace("game-cog", "")
+			this.gametable.className = this.gametable.className.replace("game-tower", "")
+			this.gametable.className = this.gametable.className.replace("game-classic", "")
+			if(add) this.gametable.className += "game-"+add
+		}
+
+		const maps = 
+		{
+			tower:() => {
+				this.width  = 600;
+				this.height = 1100;
+				fixClass(this.map_type)
+			},
+			classic:() => {
+				this.width  = 800;
+				this.height = 500;
+				fixClass(this.map_type)	
+			},
+			cog:() => {
+				this.width  = 600;
+				this.height = 600;
+				fixClass(this.map_type)	
+			}
+		}
+
+		if(map)
+		{
+			this.map_type = map;
+			maps[map]()
+			this.createCanvas()
+			this.createLevel()
+			// console.log('selecting level')
+			return this.startGame();
+		}
+		
+		return new Promise(resolve => {
+
+			var myNode 	= this.modal_container;
+			
+			while (myNode.firstChild) ReactDOM.unmountComponentAtNode(myNode)
+				
+			new Promise(res => {
+				ReactDOM.render(React.createElement(MapModal, {game:this, promise:res, title:"Select a Level"}), myNode);
+				myNode.style.display = "block";
+			})
+			.then(map => {
+				this.map_type = map;
+				maps[map]()
+				this.createCanvas()
+				this.createLevel()
+				resolve(this.startGame())
+			})
 		})
 	},
 	createLevel()

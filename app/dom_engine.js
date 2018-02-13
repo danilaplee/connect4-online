@@ -1,8 +1,8 @@
 //LIBS
 import React 	from 'react';
 import ReactDOM from 'react-dom';
-import ChatApp from './components/chat.jsx'
 import MapModal from './components/map_modal.jsx'
+import ChatApp from './components/chat.jsx'
 
 const dom = {
 	appendHtml(el, str) {
@@ -48,64 +48,6 @@ const dom = {
 				resolve();
 			}
 			self.openChatButton.className = "ui-button";
-		})
-	},
-	selectLevel(map)
-	{
-		const fixClass = (add) => {
-			this.gametable.className = this.gametable.className.replace("game-cog", "")
-			this.gametable.className = this.gametable.className.replace("game-tower", "")
-			this.gametable.className = this.gametable.className.replace("game-classic", "")
-			if(add) this.gametable.className += "game-"+add
-		}
-
-		const maps = 
-		{
-			tower:() => {
-				this.width  = 600;
-				this.height = 1100;
-				this.fire_offset = 900;
-				fixClass(this.map_type)
-			},
-			classic:() => {
-				this.width  = 800;
-				this.height = 500;
-				fixClass(this.map_type)	
-			},
-			cog:() => {
-				this.width  = 600;
-				this.height = 600;
-				fixClass(this.map_type)	
-			}
-		}
-
-		if(map)
-		{
-			this.map_type = map;
-			maps[map]()
-			this.createCanvas()
-			this.createLevel()
-			console.log('selecting level')
-			return this.startGame();
-		}
-		
-		return new Promise(resolve => {
-
-			var myNode 	= this.modal_container;
-			
-			while (myNode.firstChild) ReactDOM.unmountComponentAtNode(myNode)
-				
-			new Promise(res => {
-				ReactDOM.render(React.createElement(MapModal, {game:this, promise:res, title:"Select a Level"}), myNode);
-				myNode.style.display = "block";
-			})
-			.then(map => {
-				this.map_type = map;
-				maps[map]()
-				this.createCanvas()
-				this.createLevel()
-				resolve(this.startGame())
-			})
 		})
 	},
 	scrollToBottom()
