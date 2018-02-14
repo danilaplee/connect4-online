@@ -9,7 +9,7 @@ body {
   display: table;
   position: static;
   margin:auto;
-  width:600px;
+  width:1000px;
   height:900px;
 }
 .parent-vertical {
@@ -42,7 +42,7 @@ body {
 {
   background: transparent;
   height: auto;
-  width: 600px;
+  width: 1000px;
   position: fixed;
   bottom: 0;
 }
@@ -51,7 +51,6 @@ body {
 }
 .game-classic {
   top:200px;
-  left:300px;
 }
 .map-item {
   height: 200px;

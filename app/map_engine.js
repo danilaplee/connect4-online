@@ -7,17 +7,11 @@ import {profiles, getRandomInt, fire_id} from './game_engine';
 
 const ai_profile = profiles[0]
 const fire_profile = profiles[1]
-const makeBurnPositions = (burn_index) => {
-	var arr = []
-	for (var i = 0; i < burn_index; i++) arr.push(fire_profile)
-	// console.log(arr)
-	return arr;
-}
 const default_column = (id, burn_index) => {
 	const obj = {
 		index:id,
-		height:10,
-		positions:makeBurnPositions(burn_index)
+		height:11,
+		positions:[fire_profile]
 	}
 	return obj
 }
@@ -35,7 +29,11 @@ export default {
 				if(prev_burn && this.tiles[i].position.y - (prev_burn*this.tile_size) <= 0) continue;
 				if(this.tiles[i].position.y - (burn_index*this.tile_size) <= 0) bottom_tiles.push(this.tiles[i]);
 			} 
+
 			const burn = (resources) => {	
+
+				const fire_height = ((this.height/this.tile_size) - burn_index) + 1;
+				const width_length = this.width/this.tile_size
 
 				const fire_textures = [
 					PIXI.Texture.fromFrame('fire_sequence_1.png'),
@@ -57,8 +55,6 @@ export default {
 						this.fires.push(fire_animation)
 						this.stage.addChild(fire_animation)
 				}
-				const fire_height = ((this.height/this.tile_size) - burn_index) + 1;
-				const width_length = this.width/this.tile_size
 				var counter = 0;
 				while(counter <= width_length)
 				{
@@ -71,6 +67,7 @@ export default {
 				}
 				resolve()
 			}
+
 			if(!this.loaded_fire_sequence) return PIXI.loader
 				.add('fire_sequence', "/bin/fire.json")
 				.load((loader, resources) => {
@@ -92,10 +89,11 @@ export default {
 
 				for (var i = keys.length - 1; i >= 0; i--) if(theight > this.column_counter[keys[i]].height) theight = this.column_counter[keys[i]].height
 				
-				if(theight == 9) return this.burnTower(2).then(resolve)
-				if(theight == 6) return this.burnTower(3).then(resolve)
-				if(theight == 4) return this.burnTower(4).then(resolve)
-				if(theight == 3) return this.burnTower(5).then(resolve)
+				if(theight == 9) return this.burnTower(1).then(resolve)
+				if(theight == 7) return this.burnTower(2).then(resolve)
+				if(theight == 5) return this.burnTower(3).then(resolve)
+				if(theight == 3) return this.burnTower(4).then(resolve)
+				if(theight == 2) return this.burnTower(5).then(resolve)
 				if(theight == 1) return this.burnTower(7).then(resolve)
 			}
 
@@ -108,10 +106,14 @@ export default {
 			this.gametable.className = this.gametable.className.replace("game-cog", "")
 			this.gametable.className = this.gametable.className.replace("game-tower", "")
 			this.gametable.className = this.gametable.className.replace("game-classic", "")
+			this.gametable.className = this.gametable.className.replace(" game-cog", "")
+			this.gametable.className = this.gametable.className.replace(" game-tower", "")
+			this.gametable.className = this.gametable.className.replace(" game-classic", "")
+			this.gametable.parentElement.style.width = this.width + "px"
 			if(add) this.gametable.className += "game-"+add
 		}
 
-		const maps = 
+		const setMap = 
 		{
 			tower:() => {
 				this.width  = 600;
@@ -119,13 +121,13 @@ export default {
 				fixClass(this.map_type)
 			},
 			classic:() => {
-				this.width  = 800;
-				this.height = 500;
+				this.width  = 1000;
+				this.height = 600;
 				fixClass(this.map_type)	
 			},
 			cog:() => {
-				this.width  = 600;
-				this.height = 600;
+				this.width  = 700;
+				this.height = 700;
 				fixClass(this.map_type)	
 			}
 		}
@@ -133,10 +135,9 @@ export default {
 		if(map)
 		{
 			this.map_type = map;
-			maps[map]()
+			setMap[map]()
 			this.createCanvas()
 			this.createLevel()
-			// console.log('selecting level')
 			return this.startGame();
 		}
 		
@@ -152,7 +153,7 @@ export default {
 			})
 			.then(map => {
 				this.map_type = map;
-				maps[map]()
+				setMap[map]()
 				this.createCanvas()
 				this.createLevel()
 				resolve(this.startGame())
