@@ -91,6 +91,7 @@ var instance =
 		this.selectLevel 			= map.selectLevel.bind(this)
 		this.runFX 					= map.runFX.bind(this);
 		this.burnTower 				= map.burnTower.bind(this);
+		this.rotateMap 				= map.rotateMap.bind(this);
 
 		ReactDOM.render(React.createElement(Nav, {game:this, restart:{}}), this.navbar);
 

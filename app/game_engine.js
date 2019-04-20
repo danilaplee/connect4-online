@@ -55,7 +55,6 @@ export default {
 			transparent:true,
 			resolution:window.devicePixelRatio
 		}
-		// console.log(PIXI)
 		this.renderer 		= new PIXI.CanvasRenderer(this.width, this.height, this.renderOptions);
 		this.stage 		 	= new PIXI.Container();
 	},
@@ -69,8 +68,7 @@ export default {
 		var self 		= this
 		let size 		= this.tile_size;
 		let color 		= this.active_user.color
-		return new Promise(function(resolve, reject)
-		{
+		return new Promise((resolve, reject)=> {
 			var x 	 		= parseInt(column.index * size)+(size / 2)
 			var y 			= parseInt(column.height * size)-(size / 2);
 			if(y < 0) y = this.height + y - 6
@@ -94,8 +92,7 @@ export default {
 			column.positions[ball_count].ball = circle;
 			column.positions[ball_count].x = x;
 			column.positions[ball_count].y = y;
-			var drawFall = function()
-			{
+			var drawFall = () => {
 				if(start_y < y)
 				{
 					start_y += y_speed;

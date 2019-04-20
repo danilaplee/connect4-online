@@ -78,23 +78,75 @@ export default {
 			setTimeout(burn, 300)
 		})
 	},
+	rotateMap() {
+		console.info("===== starting rotate ===")
+		return new Promise(resolve => {
+			if(this.rotate1) this.rotate1 = false;
+			if(this.rotate4) {
+				this.rotate1 = true;
+				this.firstCircle = false;
+				this.rotate3 = false;
+				this.rotate4 = false;
+			}
+			if(this.rotate3) this.rotate4 = true
+			else this.rotate4 = false
+			if(this.rotateOdd && !this.rotate1) this.rotate3 = true
+			else this.rotate3 = false
+			this.rotateOdd = !this.rotateOdd;
+			const prev_rotate = parseFloat(this.stage.rotation)
+			const n_rotate = prev_rotate + 1.56
+
+			console.info(this.stage, prev_rotate, n_rotate)
+			console.info("firstCircle", this.firstCircle)
+			console.info("rotateOdd", this.rotateOdd)
+	    	console.info("rotate3", this.rotate3)
+	    	console.info("rotate4", this.rotate4)
+			const animate = () => {
+
+			  	if(this.stage.rotation >= n_rotate) return resolve();
+			    requestAnimationFrame(animate);
+			    this.stage.rotation += 0.01;
+			    if(this.rotateOdd) this.stage.transform.position.x += 4.5
+			    if(this.rotate3) this.stage.transform.position.y += 4.5
+			    if(!this.firstCircle && this.rotate1) {
+		    		// console.info("this.stage.transform.position.y", this.stage.transform.position.x)
+			    	this.stage.transform.position.y -= 4.5
+		    	} 
+		    	if(this.rotate4) {
+		    		// console.info("this.stage.transform.position.x", this.stage.transform.position.x)
+		    		this.stage.transform.position.x -= 9
+		    	}
+
+			    // render the root container
+			    this.renderer.render(this.stage);
+			}
+			// start animating
+			animate();
+
+		})
+	},
 	runFX()
 	{
 		return new Promise(resolve => {
-
+			console.info("==== running fx ====")
 			if(this.map_type == "tower")
 			{
 				var theight = 20;
 				var keys 	= Object.keys(this.column_counter)
 
-				for (var i = keys.length - 1; i >= 0; i--) if(theight > this.column_counter[keys[i]].height) theight = this.column_counter[keys[i]].height
+				for (var i = keys.length - 1; i >= 0; i--) 
+					if(theight > this.column_counter[keys[i]].height) theight = this.column_counter[keys[i]].height
 				
-				if(theight == 9) return this.burnTower(1).then(resolve)
-				if(theight == 7) return this.burnTower(2).then(resolve)
-				if(theight == 5) return this.burnTower(3).then(resolve)
+				if(theight == 6) return this.burnTower(1).then(resolve)
+				if(theight == 5) return this.burnTower(2).then(resolve)
+				if(theight == 4) return this.burnTower(3).then(resolve)
 				if(theight == 3) return this.burnTower(4).then(resolve)
 				if(theight == 2) return this.burnTower(5).then(resolve)
-				if(theight == 1) return this.burnTower(7).then(resolve)
+				if(theight == 1) return this.burnTower(6).then(resolve)
+			}
+			if(this.map_type === "cog") {
+				console.info('===== rolling the cog =====')
+				return this.rotateMap().then(resolve)
 			}
 
 			resolve()
@@ -117,7 +169,7 @@ export default {
 		{
 			tower:() => {
 				this.width  = 600;
-				this.height = 1100;
+				this.height = 900;
 				fixClass(this.map_type)
 			},
 			classic:() => {
@@ -172,6 +224,10 @@ export default {
 			self.column_counter = {}
 			self.unused_balls 	= []
 			self.fires 			= []
+			self.rotate4 		= false
+			self.rotate3 		= false
+			self.rotateOdd 		= false
+			self.firstCircle 	= true;
 			self.stage.addChild(this.background)
 
 		const tile_size 	 	= this.tile_size
