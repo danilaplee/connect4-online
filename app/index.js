@@ -103,8 +103,6 @@ var instance =
 		return this;
 	}
 }
-setTimeout(function(){
-	document.getElementById("preloader-frame").className += " hidden"
-	new instance.init()
-}, 3000)
+instance.init()
+
 

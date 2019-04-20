@@ -16,18 +16,15 @@ const setEmoji = function(emoji)
 	this.props.game.user_token.innerHTML = '<img src="'+this.props.player.emoji_img+'" style="width:80px">';
 }
 export default class Customizer extends React.Component {
-	props:{}
 	constructor(prop) {
 		super(prop);
+		this.mixins = [ReactEmoji]
 		this.props = prop
 		this.emojify = ReactEmoji.emojify.bind(this)
 		this.closeModal = helpers.closeModal.bind(this)
 		this.setEmoji = setEmoji.bind(this)
 		this.handleColorPick = handleColorPick.bind(this)
 	}
-	mixins: [
-	    ReactEmoji
-	]
 	render() {
 		var self = this
 		var saveCustomizing = function()

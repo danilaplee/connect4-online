@@ -69,7 +69,7 @@ export default {
 			}
 
 			if(!this.loaded_fire_sequence) return PIXI.loader
-				.add('fire_sequence', "/bin/fire.json")
+				.add('fire_sequence', "/fire.json")
 				.load((loader, resources) => {
 
 					this.loaded_fire_sequence = true;
