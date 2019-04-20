@@ -1,4 +1,4 @@
-##v1.0.0 of Connect 4 Online Game
+##v1.0.0 of Chain Connection
 
 ###built using Node.js, React, Pixi.js and Socket.io
 
