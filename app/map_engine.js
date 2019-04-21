@@ -79,7 +79,6 @@ export default {
 		})
 	},
 	rotateMap() {
-		// console.info("===== starting rotate ===")
 		return new Promise(resolve => {
 			if(this.rotate1) this.rotate1 = false;
 			if(this.rotate4) {
@@ -96,15 +95,9 @@ export default {
 			const prev_rotate = parseFloat(this.stage.rotation)
 			const n_rotate = prev_rotate + (Math.PI * 2 * 0.249);
 
-			// console.info(this.stage, prev_rotate, n_rotate)
-			// console.info("firstCircle", this.firstCircle)
-			// console.info("rotateOdd", this.rotateOdd)
-	  //   	console.info("rotate3", this.rotate3)
-	  //   	console.info("rotate4", this.rotate4)
 	    	this.stage.pivot.x = 0
 	    	this.stage.pivot.y = this.height * 0.025
 	    	const _step = ((this.width/(Math.PI * 2 * 0.25))*0.01)
-	    	// console.info(_step)
 			const animate = () => {
 
 			  	if(this.stage.rotation >= n_rotate) return resolve();
@@ -113,18 +106,13 @@ export default {
 			    if(this.rotateOdd) this.stage.transform.position.x += _step
 			    if(this.rotate3) this.stage.transform.position.y += _step
 			    if(!this.firstCircle && this.rotate1) {
-		    		// console.info("this.stage.transform.position.y", this.stage.transform.position.x)
 			    	this.stage.transform.position.y -= _step
 		    	} 
 		    	if(this.rotate4) {
-		    		// console.info("this.stage.transform.position.x", this.stage.transform.position.x)
 		    		this.stage.transform.position.x -= _step*2
 		    	}
-
-			    // render the root container
 			    this.renderer.render(this.stage);
 			}
-			// start animating
 			animate();
 
 		})
