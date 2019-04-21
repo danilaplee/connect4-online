@@ -79,7 +79,7 @@ export default {
 		})
 	},
 	rotateMap() {
-		console.info("===== starting rotate ===")
+		// console.info("===== starting rotate ===")
 		return new Promise(resolve => {
 			if(this.rotate1) this.rotate1 = false;
 			if(this.rotate4) {
@@ -94,27 +94,31 @@ export default {
 			else this.rotate3 = false
 			this.rotateOdd = !this.rotateOdd;
 			const prev_rotate = parseFloat(this.stage.rotation)
-			const n_rotate = prev_rotate + 1.56
+			const n_rotate = prev_rotate + (Math.PI * 2 * 0.249);
 
-			console.info(this.stage, prev_rotate, n_rotate)
-			console.info("firstCircle", this.firstCircle)
-			console.info("rotateOdd", this.rotateOdd)
-	    	console.info("rotate3", this.rotate3)
-	    	console.info("rotate4", this.rotate4)
+			// console.info(this.stage, prev_rotate, n_rotate)
+			// console.info("firstCircle", this.firstCircle)
+			// console.info("rotateOdd", this.rotateOdd)
+	  //   	console.info("rotate3", this.rotate3)
+	  //   	console.info("rotate4", this.rotate4)
+	    	this.stage.pivot.x = 0
+	    	this.stage.pivot.y = this.height * 0.025
+	    	const _step = ((this.width/(Math.PI * 2 * 0.249))*0.01)
+	    	// console.info(_step)
 			const animate = () => {
 
 			  	if(this.stage.rotation >= n_rotate) return resolve();
 			    requestAnimationFrame(animate);
 			    this.stage.rotation += 0.01;
-			    if(this.rotateOdd) this.stage.transform.position.x += 4.5
-			    if(this.rotate3) this.stage.transform.position.y += 4.5
+			    if(this.rotateOdd) this.stage.transform.position.x += _step
+			    if(this.rotate3) this.stage.transform.position.y += _step
 			    if(!this.firstCircle && this.rotate1) {
 		    		// console.info("this.stage.transform.position.y", this.stage.transform.position.x)
-			    	this.stage.transform.position.y -= 4.5
+			    	this.stage.transform.position.y -= _step
 		    	} 
 		    	if(this.rotate4) {
 		    		// console.info("this.stage.transform.position.x", this.stage.transform.position.x)
-		    		this.stage.transform.position.x -= 9
+		    		this.stage.transform.position.x -= _step*2
 		    	}
 
 			    // render the root container
@@ -128,7 +132,7 @@ export default {
 	runFX()
 	{
 		return new Promise(resolve => {
-			console.info("==== running fx ====")
+			// console.info("==== running fx ====")
 			if(this.map_type == "tower")
 			{
 				var theight = 20;
@@ -145,7 +149,7 @@ export default {
 				if(theight == 1) return this.burnTower(6).then(resolve)
 			}
 			if(this.map_type === "cog") {
-				console.info('===== rolling the cog =====')
+				// console.info('===== rolling the cog =====')
 				return this.rotateMap().then(resolve)
 			}
 
@@ -230,13 +234,18 @@ export default {
 			self.firstCircle 	= true;
 			self.stage.addChild(this.background)
 
-		const tile_size 	 	= this.tile_size
-		const width_length 		= this.width / tile_size;
-		const height_length 	= this.height / tile_size;
+		const tile_size 	= this.tile_size
+		let width_length 	= this.width / tile_size;
+		let height_length 	= this.height / tile_size;
 
-		self.columns 		= this.width / tile_size
-		self.rows		 	= this.height / tile_size
+		// if(self.map_type == "cog") {
+		// 	width_length -= 2
+		// 	height_length -= 2
+		// }
+
 		self.column_counter = {}
+		self.columns 		= width_length
+		self.rows		 	= height_length
 
 
 		var onColumnDown = function() {
@@ -244,11 +253,12 @@ export default {
 			if(self.multiplayer_session_active && self.active_user.id === 2) return;
 			self.updateColumn(null, this.position)
 		}
+		var offset = 0;
 		for (var i = 0; i < width_length; i++) {
 			for (var j = 0; j < height_length; j++) {
 		        var tile = PIXI.Sprite.fromImage('texture.png');
-		        	tile.x = tile_size * i;
-		        	tile.y = tile_size * j;
+		        	tile.x = tile_size * i + offset;
+		        	tile.y = tile_size * j - offset;
 		        	tile.interactive = true;
 		        	tile.on('mousedown', onColumnDown);
 		        	tile.on('touchstart', onColumnDown);
