@@ -103,7 +103,7 @@ export default {
 	  //   	console.info("rotate4", this.rotate4)
 	    	this.stage.pivot.x = 0
 	    	this.stage.pivot.y = this.height * 0.025
-	    	const _step = ((this.width/(Math.PI * 2 * 0.249))*0.01)
+	    	const _step = ((this.width/(Math.PI * 2 * 0.25))*0.01)
 	    	// console.info(_step)
 			const animate = () => {
 
