@@ -4,99 +4,73 @@
   <meta charset="UTF-8">
   <title>Connect 4 Online</title>
   <link href="bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Cabin+Sketch" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.0/pixi.min.js"></script>
   <style type="text/css">
     #preloader-frame {
-      height: 500px;
-      width: 500px;
-      margin: 10% auto;
-      /*box-shadow: inset 1px 1px 4px 2px var(--shadow);*/
-      display: flex;
-      position: relative;
-      overflow: hidden;
-      --shadow: #626861;
-      --background-color: cadetblue;
+      width: 800px;
+      height: 100%;
+      top: 300px;
+      position: fixed;
+      margin: 0 auto;
+      right: 0;
+      left: 0;
     }
     #preloader-frame p {
+      font-size: 48px;
+      width: 100%;
+      height: 50px;
+      text-align: center;
+      display: block;
+      top: -100px;
+      font-weight: bolder;
       position: absolute;
-      bottom: 0;
-      left: 30px;
-      font-size: 24px;
-      /*color:#FFA07A;*/
-      color: white;
-      font-weight: bold;
+      color: #cd5c5c;
+      font-family: Cabin Sketch;
     }
-
-    #steps {
-      font-size: 0;
-      position: absolute;
-      bottom: 0;
-      white-space: nowrap;
-      animation: steps 1s linear infinite;
-      z-index: -1;
-    }
-
-    @keyframes steps {
-      100% {
-        transform: translatex(-125px) translatey(-100px);
-      }
-    }
-
-    #steps div {
-      width: 125px;
-      height: 500px;
-      background-color: var(--background-color);
-      display: inline-block;
-      margin: 0;
-    }
-
-
-
-    #steps div:first-child {
-      transform: translateY(100px);
-    }
-
-    #steps div:nth-child(2) {
-      transform: translateY(200px);
-    }
-
-    #steps div:nth-child(3) {
-      transform: translateY(300px);
-    }
-
-    #steps div:nth-child(4) {
-      transform: translateY(400px);
-    }
-
-    #steps div:last-child {
-      transform: translateY(500px);
-    }
-
-
-
-    #ball {
+    .loading-ball {
       height: 90px;
-      width: 110px;
+      width: 100px;
       background-color: var(--background-color);
       border-radius: 50%;
       position: absolute;
       background: #FFA07A;
-      transform: translatex(265px) translatey(211px);
-      animation: bounce 1s ease-in-out infinite;
+      transform: translatex(165px) translatey(0px);
+      animation: bounce 1.5s ease-in-out infinite;
       z-index: -1;
       padding: 30px;
-     
+    }
+
+    #ball2 {
+      left:-100px;
+    }
+    #ball3 {
+      left:-00px;
+    }
+    #ball4 {
+      left:100px;
+    }
+    #ball5 {
+      left:200px;
+    }
+    #ball6 {
+      left:300px;
+    }
+    #ball7 {
+      left:400px;
+    }
+    #ball8 {
+      left:500px;
     }
 
     @keyframes bounce {
       50% {
-        transform: translatex(275px); 
+        transform: translatex(175px) translatey(350px); 
         height: 105px;
-        width: 95px;
-        animation-timing-function: ease-in;
+        animation-timing-function: ease-out;
       }
       95% {
-        height: 100px;
-        width: 100px;
+        height: 90px;
       }
     }
 
@@ -105,17 +79,31 @@
 </head>
 <body>
   <div id="preloader-frame">
-    <div id="steps">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-    <div id="ball">
+    <div id="ball1" class="loading-ball">
       <img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:40px">
     </div>
-    <p>Loading Game</p>
+    <div id="ball2" class="loading-ball" style="background: rgb(121, 210, 132);">
+      <img src="https://twemoji.maxcdn.com/svg/1f60d.svg" style="width:40px">
+    </div>
+    <div id="ball3" class="loading-ball">
+      <img src="https://twemoji.maxcdn.com/svg/1f31f.svg" style="width:40px">
+    </div>
+    <div id="ball4" class="loading-ball" style="background: rgb(121, 210, 132);">
+      <img src="https://twemoji.maxcdn.com/svg/1f468.svg" style="width:40px">
+    </div>
+    <div id="ball5" class="loading-ball" style="background: rgb(124, 121, 210);">
+      <img src="https://twemoji.maxcdn.com/svg/1f4ab.svg" style="width:40px">
+    </div>
+    <div id="ball6" class="loading-ball" style="background: rgb(121, 210, 132);">
+      <img src="https://twemoji.maxcdn.com/svg/1f60b.svg" style="width:40px">
+    </div>
+    <div id="ball7" class="loading-ball">
+      <img src="https://twemoji.maxcdn.com/svg/1f479.svg" style="width:40px">
+    </div>
+    <div id="ball8" class="loading-ball" style="background: rgb(124, 121, 210);">
+      <img src="https://twemoji.maxcdn.com/svg/1f47a.svg" style="width:40px">
+    </div>
+    <p>Loading Emoji Connect</p>
   </div>
 	<script type="text/javascript">
   		var appendFile = function(file, callback)

@@ -1,6 +1,7 @@
 //LIBS
 import React 	from 'react';
 import ReactDOM from 'react-dom';
+import MapModal from './components/map_modal.jsx'
 import ChatApp from './components/chat.jsx'
 
 const dom = {
@@ -53,14 +54,14 @@ const dom = {
 	{
 		var el = document.getElementById("chat-bot")
 		var ele = el.querySelector(".botui-messages-container")
-		ele.scrollTop = ele.scrollHeight
+			ele.scrollTop = ele.scrollHeight
 	},
 	createMainDom() {
 
 		var html  = '<div class="gametable-container">'
 		  	html += 	'<div id="gametable"></div>'
 		    html += 	'<div id="winner_text">'
-		    html +=  		'<h5 class="winner_title" style="margin-top:100px;">Welcome to Emoji Connect!</h5>'
+		    html +=  		'<h5 class="winner_title">Welcome to <br/> Emoji Connect!</h5>'
 		    html +=		'</div>'
 		  	html +=	'</div>'
 			html +=	'<div id="gametoolbar"></div>'

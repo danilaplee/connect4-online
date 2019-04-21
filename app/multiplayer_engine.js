@@ -37,7 +37,6 @@ export default {
 		if(txt && txt.update) update = txt.update
 		if(txt && !txt.content) txt = "loading";
 		if(txt && txt.content) txt = txt.content
-		// console.log(update,loading,human,txt)
 		return new Promise(function(resolve,reject){
 			if(update) return self.botui.message.update(update,{
 				content:txt,

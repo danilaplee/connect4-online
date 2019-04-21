@@ -6,13 +6,8 @@ var app     = require('express')()
 var parser  = require('body-parser')
 var request  = require('request');
 var matrix_url = "http://localhost:8008/_matrix"
-var matrix  = 
-{
-    root:"root",
-    pass:"danilacool"
-}
 
-var server  = http.createServer(app).listen(2529)
+var server  = http.createServer(app).listen(2529, '127.0.0.1')
     
 var io      = require('socket.io').listen(server, {resource:"/c4/socket.io/"});
 

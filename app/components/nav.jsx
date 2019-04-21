@@ -18,8 +18,8 @@ const startGame = function(mode)
 	}
 	this.props.game.mode = mode
 
-	if(this.props.game.player_one.is_new) this.props.game.openColorDialog();
-	else this.props.game.startGame();
+	if(this.props.game.player_one.is_new) this.props.game.openColorDialog().then(this.props.game.selectLevel);
+	else this.props.game.selectLevel()
 	return false;
 }
 
@@ -62,10 +62,10 @@ export default class NavComponent extends React.Component {
 				   <a onClick={this.props.game.openColorDialog}>Settings</a>
 				</li>
 				<li className="list-group-item">
-				   <a onClick={handleTransform.bind(this,"hide")}>Hide</a>
+				   <a onClick={handleTransform.bind(this,"hide")}>Hide Menu</a>
 				</li>
 				<li className="list-group-item show-if-small">
-				   <a onClick={handleTransform.bind(this,"show")}>Open</a>
+				   <a onClick={handleTransform.bind(this,"show")}>Open Menu</a>
 				</li>
 			</ul>
 			<div> 
